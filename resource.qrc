@@ -1,0 +1,10 @@
+<RCC>
+    <qresource prefix="/">
+        <file>resources/qmls/dashboard.qml</file>
+        <file>resources/qmls/delaycaller.js</file>
+        <file>resources/qmls/empty-item.qml</file>
+        <file>resources/qmls/filemanager.js</file>
+        <file>resources/qmls/fit.js</file>
+        <file>resources/qmls/module-resolver.qml</file>
+    </qresource>
+</RCC>
