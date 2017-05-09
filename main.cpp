@@ -46,9 +46,6 @@ int main(int argc, char *argv[])
     QQuickWidget w;
     setupScene(&w);
 
-    // Init Save Manager
-    SaveManager::init(&w);
-
     return app.exec();
 }
 
@@ -79,6 +76,9 @@ void setupScene(QQuickWidget* w)
 # else
         w->showFullScreen();
 # endif
+
+        // Init Save Manager
+        SaveManager::init(w);
 
         if (!SaveManager::loadDatabase()) {
             QMessageBox msgBox;

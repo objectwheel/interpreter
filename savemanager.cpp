@@ -17,6 +17,7 @@
 #include <QQmlIncubator>
 #include <QQuickWidget>
 #include <QQmlProperty>
+#include <zipper.h>
 
 using namespace Fit;
 
@@ -68,6 +69,11 @@ class SaveManagerPrivate
 SaveManagerPrivate::SaveManagerPrivate(SaveManager* uparent)
 	: parent(uparent)
 {
+#if defined(Q_OS_ANDROID)
+    auto data = rdfile("assets:/project.zip");
+    mkdir(defaultProjectDirectory());
+    Zipper::extractZip(data, defaultProjectDirectory());
+#endif
 }
 
 QString SaveManagerPrivate::defaultProjectDirectory() const
@@ -137,6 +143,7 @@ bool SaveManagerPrivate::addControlWithoutSave(const QUrl& url, const QString& p
     rootContext->setContextProperty(componentName, qml);
     qml->setParentItem(parentItem);
     fit(qml, Fit::WidthHeight);
+    qml->setPosition(QPointF(fit(qml->x()), fit(qml->y())));
     //FIXME: QTimer::singleShot(200, [qml] { m_d->parent->fixWebViewPosition(qml); });
     return true;
 }
@@ -252,13 +259,13 @@ QStringList SaveManager::saves()
 
 bool SaveManager::loadDatabase()
 {
-	QJsonArray pageOrder = getPageOrders();
-	QJsonObject parentalRelationship = getParentalRelationships();
-	QJsonObject bindingSaves = getBindingSaves();
-	if (pageOrder.isEmpty()) return false;
-	if (parentalRelationship.size() != saves().size()) return false;
-	m_d->createPages(pageOrder);
-	if (!m_d->fillDashboard(parentalRelationship, pageOrder)) return false;
+    QJsonArray pageOrder = getPageOrders();
+    QJsonObject parentalRelationship = getParentalRelationships();
+    QJsonObject bindingSaves = getBindingSaves();
+    if (pageOrder.isEmpty()) return false;
+    if (parentalRelationship.size() != saves().size()) return false;
+    m_d->createPages(pageOrder);
+    if (!m_d->fillDashboard(parentalRelationship, pageOrder)) return false;
     m_d->fillBindings(bindingSaves);
     return true;
 }

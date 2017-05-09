@@ -20,10 +20,14 @@ include($$PWD/detect_build.pri) # BUILD_POSTFIX
 
 SOURCES += main.cpp \
            savemanager.cpp \
-           fit.cpp
+           fit.cpp \
+    miniz.cpp \
+    zipper.cpp
 
 HEADERS += savemanager.h \
-           fit.h
+           fit.h \
+    miniz.h \
+    zipper.h
 
 RESOURCES += resource.qrc
 

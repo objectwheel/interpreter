@@ -7,6 +7,7 @@ Rectangle {
     width: 100
     height: 100
     color: "#e0e4e7"
+    visible: true
 
     property alias swipeView : swipeView
     property alias current_page : swipeView.currentItem
