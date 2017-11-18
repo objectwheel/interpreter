@@ -100,23 +100,28 @@ bool FileManager::mv(const QString& from, const QString& to) const
             return QFile::rename(from, to);
         } else {
             Q_ASSERT(0); // Unhandled state
+            return false;
         }
     }
 }
 
-bool FileManager::cp(const QString& from, const QString& toDir, const bool content) const
+bool FileManager::cp(const QString& from, const QString& toDir, const bool content, const bool qrc) const
 {
     if (from == toDir) return true;
     if (!exists(from) || !exists(toDir)) return false;
     if (QFileInfo(from).isDir()) {
         if (content) {
-            return copyDir(from, toDir);
+            return copyDir(from, toDir, qrc);
         } else {
             if (!mkdir(toDir + separator() + fname(from))) return false;
-            return copyDir(from, toDir + separator() + fname(from));
+            return copyDir(from, toDir + separator() + fname(from), qrc);
         }
     } else {
-        return QFile::copy(from, toDir + separator() + fname(from));
+        if (!QFile::copy(from, toDir + separator() + fname(from)))
+            return false;
+        if (qrc)
+            QFile::setPermissions(toDir + separator() + fname(from), QFile::WriteUser | QFile::ReadUser);
+        return true;
     }
 }
 
@@ -133,6 +138,19 @@ QStringList FileManager::lsdir(const QString& dir) const
 QStringList FileManager::lsfile(const QString& dir) const
 {
     return QDir(dir).entryList(QDir::Files| QDir::System | QDir::Hidden | QDir::NoDotAndDotDot);
+}
+
+QStringList FileManager::fps(const QString& file, const QString& dir) const
+{
+    QStringList paths;
+    for (auto fn : lsfile(dir))
+        if (fn == file)
+            paths << dir + separator() + fn;
+
+    for (auto dr : lsdir(dir))
+        paths << fps(file, dir + separator() + dr);
+
+    return paths;
 }
 
 QString FileManager::fname(const QString& name) const
@@ -180,7 +198,7 @@ QByteArray FileManager::rdfile(const QString& file) const
 int FileManager::wrfile(const QString& file, const QByteArray& data) const
 {
     if (data.isEmpty()) return -1;
-    if (!mkfile(file)) return -1;
+    if (!exists(file) && !mkfile(file)) return -1;
     QFile writer(file);
     if (!writer.open(QFile::WriteOnly)) return -1;
     int ret = writer.write(data);
@@ -201,11 +219,14 @@ QByteArray FileManager::dlfile(const QString& url)
     request.setRawHeader("User-Agent", "Objectwheel");
     reply = manager.get(request);
 
-    connect(reply, SIGNAL(sslErrors(QList<QSslError>)), reply, SLOT(ignoreSslErrors()));
-    connect(reply, (void(QNetworkReply::*)(QNetworkReply::NetworkError))(&QNetworkReply::error), [&loop] {
+    connect(reply, SIGNAL(sslErrors(QList<QSslError>)), reply,
+      SLOT(ignoreSslErrors()));
+    connect(reply, (void(QNetworkReply::*)(QNetworkReply::NetworkError))
+      &QNetworkReply::error, this, [&loop] {
         loop.quit();
     });
-    connect(reply, &QNetworkReply::finished, [reply, &data, &loop] {
+    connect(reply, &QNetworkReply::finished,
+      this, [reply, &data, &loop] {
         data = reply->readAll();
         loop.quit();
     });
@@ -226,10 +247,10 @@ bool FileManager::isdir(const QString& name) const
 
 QChar FileManager::separator() const
 {
-    return QDir::separator();
+    return '/'/*QDir::separator()*/;
 }
 
-bool FileManager::copyDir(QString from, QString to)
+bool FileManager::copyDir(QString from, QString to, bool qrc)
 {
     QDir directory;
     directory.setPath(from);
@@ -240,14 +261,19 @@ bool FileManager::copyDir(QString from, QString to)
     for (QString file : directory.entryList(QDir::Files)) {
         QString f = from + file;
         QString t = to + file;
-        if (!QFile::copy(f, t)) return false;
+        if (!QFile::copy(f, t))
+            return false;
+        if (qrc)
+            QFile::setPermissions(t, QFile::WriteUser | QFile::ReadUser);
     }
 
     for (QString dir : directory.entryList(QDir::Dirs | QDir::NoDotAndDotDot)) {
         QString f = from + dir;
         QString t = to + dir;
-        if (!directory.mkpath(t)) return false;
-        if (!copyDir(f, t)) return false;
+        if (!QDir().mkpath(t))
+            return false;
+        if (!copyDir(f, t, qrc))
+            return false;
     }
 
     return true;
