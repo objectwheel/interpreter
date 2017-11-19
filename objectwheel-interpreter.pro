@@ -8,12 +8,14 @@ SOURCES += main.cpp \
            fit.cpp \
            miniz.cpp \
            zipper.cpp \
-           executer.cpp
+           executer.cpp \
+    projectmanager.cpp
 
 HEADERS += fit.h \
            miniz.h \
            zipper.h \
-           executer.h
+           executer.h \
+    projectmanager.h
 
 include($$PWD/components/components.pri)
 

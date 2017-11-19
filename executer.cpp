@@ -1,6 +1,7 @@
 #include <executer.h>
 #include <fit.h>
 #include <filemanager.h>
+#include <projectmanager.h>
 
 #include <QtCore>
 #include <QtGui>
@@ -40,12 +41,28 @@ enum Type {
     NonGui
 };
 
+QJsonValue property(const QByteArray& propertyData, const QString& property)
+{
+    if (propertyData.isEmpty())
+        return QJsonValue();
+
+    auto jobj = QJsonDocument::fromJson(propertyData).object();
+    return jobj[property];
+}
+
+bool isOwctrl(const QByteArray& propertyData)
+{
+    auto sign = property(propertyData, TAG_OWCTRL_SIGN).toString();
+    auto uid = property(propertyData, TAG_OWCTRL_SIGN).toString();
+    return (sign == SIGN_OWCTRL && !uid.isEmpty());
+}
+
 // Returns (only) form paths.
 // Returned paths are rootPaths.
-QStringList SaveManagerPrivate::formPaths() const
+QStringList formPaths()
 {
     QStringList paths;
-    auto projectDir = ProjectManager::projectDirectory(ProjectManager::currentProject());
+    auto projectDir = ProjectManager::projectDirectory();
 
     if (projectDir.isEmpty())
         return paths;
@@ -64,24 +81,205 @@ QStringList SaveManagerPrivate::formPaths() const
     return paths;
 }
 
-QStringList childrenPaths(const QString& rootPath, QString suid = QString());
+// Returns all children paths (rootPath) within given root path.
+// Returns children only if they have match between their and given suid.
+// If given suid is empty then rootPath's uid is taken.
+QStringList childrenPaths(const QString& rootPath, QString suid = QString())
+{
+    QStringList paths;
 
-QStringList masterPaths(const QString& topPath);
+    if (rootPath.isEmpty())
+        return paths;
+
+    if (suid.isEmpty()) {
+        auto propertyPath = rootPath + separator() + DIR_THIS +
+                            separator() + FILE_PROPERTIES;
+        auto propertyData = rdfile(propertyPath);
+        suid = property(propertyData, TAG_UID).toString();
+    }
+
+    auto childrenPath = rootPath + separator() + DIR_CHILDREN;
+    for (auto dir : lsdir(childrenPath)) {
+        auto propertyPath = childrenPath + separator() + dir + separator() +
+                            DIR_THIS + separator() + FILE_PROPERTIES;
+        auto propertyData = rdfile(propertyPath);
+
+        if (isOwctrl(propertyData) && property(propertyData, TAG_SUID).toString() == suid) {
+            paths << dname(dname(propertyPath));
+            paths << childrenPaths(dname(dname(propertyPath)), suid);
+        }
+    }
+    return paths;
+}
+
+QStringList controlPaths(const QString& topPath)
+{
+    QStringList paths;
+
+    if (topPath.isEmpty())
+        return paths;
+
+    for (auto path : fps(FILE_PROPERTIES, topPath)) {
+        auto propertyData = rdfile(path);
+        if (isOwctrl(propertyData))
+            paths << dname(dname(path));
+    }
+
+    return paths;
+}
+
+
+QString uid(const QString& rootPath)
+{
+    auto propertyPath = rootPath + separator() + DIR_THIS +
+                        separator() + FILE_PROPERTIES;
+    auto propertyData = rdfile(propertyPath);
+    return property(propertyData, TAG_UID).toString();
+}
+
+QString suid(const QString& rootPath)
+{
+    auto propertyPath = rootPath + separator() + DIR_THIS +
+                        separator() + FILE_PROPERTIES;
+    auto propertyData = rdfile(propertyPath);
+    return property(propertyData, TAG_SUID).toString();
+}
+
+qreal x(const QString& rootPath)
+{
+    auto propertyPath = rootPath + separator() + DIR_THIS +
+                        separator() + FILE_PROPERTIES;
+    auto propertyData = rdfile(propertyPath);
+    return property(propertyData, TAG_X).toDouble();
+}
+
+qreal y(const QString& rootPath)
+{
+    auto propertyPath = rootPath + separator() + DIR_THIS +
+                        separator() + FILE_PROPERTIES;
+    auto propertyData = rdfile(propertyPath);
+    return property(propertyData, TAG_Y).toDouble();
+}
+
+qreal z(const QString& rootPath)
+{
+    auto propertyPath = rootPath + separator() + DIR_THIS +
+                        separator() + FILE_PROPERTIES;
+    auto propertyData = rdfile(propertyPath);
+    return property(propertyData, TAG_Z).toDouble();
+}
+
+qreal width(const QString& rootPath)
+{
+    auto propertyPath = rootPath + separator() + DIR_THIS +
+                        separator() + FILE_PROPERTIES;
+    auto propertyData = rdfile(propertyPath);
+    return property(propertyData, TAG_WIDTH).toDouble();
+}
+
+qreal height(const QString& rootPath)
+{
+    auto propertyPath = rootPath + separator() + DIR_THIS +
+                        separator() + FILE_PROPERTIES;
+    auto propertyData = rdfile(propertyPath);
+    return property(propertyData, TAG_HEIGHT).toDouble();
+}
+
+QString id(const QString& rootPath)
+{
+    auto propertyPath = rootPath + separator() + DIR_THIS +
+                        separator() + FILE_PROPERTIES;
+    auto propertyData = rdfile(propertyPath);
+    return property(propertyData, TAG_ID).toString();
+}
+
+bool isForm(const QString& rootPath)
+{
+    auto projectDir = ProjectManager::projectDirectory();
+    auto baseDir = projectDir + separator() + DIR_OWDB;
+    return (baseDir == dname(rootPath));
+}
+
+QStringList masterPaths(const QString& topPath)
+{
+    QStringList paths;
+    auto controlPaths = ::controlPaths(topPath);
+
+    QStringList foundSuids;
+    for (auto path : controlPaths) {
+        auto _suid = suid(path);
+        if (!_suid.isEmpty() && !foundSuids.contains(_suid))
+            foundSuids << _suid;
+    }
+
+    for (auto path : controlPaths) {
+        if (foundSuids.contains(uid(path)))
+            paths << path;
+    }
+
+    std::sort(paths.begin(), paths.end(),
+              [](const QString& a, const QString& b)
+    { return a.size() > b.size(); });
+
+    if (paths.isEmpty() && isForm(topPath))
+        paths << topPath;
+
+    return paths;
+}
 
 // Returns true if given path belongs to main form
 // It doesn't check whether rootPath belong to a form or not.
-bool isMain(const QString& rootPath);
+bool isMain(const QString& rootPath)
+{
+    return (fname(rootPath) == DIR_MAINFORM);
+}
 
-Skin skin(const QString& rootPath);
+Skin skin(const QString& rootPath)
+{
+    auto propertyPath = rootPath + separator() + DIR_THIS +
+                        separator() + FILE_PROPERTIES;
+    auto propertyData = rdfile(propertyPath);
+    return Skin(property(propertyData, TAG_SKIN).toInt());
+}
+
+Type type(QObject* object)
+{
+    if (qobject_cast<QQuickItem*>(object) != nullptr)
+        return Quick;
+    if (object->isWindowType())
+        return Window;
+    return NonGui;
+}
 
 // Build qml object form url
-QObject* requestItem(ExecError& err, QList<QSharedPointer<QQmlComponent>>&,
-  const QString& path, QQmlEngine* engine, QQmlContext* context);
-
-// Returns true if the given object is an instance of QQuickItem
-Type type(QObject* object);
-
-QString id(const QString& rootPath);
+QObject* requestItem(ExecError& err, QList<QSharedPointer<QQmlComponent>>& comps,
+  const QString& path, QQmlEngine* engine, QQmlContext* context)
+{
+    QSharedPointer<QQmlComponent> comp(new QQmlComponent(engine,
+      QUrl(path + separator() + DIR_THIS + separator() + "main.qml")));
+    auto item = comp->beginCreate(context);
+    if (comp->isError()) {
+        err.type = CodeError;
+        err.id = id(path);
+        err.errors = comp->errors();
+    } else {
+        comps << comp;
+        engine->setObjectOwnership(item, QQmlEngine::JavaScriptOwnership);
+        if (type(item) == Window) {
+            ((QQuickWindow*)item)->setX(x(path));
+            ((QQuickWindow*)item)->setY(y(path));
+            ((QQuickWindow*)item)->setWidth(width(path));
+            ((QQuickWindow*)item)->setHeight(height(path));
+        } else if (type(item) == Quick) {
+            ((QQuickItem*)item)->setX(x(path));
+            ((QQuickItem*)item)->setY(y(path));
+            ((QQuickItem*)item)->setWidth(width(path));
+            ((QQuickItem*)item)->setHeight(height(path));
+            ((QQuickItem*)item)->setZ(z(path));
+        }
+    }
+    return item;
+}
 
 ExecError Executer::execProject()
 {
