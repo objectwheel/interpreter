@@ -1,0 +1,6 @@
+[submodule "miniz"]
+	path = miniz
+	url = https://github.com/omergoktas/miniz
+[submodule "fit"]
+	path = fit
+	url = https://github.com/omergoktas/fit

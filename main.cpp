@@ -3,6 +3,7 @@
 #include <components.h>
 #include <QtWebView>
 #include <executer.h>
+#include <projectmanager.h>
 
 #define PIXEL_SIZE 13
 #define REF_WIDTH 700
@@ -33,8 +34,9 @@ int main(int argc, char *argv[])
     font.setPixelSize(Fit::fit(PIXEL_SIZE));
     QApplication::setFont(font);
 
-    // Start MainWidget
-
+    // Start
+    ProjectManager::initProject();
+    Executer::execProject();
 
     return app.exec();
 }
