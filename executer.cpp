@@ -33,8 +33,6 @@
 #define TAG_OWDB_SIGN "_owdbsign"
 #define TAG_OWCTRL_SIGN "_owctrlsign"
 
-using namespace Fit;
-
 enum Type {
     Quick,
     Window,
@@ -302,7 +300,7 @@ ExecError Executer::execProject()
     QMap<QString, QQmlContext*> formContexes;
     auto engine = new QQmlEngine;
 
-    engine->rootContext()->setContextProperty("dpi", Fit::ratio());
+    engine->rootContext()->setContextProperty("dpi", fit::ratio());
     engine->setOutputWarningsToStandardError(false);
 
     // Spin for forms (top level masters)

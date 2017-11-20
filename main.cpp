@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
     qsrand(QDateTime::currentMSecsSinceEpoch());
 
     // Init Fit
-    Fit::init(REF_WIDTH, REF_HEIGHT, REF_DPI);
+    fit::update(REF_WIDTH, REF_HEIGHT, REF_DPI);
 
     // Init Components
     Components::init();
@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
 
     // Add system wide fonts and set default font
     QFont font;
-    font.setPixelSize(Fit::fit(PIXEL_SIZE));
+    font.setPixelSize(fit::fx(PIXEL_SIZE));
     QApplication::setFont(font);
 
     // Start
