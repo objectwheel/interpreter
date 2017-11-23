@@ -1,7 +1,5 @@
-VERSION  = 2.0
 TEMPLATE = app
-TARGET   = objectwheel-interpreter
-QT      += network qml quick webview websockets multimedia sensors svg concurrent
+QT += network qml quick
 
 SOURCES += main.cpp \
            zipper.cpp \
@@ -12,6 +10,7 @@ HEADERS += zipper.h \
            executer.h \
            projectmanager.h
 
+include($$PWD/app.pri)
 include($$PWD/fit/fit.pri)
 include($$PWD/miniz/miniz.pri)
 include($$PWD/components/components.pri)

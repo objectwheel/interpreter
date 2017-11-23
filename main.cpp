@@ -1,9 +1,12 @@
-#include <QApplication>
+#include <QGuiApplication>
 #include <fit.h>
 #include <components.h>
-#include <QtWebView>
 #include <executer.h>
 #include <projectmanager.h>
+
+#if defined(QT_WEBVIEW_LIB)
+#include <QtWebView>
+#endif
 
 #define PIXEL_SIZE 14
 #define REF_WIDTH 1680
@@ -12,10 +15,9 @@
 
 int main(int argc, char *argv[])
 {
-    QApplication app(argc, argv);
+    QGuiApplication app(argc, argv);
 
     // Init application settings
-    QApplication::setStyle("fusion");
     qputenv("QT_QUICK_CONTROLS_STYLE", "Base");
     qApp->setAttribute(Qt::AA_UseHighDpiPixmaps);
     qsrand(QDateTime::currentMSecsSinceEpoch());
@@ -27,12 +29,14 @@ int main(int argc, char *argv[])
     Components::init();
 
     // Initialize Web View
+    #if defined(QT_WEBVIEW_LIB)
     QtWebView::initialize();
+    #endif
 
     // Add system wide fonts and set default font
     QFont font;
     font.setPixelSize(fit::fx(PIXEL_SIZE));
-    QApplication::setFont(font);
+    QGuiApplication::setFont(font);
 
     // Start
     ProjectManager::initProject();
