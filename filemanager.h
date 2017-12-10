@@ -37,11 +37,6 @@ class FileManager : public QObject
 		bool isdir(const QString& name) const;
 		QChar separator() const;
 
-	public:
-		#ifdef QT_QML_LIB
-		static void registerQmlType();
-		#endif
-
 	private:
         static bool copyDir(QString from, QString to, bool qrc = false);
 

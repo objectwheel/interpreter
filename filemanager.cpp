@@ -10,14 +10,6 @@
 #include <QNetworkReply>
 #endif
 
-#ifdef QT_QML_LIB
-#include <QQmlEngine>
-#define COMPONENT_URI "com.objectwheel.components"
-#define COMPONENT_NAME "FileManager"
-#define COMPONENT_VERSION_MAJOR 1
-#define COMPONENT_VERSION_MINOR 0
-#endif
-
 FileManager::FileManager(QObject *parent)
     : QObject(parent)
 {
@@ -278,10 +270,3 @@ bool FileManager::copyDir(QString from, QString to, bool qrc)
 
     return true;
 }
-
-#ifdef QT_QML_LIB
-void FileManager::registerQmlType()
-{
-    qmlRegisterType<FileManager>(COMPONENT_URI, COMPONENT_VERSION_MAJOR, COMPONENT_VERSION_MINOR, COMPONENT_NAME);
-}
-#endif

@@ -20,7 +20,6 @@ int main(int argc, char *argv[])
     // Init application settings
     qputenv("QT_QUICK_CONTROLS_STYLE", "Base");
     qApp->setAttribute(Qt::AA_UseHighDpiPixmaps);
-    qsrand(QDateTime::currentMSecsSinceEpoch());
 
     // Init Fit
     fit::update(REF_WIDTH, REF_HEIGHT, REF_DPI);

@@ -1,14 +1,16 @@
 TEMPLATE = app
-QT += network qml quick
+QT += network qml quick quickcontrols2
 
 SOURCES += main.cpp \
            zipper.cpp \
            executer.cpp \
-           projectmanager.cpp
+           projectmanager.cpp \
+           filemanager.cpp
 
 HEADERS += zipper.h \
            executer.h \
-           projectmanager.h
+           projectmanager.h \
+           filemanager.h
 
 include($$PWD/app.pri)
 include($$PWD/fit/fit.pri)
