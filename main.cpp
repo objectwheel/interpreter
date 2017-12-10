@@ -38,7 +38,6 @@ int main(int argc, char *argv[])
     QGuiApplication::setFont(font);
 
     // Start
-    ProjectManager::initProject();
     Executer::execProject();
 
     return app.exec();

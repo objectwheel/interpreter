@@ -10,19 +10,12 @@
 QString ProjectManager::projectDirectory()
 {
     QString baseDir;
-    #if defined(Q_OS_IOS) || defined(Q_OS_ANDROID) || defined(Q_OS_WINPHONE)
+    #if defined(Q_OS_ANDROID)
+      baseDir = QString("assets:");
+    #elif defined(Q_OS_IOS) || defined(Q_OS_WINPHONE)
       baseDir = QStandardPaths::standardLocations(QStandardPaths::DataLocation).value(0);
     #else
       baseDir = QCoreApplication::applicationDirPath();
     #endif
     return baseDir + separator() + DEFAULT_PROJECT_DIR;
-}
-
-void ProjectManager::initProject()
-{
-    #if defined(Q_OS_ANDROID)
-        auto data = rdfile("assets:/project.zip");
-        mkdir(projectDirectory());
-        Zipper::extractZip(data, projectDirectory());
-    #endif
 }
