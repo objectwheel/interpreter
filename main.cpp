@@ -9,7 +9,7 @@
 #include <QtWebView>
 #endif
 
-#define PIXEL_SIZE 14
+#define PIXEL_SIZE 13
 #define REF_DPI 72.0
 
 int main(int argc, char *argv[])
@@ -33,6 +33,11 @@ int main(int argc, char *argv[])
     // Add system wide fonts and set default font
     QFont font;
     font.setPixelSize(fit::fx(PIXEL_SIZE));
+    #if defined(Q_OS_MACOS)
+    font.setFamily(".SF NS Display");
+    #elif defined(Q_OS_WIN)
+    font.setFamily("Segoe UI");
+    #endif
     QGuiApplication::setFont(font);
 
     // Start
