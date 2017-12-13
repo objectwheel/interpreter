@@ -9,7 +9,7 @@ QString ProjectManager::projectDirectory()
 {
     QString baseDir;
     #if defined(Q_OS_ANDROID)
-      baseDir = QString("assets:/");
+      baseDir = QString("assets:");
     #elif defined(Q_OS_IOS) || defined(Q_OS_WINPHONE)
       baseDir = QStandardPaths::standardLocations(QStandardPaths::DataLocation).value(0);
     #else

@@ -33,6 +33,8 @@
 #define TAG_OWDB_SIGN "_owdbsign"
 #define TAG_OWCTRL_SIGN "_owctrlsign"
 
+#define pS (qApp->primaryScreen())
+
 enum Type {
     Quick,
     Window,
@@ -254,9 +256,9 @@ QObject* requestItem(ExecError& err, QList<QSharedPointer<QQmlComponent>>& comps
   const QString& path, QQmlEngine* engine, QQmlContext* context)
 {
     QSharedPointer<QQmlComponent> comp(new QQmlComponent(engine,
-      QUrl(path + separator() + DIR_THIS + separator() + "main.qml")));
-    auto item = comp->create(context);
-    if (comp->isError()) {
+      QUrl::fromLocalFile(path + separator() + DIR_THIS + separator() + "main.qml")));
+    auto item = comp->create(context); // BUG: QTBUG-47633 beginCreate
+    if (comp->isError() || !item) {
         err.type = CodeError;
         err.id = id(path);
         err.errors = comp->errors();
@@ -264,15 +266,19 @@ QObject* requestItem(ExecError& err, QList<QSharedPointer<QQmlComponent>>& comps
         comps << comp;
         engine->setObjectOwnership(item, QQmlEngine::JavaScriptOwnership);
         if (type(item) == Window) {
-            ((QQuickWindow*)item)->setX(x(path));
-            ((QQuickWindow*)item)->setY(y(path));
-            ((QQuickWindow*)item)->setWidth(width(path));
-            ((QQuickWindow*)item)->setHeight(height(path));
+            //            ((QQuickWindow*)item)->setX(x(path)); //FIXME
+            //            ((QQuickWindow*)item)->setY(y(path));
+            ((QQuickWindow*)item)->setWidth(fit::fx(width(path)));
+            ((QQuickWindow*)item)->setHeight(fit::fx(height(path)));
+            QRectF r(0,0, ((QQuickWindow*)item)->width(), ((QQuickWindow*)item)->height());
+            r.moveCenter(pS->geometry().center());
+            ((QQuickWindow*)item)->setX(r.topLeft().x());
+            ((QQuickWindow*)item)->setY(r.topLeft().y());
         } else if (type(item) == Quick) {
-            ((QQuickItem*)item)->setX(x(path));
-            ((QQuickItem*)item)->setY(y(path));
-            ((QQuickItem*)item)->setWidth(width(path));
-            ((QQuickItem*)item)->setHeight(height(path));
+            ((QQuickItem*)item)->setX(fit::fx(x(path)));
+            ((QQuickItem*)item)->setY(fit::fx(y(path)));
+            ((QQuickItem*)item)->setWidth(fit::fx(width(path)));
+            ((QQuickItem*)item)->setHeight(fit::fx(height(path)));
             ((QQuickItem*)item)->setZ(z(path));
         }
     }
@@ -411,6 +417,11 @@ ExecError Executer::execProject()
         engine->deleteLater();
         error.type = NoMainForm;
         return error;
+    } else {
+        #if defined(Q_OS_ANDROID) || defined(Q_OS_IOS) || defined(Q_OS_WINPHONE)
+        mainWindow->showFullScreen();
+        QTimer::singleShot(200, [=]{ mainWindow->showMaximized(); });
+        #endif
     }
 
     for (auto formPath : formContexes.keys()) {
