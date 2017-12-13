@@ -255,7 +255,7 @@ QObject* requestItem(ExecError& err, QList<QSharedPointer<QQmlComponent>>& comps
 {
     QSharedPointer<QQmlComponent> comp(new QQmlComponent(engine,
       QUrl(path + separator() + DIR_THIS + separator() + "main.qml")));
-    auto item = comp->beginCreate(context);
+    auto item = comp->create(context);
     if (comp->isError()) {
         err.type = CodeError;
         err.id = id(path);
@@ -422,8 +422,8 @@ ExecError Executer::execProject()
 
     qApp->processEvents(QEventLoop::AllEvents, 10);
 
-    for (auto comp : components)
-        comp->completeCreate();
+//    for (auto comp : components)
+//        comp->completeCreate();
 
     return error;
 }

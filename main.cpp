@@ -3,6 +3,7 @@
 #include <components.h>
 #include <executer.h>
 #include <projectmanager.h>
+#include <QQuickStyle>
 
 #if defined(QT_WEBVIEW_LIB)
 #include <QtWebView>
@@ -16,6 +17,7 @@
 int main(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);
+    QQuickStyle::setStyle("Material");
 
     // Init application settings
     qputenv("QT_QUICK_CONTROLS_STYLE", "Base");
