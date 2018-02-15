@@ -4,9 +4,8 @@ let qtrjsn = fs.readFileSync(__dirname + '/qtr.json', 'utf8')
 let apppri = fs.readFileSync(__dirname + '/app.pri.conf', 'utf8')
 let qtr = JSON.parse(qtrjsn)
 
-exports.process = function(build) {   
+exports.process = function(build, projectname) {   
     if (build.versioncode === '' ||
-        build.appname === '' ||
         build.qtmodules === '' ||
         build.owmodules === '') {
         logger.crit('Build API : build.json file is corrupted.')
@@ -14,7 +13,7 @@ exports.process = function(build) {
     }
 
     apppri += 'VERSION = ' + build.versioncode
-    apppri += '\nTARGET = "' + build.appname + '"'
+    apppri += '\nTARGET = "' + projectname + '"'
 
     let qtmodules = build.qtmodules
     for(let module in qtmodules) {
