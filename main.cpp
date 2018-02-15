@@ -1,6 +1,6 @@
 #include <QGuiApplication>
 #include <fit.h>
-#include <components.h>
+//#include <components.h>
 #include <executer.h>
 #include <projectmanager.h>
 #include <QQuickStyle>
@@ -23,7 +23,7 @@ int main(int argc, char *argv[])
     fit::update(REF_DPI);
 
     // Init Components
-    Components::init();
+//    Components::init();
 
     // Initialize Web View
     #if defined(QT_WEBVIEW_LIB)
