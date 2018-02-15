@@ -255,8 +255,13 @@ Type type(QObject* object)
 QObject* requestItem(ExecError& err, QList<QSharedPointer<QQmlComponent>>& comps,
   const QString& path, QQmlEngine* engine, QQmlContext* context)
 {
+#if defined(Q_OS_ANDROID)
     QSharedPointer<QQmlComponent> comp(new QQmlComponent(engine,
-      QUrl::fromLocalFile(path + separator() + DIR_THIS + separator() + "main.qml")));
+      QUrl(path + separator() + DIR_THIS + separator() + "main.qml")));
+#else
+    QSharedPointer<QQmlComponent> comp(new QQmlComponent(engine,
+      QUrl::fromUserInput(path + separator() + DIR_THIS + separator() + "main.qml")));
+#endif
     auto item = comp->create(context); // BUG: QTBUG-47633 beginCreate
     if (comp->isError() || !item) {
         err.type = CodeError;
