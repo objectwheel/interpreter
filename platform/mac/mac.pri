@@ -1,0 +1,6 @@
+DEPENDPATH += $$PWD
+INCLUDEPATH += $$PWD
+
+ICON = $$PWD/icon.icns
+QMAKE_MAC_SDK = macosx10.10
+QMAKE_INFO_PLIST = $$PWD/Info.plist

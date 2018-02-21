@@ -3,7 +3,7 @@
 
 namespace FM
 {
-    static void registerQmlType();
+    void registerQmlType();
 }
 
 #endif // FM_H
