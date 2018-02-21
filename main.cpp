@@ -19,14 +19,14 @@ int main(int argc, char* argv[])
 {
     // Boot settings
     qputenv("QT_QUICK_CONTROLS_STYLE", "Base");
-    QGuiApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
-    QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-    QGuiApplication::setAttribute(Qt::AA_UseSoftwareOpenGL);
+    QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
+    QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+    QApplication::setAttribute(Qt::AA_UseSoftwareOpenGL);
 
     // Initialize application
-    QGuiApplication a(argc, argv);
-    QGuiApplication::setApplicationDisplayName(QObject::tr("Objectwheel Interpreter"));
-    QGuiApplication::setWindowIcon(QIcon(":/resources/images/owicon.png"));
+    QApplication a(argc, argv);
+    QApplication::setApplicationDisplayName(QObject::tr("Objectwheel Interpreter"));
+    QApplication::setWindowIcon(QIcon(":/resources/images/owicon.png"));
 
     QQuickStyle::setStyle("Material");
 
@@ -70,10 +70,13 @@ int main(int argc, char* argv[])
     #else
     font.setFamily("Open Sans");
     #endif
-    QGuiApplication::setFont(font);
+    QApplication::setFont(font);
 
-    if (argc == 2)
+    if (argc >= 2)
         ProjectManager::init(argv[1]);
+
+    if (argc >= 3)
+        Executer::init(argv[2]);
 
     // Start
     QTimer::singleShot(0, &Executer::exec);

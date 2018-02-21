@@ -3,9 +3,9 @@
 #include <filemanager.h>
 #include <projectmanager.h>
 #include <qmlcomponent.h>
+#include <executivewidget.h>
 
-#include <QtCore>
-#include <QtGui>
+#include <QtWidgets>
 #include <QtQml>
 #include <QtQuick>
 
@@ -41,6 +41,12 @@ enum Type {
     Window,
     NonGui
 };
+
+template<typename QEnum>
+static QString estr(QEnum value)
+{
+  return QString(QMetaEnum::fromType<QEnum>().valueToKey(value));
+}
 
 QJsonValue property(const QByteArray& propertyData, const QString& property)
 {
@@ -228,14 +234,6 @@ QStringList masterPaths(const QString& topPath)
     return paths;
 }
 
-Skin skin(const QString& rootPath)
-{
-    auto propertyPath = rootPath + separator() + DIR_THIS +
-                        separator() + FILE_PROPERTIES;
-    auto propertyData = rdfile(propertyPath);
-    return Skin(property(propertyData, TAG_SKIN).toInt());
-}
-
 Type type(QObject* object)
 {
     if (qobject_cast<QQuickItem*>(object) != nullptr)
@@ -305,9 +303,13 @@ QObject* create(
     return object;
 }
 
+ExecutiveWidget* Executer::_eW = nullptr;
+Executer::Skin Executer::_skin = Executer::Desktop;
+
 void Executer::exec()
 {
     struct Form {
+        bool isWindow;
         QString id;
         QObject* object;
         QQmlContext* context;
@@ -376,6 +378,7 @@ void Executer::exec()
                 form.id = id(masterPath);
                 form.object = result;
                 form.context = masterContext;
+                form.isWindow = type(result) == Window;
 
                 if (type(form.object) == NonGui)
                     return qApp->exit(EXIT_FAILURE);
@@ -430,4 +433,33 @@ void Executer::exec()
 
     for (auto component : components)
         component->completeCreate();
+
+    if (_skin == PhonePortrait || _skin == PhoneLandscape) {
+        if (!_eW)
+            _eW = new ExecutiveWidget;
+
+        for (const auto& form : forms) {
+            if (form.isWindow) {
+                _eW->setWindow(qobject_cast<QQuickWindow*>(form.object));
+                break;
+            }
+        }
+
+        _eW->setSkin(_skin);
+        _eW->show();
+        connect(_eW, SIGNAL(done()), qApp, SLOT(quit()));
+    }
+
+    connect(engine, SIGNAL(quit()), qApp, SLOT(quit()));
+    connect(engine, SIGNAL(exit(int)), qApp, SLOT(quit()));
+}
+
+void Executer::init(const QString& skin)
+{
+    if (estr(PhoneLandscape) == skin)
+        _skin = PhoneLandscape;
+    else if (estr(PhonePortrait) == skin)
+        _skin = PhonePortrait;
+    else
+        _skin = Desktop;
 }

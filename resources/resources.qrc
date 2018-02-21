@@ -12,5 +12,7 @@
         <file>fonts/OpenSans-SemiBold.ttf</file>
         <file>fonts/OpenSans-SemiBoldItalic.ttf</file>
         <file>qmls/module-resolver.qml</file>
+        <file>images/phnh.svg</file>
+        <file>images/phnv.svg</file>
     </qresource>
 </RCC>

@@ -12,14 +12,16 @@ SOURCES += $$PWD/main.cpp \
            $$PWD/executer.cpp \
            $$PWD/projectmanager.cpp \
            $$PWD/filemanager.cpp \
-           $$PWD/qmlcomponent.cpp
+           $$PWD/qmlcomponent.cpp \
+           $$PWD/executivewidget.cpp
 
 HEADERS += $$PWD/zipper.h \
            $$PWD/executer.h \
            $$PWD/projectmanager.h \
            $$PWD/filemanager.h \
            $$PWD/qmlcomponent.h \
-           $$PWD/qmlcomponent_p.h
+           $$PWD/qmlcomponent_p.h \
+           $$PWD/executivewidget.h
 
 include($$PWD/fit/fit.pri)
 include($$PWD/miniz/miniz.pri)
