@@ -1,9 +1,9 @@
-#include <QGuiApplication>
 #include <fit.h>
 //#include <components.h>
 #include <executer.h>
 #include <projectmanager.h>
 #include <QQuickStyle>
+#include <QtGui>
 
 #if defined(QT_WEBVIEW_LIB)
 #include <QtWebView>
@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
     QGuiApplication::setFont(font);
 
     // Start
-    Executer::execProject();
+    QTimer::singleShot(0, &Executer::exec);
 
     return app.exec();
 }

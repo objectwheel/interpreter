@@ -227,13 +227,6 @@ QStringList masterPaths(const QString& topPath)
     return paths;
 }
 
-// Returns true if given path belongs to main form
-// It doesn't check whether rootPath belong to a form or not.
-bool isMain(const QString& rootPath)
-{
-    return (fname(rootPath) == DIR_MAINFORM);
-}
-
 Skin skin(const QString& rootPath)
 {
     auto propertyPath = rootPath + separator() + DIR_THIS +
@@ -252,194 +245,186 @@ Type type(QObject* object)
 }
 
 // Build qml object form url
-QObject* requestItem(ExecError& err, QList<QSharedPointer<QQmlComponent>>& comps,
-  const QString& path, QQmlEngine* engine, QQmlContext* context)
+QObject* create(
+    const QString& path,
+    QQmlEngine* engine,
+    QQmlContext* context,
+    QList<QQmlComponent*>& components
+    )
 {
-#if defined(Q_OS_ANDROID)
-    QSharedPointer<QQmlComponent> comp(new QQmlComponent(engine,
-      QUrl(path + separator() + DIR_THIS + separator() + "main.qml")));
-#else
-    QSharedPointer<QQmlComponent> comp(new QQmlComponent(engine,
-      QUrl::fromUserInput(path + separator() + DIR_THIS + separator() + "main.qml")));
-#endif
-    auto item = comp->create(context); // BUG: QTBUG-47633 beginCreate
-    if (comp->isError() || !item) {
-        err.type = CodeError;
-        err.id = id(path);
-        err.errors = comp->errors();
-    } else {
-        comps << comp;
-        engine->setObjectOwnership(item, QQmlEngine::JavaScriptOwnership);
-        if (type(item) == Window) {
-            //            ((QQuickWindow*)item)->setX(x(path)); //FIXME
-            //            ((QQuickWindow*)item)->setY(y(path));
-            ((QQuickWindow*)item)->setWidth(fit::fx(width(path)));
-            ((QQuickWindow*)item)->setHeight(fit::fx(height(path)));
-            QRectF r(0,0, ((QQuickWindow*)item)->width(), ((QQuickWindow*)item)->height());
-            r.moveCenter(pS->geometry().center());
-            ((QQuickWindow*)item)->setX(r.topLeft().x());
-            ((QQuickWindow*)item)->setY(r.topLeft().y());
-        } else if (type(item) == Quick) {
-            ((QQuickItem*)item)->setX(fit::fx(x(path)));
-            ((QQuickItem*)item)->setY(fit::fx(y(path)));
-            ((QQuickItem*)item)->setWidth(fit::fx(width(path)));
-            ((QQuickItem*)item)->setHeight(fit::fx(height(path)));
-            ((QQuickItem*)item)->setZ(z(path));
+    auto component =
+    #if defined(Q_OS_ANDROID)
+    new QQmlComponent(
+        engine,
+         QUrl(
+             path +
+             separator() +
+             DIR_THIS +
+             separator() +
+             "main.qml"
+         )
+    );
+    #else
+    new QQmlComponent(
+        engine,
+        QUrl::fromUserInput(
+            path +
+            separator() +
+            DIR_THIS +
+            separator() +
+            "main.qml"
+        )
+    );
+    #endif
+
+    auto object = component->create(context);
+
+    if (!component->isError() && object != nullptr) {
+        const auto t = type(object);
+
+        if (t == Window) {
+            auto window = qobject_cast<QQuickWindow*>(object);
+            window->setWidth(fit::fx(width(path)));
+            window->setHeight(fit::fx(height(path)));
+        } else if (t == Quick) {
+            auto item = qobject_cast<QQuickItem*>(object);
+            item->setX(fit::fx(x(path)));
+            item->setY(fit::fx(y(path)));
+            item->setWidth(fit::fx(width(path)));
+            item->setHeight(fit::fx(height(path)));
+            item->setZ(z(path));
         }
-    }
-    return item;
+
+        components << component;
+    } else
+        delete component;
+
+    return object;
 }
 
-ExecError Executer::execProject()
+void Executer::exec()
 {
-    ExecError error;
-    Skin mainSkin = Skin::Invalid;
+    struct Form {
+        QString id;
+        QObject* object;
+        QQmlContext* context;
+    };
 
-    for (auto formPath : formPaths()) {
-        if (isMain(formPath))
-            mainSkin = skin(formPath);
-    }
-
-    if (mainSkin == Skin::Invalid) {
-        error.type = CommonError;
-        return error;
-    }
-
-    QList<QObject*> forms;
-    QList<QSharedPointer<QQmlComponent>> components;
-    QQuickWindow* mainWindow = nullptr;
-    QMap<QString, QQmlContext*> formContexes;
     auto engine = new QQmlEngine;
+    const auto& formPaths = ::formPaths();
 
     engine->rootContext()->setContextProperty("dpi", fit::ratio());
-    engine->setOutputWarningsToStandardError(false);
 
-    // Spin for forms (top level masters)
-    for (auto formPath : formPaths()) {
-        auto _masterPaths = masterPaths(formPath);
+    QList<Form> forms;
+    QList<QQmlComponent*> components;
 
-        // Spin for masters inside the form (form itself included)
-        QMap<QString, QObject*> masterResults;
-        for (auto masterPath : _masterPaths) {
-            const bool isForm = (_masterPaths.last() == masterPath);
+    // Spin inside of form directories
+    for (const auto& formPath : formPaths) {
+        QHash<QString, QObject*> masterResults;
+        const auto& masterPaths = ::masterPaths(formPath);
+
+        // Spin for masters inside of the form directory (form itself included)
+        for (const auto& masterPath : masterPaths) {
+            QObject* result;
+            QMap<QString, QObject*> childResults;
+            bool isMasterForm = masterPaths.last() == masterPath;
+            const auto& childPaths = ::childrenPaths(masterPath);
             auto masterContext = new QQmlContext(engine, engine);
 
-            //! Spin for child items of the master
-            QMap<QString, QObject*> childResults;
-            for (auto childPath : childrenPaths(masterPath)) {
-                int index = _masterPaths.indexOf(childPath);
-                if (index >= 0) {
-                    childResults[childPath] = masterResults[childPath];
-                } else {
-                    childResults[childPath] = requestItem(error, components,
-                      childPath, engine, masterContext);
-                    if (childResults[childPath] == nullptr) {
-                        engine->deleteLater();
-                        return error;
-                    }
-                    if (type(childResults[childPath]) == Window) {
-                        engine->deleteLater();
-                        error.type = ChildIsWindowError;
-                        return error;
-                    }
-                }
-                masterContext->setContextProperty(id(childPath),
-                  childResults[childPath]);
-                qApp->processEvents(QEventLoop::AllEvents, 10);
+            // Create children of the master
+            for (const auto& childPath : childPaths) {
+                QObject* result;
+                int isNormal = !masterPaths.contains(childPath);
+
+                if (isNormal) {
+                    result = create(
+                        childPath,
+                        engine,
+                        masterContext,
+                        components
+                    );
+
+                    if (result == nullptr)
+                        qApp->exit(EXIT_FAILURE);
+
+                    if (type(result) == Window)
+                        qApp->exit(EXIT_FAILURE);
+                } else
+                    result = masterResults.value(childPath);
+
+                masterContext->setContextProperty(id(childPath), result);
+                childResults[childPath] = result;
             }
 
-            masterResults[masterPath] = requestItem(error, components,
-              masterPath, engine, masterContext);
+            // Create master
+            result = create(
+                masterPath,
+                engine,
+                masterContext,
+                components
+            );
 
-            qApp->processEvents(QEventLoop::AllEvents, 10);
-            if (masterResults[masterPath] == nullptr) {
-                engine->deleteLater();
-                return error;
-            }
+            if (result == nullptr)
+                qApp->exit(EXIT_FAILURE);
 
-            //! Catch this (current spin's) master item
-            if (isForm) { // If it's a form (top level master)
-                auto form = masterResults[masterPath];
-                if (type(form) == NonGui) {
-                    engine->deleteLater();
-                    error.type = FormIsNonGui;
-                    return error;
-                }
-                if (isMain(masterPath)) {
-                    if (!(mainWindow = qobject_cast<QQuickWindow*>(form))) {
-                        engine->deleteLater();
-                        error.type = MainFormIsntWindowError;
-                        return error;
-                    }
-                }
+            // Handle if the master is a form
+            if (isMasterForm) {
+                Form form;
+                form.id = id(masterPath);
+                form.object = result;
+                form.context = masterContext;
+
+                if (type(form.object) == NonGui)
+                    qApp->exit(EXIT_FAILURE);
+
                 forms << form;
-                formContexes[masterPath] = masterContext;
-            } else { // If it's a "master child inside of the form"
-                auto masterItem = masterResults[masterPath];
-                if (type(masterItem) == Window) {
-                    engine->deleteLater();
-                    error.type = ChildIsWindowError;
-                    return error;
-                }
-                if (type(masterItem) == NonGui) {
-                    engine->deleteLater();
-                    error.type = MasterIsNonGui;
-                    return error;
-                }
-            }
-            masterContext->setContextProperty(id(masterPath),
-              masterResults[masterPath]);
+            } else {
+                if (type(result) == Window)
+                    qApp->exit(EXIT_FAILURE);
 
-            //! Place child items into master item visually
-            // Only non-master nongui children were passed (because they don't have a visual parent)
-            // Others are handled in anyway, either here or above(invalid cases)
-            QMap<QString, QObject*> pmap;
-            pmap[masterPath] = masterResults[masterPath];
-            for (auto result : childResults.keys()) {
-                auto pobject = pmap.value(dname(dname(result))); // Master item (a form(master) or a child master)
-                if (type(childResults[result]) == NonGui) // Child item (master or non-master, but not form)
+                if (type(result) == NonGui)
+                    qApp->exit(EXIT_FAILURE);
+            }
+
+            // Place children of the master visually
+            QMap<QString, QObject*> pmap; // Only non-master nongui children were passed (because they don't have a visual parent)
+            pmap[masterPath] = result;    // Others are handled in anyway, either here or above(invalid cases)
+            for (const auto& path : childResults.keys()) {
+                auto pobject = pmap.value(dname(dname(path))); // Master item (a form(master) or a child master)
+                auto cobject = childResults.value(path);
+
+                if (type(cobject) == NonGui)  // Child item (master or non-master, but not form)
                     continue;
 
                 // All childs are quick (not nongui/window)
                 // All masters are quick or window (not nongui)
 
+                auto citem = qobject_cast<QQuickItem*>(cobject);
+
+                if (citem == nullptr)
+                    qApp->exit(EXIT_FAILURE);
+
                 //NOTE: What if ApplicationWindow's some properties are binding?
                 if (type(pobject) == Window) {
-                    static_cast<QQuickItem*>(childResults[result])->setParentItem(
-                      static_cast<QQuickWindow*>(pobject)->contentItem());
+                    auto window = qobject_cast<QQuickWindow*>(pobject)->contentItem();
+                    citem->setParentItem(window);
                 } else {
-                    static_cast<QQuickItem*>(childResults[result])->setParentItem(
-                      static_cast<QQuickItem*>(pobject));
+                    auto item = qobject_cast<QQuickItem*>(pobject);
+                    citem->setParentItem(item);
                 }
 
-                pmap[result] = childResults[result];
-                qApp->processEvents(QEventLoop::AllEvents, 10);
+                pmap[path] = cobject;
             }
+
+            masterContext->setContextProperty(id(masterPath), result);
+            masterResults[masterPath] = result;
         }
     }
 
-    if (mainWindow == nullptr) {
-        engine->deleteLater();
-        error.type = NoMainForm;
-        return error;
-    } else {
-        #if defined(Q_OS_ANDROID) || defined(Q_OS_IOS) || defined(Q_OS_WINPHONE)
-        mainWindow->showFullScreen();
-        QTimer::singleShot(200, [=]{ mainWindow->showMaximized(); });
-        #endif
-    }
+    for (const auto& form : forms)
+        for (const auto& f : forms)
+            form.context->setContextProperty(f.id, f.object);
 
-    for (auto formPath : formContexes.keys()) {
-        for (int i = 0; i < formContexes.keys().size(); i++) { //Don't change 'keys().size()'
-            formContexes[formPath]->setContextProperty(
-              id(formContexes.keys().at(i)), forms.at(i));
-        }
-    }
-
-    qApp->processEvents(QEventLoop::AllEvents, 10);
-
-//    for (auto comp : components)
-//        comp->completeCreate();
-
-    return error;
+//    for (auto component : components)
+//        component->completeCreate();
 }

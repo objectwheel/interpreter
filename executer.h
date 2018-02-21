@@ -13,27 +13,9 @@ enum Skin {
     NoSkin
 };
 
-enum ExecErrorType {
-    NoError,
-    CommonError,
-    ChildIsWindowError,
-    MasterIsNonGui,
-    FormIsNonGui,
-    MainFormIsntWindowError,
-    MultipleWindowsForMobileError,
-    NoMainForm,
-    CodeError
-};
-
-struct ExecError {
-        ExecErrorType type = NoError;
-        QList<QQmlError> errors;
-        QString id;
-};
-
 namespace Executer
 {
-    ExecError execProject();
+    void exec();
 }
 
 #endif // EXECUTER_H
