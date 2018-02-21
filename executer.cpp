@@ -277,7 +277,7 @@ QObject* create(
     );
     #endif
 
-    auto object = component->create(context);
+    auto object = component->beginCreate(context);
 
     if (!component->isError() && object != nullptr) {
         const auto t = type(object);
@@ -345,10 +345,10 @@ void Executer::exec()
                     );
 
                     if (result == nullptr)
-                        qApp->exit(EXIT_FAILURE);
+                        return qApp->exit(EXIT_FAILURE);
 
                     if (type(result) == Window)
-                        qApp->exit(EXIT_FAILURE);
+                        return qApp->exit(EXIT_FAILURE);
                 } else
                     result = masterResults.value(childPath);
 
@@ -365,7 +365,7 @@ void Executer::exec()
             );
 
             if (result == nullptr)
-                qApp->exit(EXIT_FAILURE);
+                return qApp->exit(EXIT_FAILURE);
 
             // Handle if the master is a form
             if (isMasterForm) {
@@ -375,21 +375,21 @@ void Executer::exec()
                 form.context = masterContext;
 
                 if (type(form.object) == NonGui)
-                    qApp->exit(EXIT_FAILURE);
+                    return qApp->exit(EXIT_FAILURE);
 
                 forms << form;
             } else {
                 if (type(result) == Window)
-                    qApp->exit(EXIT_FAILURE);
+                    return qApp->exit(EXIT_FAILURE);
 
                 if (type(result) == NonGui)
-                    qApp->exit(EXIT_FAILURE);
+                    return qApp->exit(EXIT_FAILURE);
             }
 
             // Place children of the master visually
-            QMap<QString, QObject*> pmap; // Only non-master nongui children were passed (because they don't have a visual parent)
+            QHash<QString, QObject*> pmap; // Only non-master nongui children were passed (because they don't have a visual parent)
             pmap[masterPath] = result;    // Others are handled in anyway, either here or above(invalid cases)
-            for (const auto& path : childResults.keys()) {
+            for (const auto& path : childResults.keys()) { // WARNING: Based on QMap's ordering feature
                 auto pobject = pmap.value(dname(dname(path))); // Master item (a form(master) or a child master)
                 auto cobject = childResults.value(path);
 
@@ -402,7 +402,7 @@ void Executer::exec()
                 auto citem = qobject_cast<QQuickItem*>(cobject);
 
                 if (citem == nullptr)
-                    qApp->exit(EXIT_FAILURE);
+                    return qApp->exit(EXIT_FAILURE);
 
                 //NOTE: What if ApplicationWindow's some properties are binding?
                 if (type(pobject) == Window) {
@@ -425,6 +425,6 @@ void Executer::exec()
         for (const auto& f : forms)
             form.context->setContextProperty(f.id, f.object);
 
-//    for (auto component : components)
-//        component->completeCreate();
+    for (auto component : components)
+        component->completeCreate();
 }
