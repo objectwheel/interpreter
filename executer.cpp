@@ -2,6 +2,7 @@
 #include <fit.h>
 #include <filemanager.h>
 #include <projectmanager.h>
+#include <qmlcomponent.h>
 
 #include <QtCore>
 #include <QtGui>
@@ -239,8 +240,10 @@ Type type(QObject* object)
 {
     if (qobject_cast<QQuickItem*>(object) != nullptr)
         return Quick;
+
     if (object->isWindowType())
         return Window;
+
     return NonGui;
 }
 
@@ -249,12 +252,12 @@ QObject* create(
     const QString& path,
     QQmlEngine* engine,
     QQmlContext* context,
-    QList<QQmlComponent*>& components
+    QList<QmlComponent*>& components
     )
 {
     auto component =
     #if defined(Q_OS_ANDROID)
-    new QQmlComponent(
+    new QmlComponent(
         engine,
          QUrl(
              path +
@@ -265,7 +268,7 @@ QObject* create(
          )
     );
     #else
-    new QQmlComponent(
+    new QmlComponent(
         engine,
         QUrl::fromUserInput(
             path +
@@ -316,7 +319,7 @@ void Executer::exec()
     engine->rootContext()->setContextProperty("dpi", fit::ratio());
 
     QList<Form> forms;
-    QList<QQmlComponent*> components;
+    QList<QmlComponent*> components;
 
     // Spin inside of form directories
     for (const auto& formPath : formPaths) {
