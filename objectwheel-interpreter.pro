@@ -23,8 +23,16 @@ HEADERS += $$PWD/zipper.h \
            $$PWD/qmlcomponent_p.h \
            $$PWD/executivewidget.h
 
-include($$PWD/fit/fit.pri)
-include($$PWD/miniz/miniz.pri)
+exists($$PWD/fit/fit.pri) {
+    include($$PWD/fit/fit.pri)
+    include($$PWD/miniz/miniz.pri)
+}
+
+!exists($$PWD/fit/fit.pri) {
+    include($$PWD/../fit/fit.pri)
+    include($$PWD/../miniz/miniz.pri)
+}
+
 include($$PWD/components/components.pri)
 include($$PWD/platform/platform.pri)
 include($$PWD/resources/resources.pri)
