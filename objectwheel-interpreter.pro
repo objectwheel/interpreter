@@ -21,7 +21,7 @@ android {
     ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
 }
 
-#include($$PWD/app.pri)
+include($$PWD/app.pri)
 include($$PWD/fit/fit.pri)
 include($$PWD/miniz/miniz.pri)
-#include($$PWD/components/components.pri)
+include($$PWD/components/components.pri)
