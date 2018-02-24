@@ -31,21 +31,6 @@ int main(int argc, char* argv[])
 
     QQuickStyle::setStyle("Default");
 
-    // Multiple instances protection
-    QSharedMemory sharedMemory("b2JqZWN0d2hlZWwtaW50ZXJwcmV0ZXI");
-    if(!sharedMemory.create(1)) {
-        sharedMemory.attach();
-        sharedMemory.detach();
-        if(!sharedMemory.create(1)) {
-            QMessageBox::warning(
-                nullptr,
-                QObject::tr("Quitting"),
-                QObject::tr("Another instance is already running.")
-            );
-            return EXIT_FAILURE;
-        }
-    }
-
     // Initialize fit library
     fit::update(REF_DPI, MIN_DPI);
 

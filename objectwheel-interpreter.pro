@@ -2,9 +2,9 @@ TEMPLATE = app
 CONFIG -= app_bundle
 TARGET = objectwheel-interpreter
 
-QT += widgets network qml qml-private quick quickcontrols2 webview websockets webengine webchannel
-QT += sensors svg scxml purchasing positioning nfc multimedia location gamepad datavisualization
-QT += charts 3dcore 3drender 3dinput 3dlogic 3dextras 3danimation 3dquick bluetooth webenginecore
+QT += widgets network qml qml-private quick quickcontrols2 webview websockets gamepad webchannel
+QT += sensors svg scxml purchasing positioning nfc location bluetooth datavisualization webengine
+QT += charts 3dcore 3drender 3dinput 3dlogic 3dextras 3danimation 3dquick multimedia webenginecore
 
 SOURCES += $$PWD/main.cpp \
            $$PWD/zipper.cpp \
@@ -22,16 +22,8 @@ HEADERS += $$PWD/zipper.h \
            $$PWD/qmlcomponent_p.h \
            $$PWD/executivewidget.h
 
-exists($$PWD/fit/fit.pri) {
-    include($$PWD/fit/fit.pri)
-    include($$PWD/miniz/miniz.pri)
-}
-
-!exists($$PWD/fit/fit.pri) {
-    include($$PWD/../fit/fit.pri)
-    include($$PWD/../miniz/miniz.pri)
-}
-
+include($$PWD/fit/fit.pri)
+include($$PWD/miniz/miniz.pri)
 include($$PWD/components/components.pri)
 include($$PWD/platform/platform.pri)
 include($$PWD/resources/resources.pri)
