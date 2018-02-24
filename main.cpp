@@ -29,7 +29,7 @@ int main(int argc, char* argv[])
     QApplication::setApplicationDisplayName(QObject::tr("Objectwheel Interpreter"));
     QApplication::setWindowIcon(QIcon(":/resources/images/owicon.png"));
 
-    QQuickStyle::setStyle("Material");
+    QQuickStyle::setStyle("Default");
 
     // Multiple instances protection
     QSharedMemory sharedMemory("b2JqZWN0d2hlZWwtaW50ZXJwcmV0ZXI");
