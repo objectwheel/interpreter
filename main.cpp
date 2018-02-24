@@ -28,7 +28,7 @@ int main(int argc, char* argv[])
     // TODO: QGuiApplication::setApplicationDisplayName(QObject::tr("Objectwheel Interpreter"));
     // TODO: QGuiApplication::setWindowIcon(QIcon(":/resources/images/owicon.png"));
 
-    QQuickStyle::setStyle("Material");
+    QQuickStyle::setStyle("Default");
 
     // TODO: Multiple instance protection option
 
