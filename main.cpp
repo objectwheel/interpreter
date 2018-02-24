@@ -21,7 +21,6 @@ int main(int argc, char* argv[])
     qputenv("QT_QUICK_CONTROLS_STYLE", "Base");
     QGuiApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
     QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-    QGuiApplication::setAttribute(Qt::AA_UseSoftwareOpenGL);
 
     // Initialize application
     QGuiApplication a(argc, argv);
