@@ -1,4 +1,5 @@
 TEMPLATE = app
+CONFIG -= app_bundle
 QT += network qml qml-private quick quickcontrols2
 
 SOURCES += $$PWD/main.cpp \
@@ -24,4 +25,5 @@ android {
 include($$PWD/app.pri)
 include($$PWD/fit/fit.pri)
 include($$PWD/miniz/miniz.pri)
+include($$PWD/resources/resources.pri)
 include($$PWD/components/components.pri)

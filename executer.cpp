@@ -4,7 +4,6 @@
 #include <projectmanager.h>
 #include <qmlcomponent.h>
 
-#include <QtCore>
 #include <QtGui>
 #include <QtQml>
 #include <QtQuick>
@@ -228,14 +227,6 @@ QStringList masterPaths(const QString& topPath)
     return paths;
 }
 
-Skin skin(const QString& rootPath)
-{
-    auto propertyPath = rootPath + separator() + DIR_THIS +
-                        separator() + FILE_PROPERTIES;
-    auto propertyData = rdfile(propertyPath);
-    return Skin(property(propertyData, TAG_SKIN).toInt());
-}
-
 Type type(QObject* object)
 {
     if (qobject_cast<QQuickItem*>(object) != nullptr)
@@ -430,4 +421,7 @@ void Executer::exec()
 
     for (auto component : components)
         component->completeCreate();
+
+    connect(engine, SIGNAL(quit()), qApp, SLOT(quit()));
+    connect(engine, SIGNAL(exit(int)), qApp, SLOT(quit()));
 }

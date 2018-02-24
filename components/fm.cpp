@@ -1,3 +1,4 @@
+
 #include <fm.h>
 #include <filemanager.h>
 #include <QQmlEngine>
@@ -7,7 +8,12 @@
 #define COMPONENT_VERSION_MAJOR 1
 #define COMPONENT_VERSION_MINOR 0
 
-void FileManager::registerQmlType()
+void FM::registerQmlType()
 {
-    qmlRegisterType<FileManager>(COMPONENT_URI, COMPONENT_VERSION_MAJOR, COMPONENT_VERSION_MINOR, COMPONENT_NAME);
+    qmlRegisterType<FileManager>(
+        COMPONENT_URI,
+        COMPONENT_VERSION_MAJOR,
+        COMPONENT_VERSION_MINOR,
+        COMPONENT_NAME
+    );
 }

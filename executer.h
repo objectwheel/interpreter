@@ -1,21 +1,18 @@
 #ifndef EXECUTER_H
 #define EXECUTER_H
 
-#include <QList>
-#include <QQmlError>
-#include <QString>
+#include <QObject>
 
-enum Skin {
-    Invalid,
-    PhonePortrait,
-    PhoneLandscape,
-    Desktop,
-    NoSkin
-};
-
-namespace Executer
+class Executer : public QObject
 {
-    void exec();
-}
+        Q_OBJECT
+        Q_DISABLE_COPY(Executer)
+
+    public:
+        static void exec();
+
+    private:
+        Executer() {}
+};
 
 #endif // EXECUTER_H

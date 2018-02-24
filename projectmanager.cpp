@@ -5,15 +5,21 @@
 #include <QCoreApplication>
 #include <QByteArray>
 
+namespace {
+    QString baseDir;
+}
+
 QString ProjectManager::projectDirectory()
 {
-    QString baseDir;
-    #if defined(Q_OS_ANDROID)
-      baseDir = QString("assets:");
-    #elif defined(Q_OS_IOS) || defined(Q_OS_WINPHONE)
-      baseDir = QStandardPaths::standardLocations(QStandardPaths::DataLocation).value(0);
-    #else
-      baseDir = QCoreApplication::applicationDirPath();
-    #endif
+    if (baseDir.isEmpty()) {
+        #if defined(Q_OS_ANDROID)
+        baseDir = QString("assets:");
+        #elif defined(Q_OS_IOS) || defined(Q_OS_WINPHONE)
+        baseDir = QStandardPaths::standardLocations(QStandardPaths::DataLocation).value(0);
+        #else
+        baseDir = QCoreApplication::applicationDirPath();
+        #endif
+    }
+
     return baseDir;
 }

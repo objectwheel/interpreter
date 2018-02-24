@@ -1,6 +1,6 @@
 #include <audioplayer.h>
 #include <QDebug>
-#include <QBuffer>
+#include <QtCore/QBuffer>
 
 AudioPlayer::AudioPlayer(QObject* parent)
 	: QObject(parent)
