@@ -19,7 +19,6 @@ int main(int argc, char* argv[])
 {
     // Boot settings
     qputenv("QT_QUICK_CONTROLS_STYLE", "Base");
-    qputenv("QML_DISABLE_DISK_CACHE", "true");
     QGuiApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
     QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QGuiApplication::setAttribute(Qt::AA_UseSoftwareOpenGL);
