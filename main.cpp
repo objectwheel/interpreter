@@ -22,7 +22,6 @@ int main(int argc, char* argv[])
     qputenv("QML_DISABLE_DISK_CACHE", "true");
     QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
     QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-    QApplication::setAttribute(Qt::AA_UseSoftwareOpenGL);
 
     // Initialize application
     QApplication a(argc, argv);
