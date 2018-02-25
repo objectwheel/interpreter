@@ -25,7 +25,11 @@ int main(int argc, char* argv[])
 
     // Initialize application
     QApplication a(argc, argv);
-    QApplication::setApplicationDisplayName(QObject::tr("Objectwheel Interpreter"));
+    QApplication::setOrganizationName("Objectwheel");
+    QApplication::setOrganizationDomain("objectwheel.com");
+    QApplication::setApplicationName("objectwheel-interpreter");
+    QApplication::setApplicationDisplayName("Objectwheel Interpreter");
+    QApplication::setApplicationVersion("1.0.0");
     QApplication::setWindowIcon(QIcon(":/resources/images/owicon.png"));
 
     QQuickStyle::setStyle("Default");
