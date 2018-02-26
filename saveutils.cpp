@@ -194,6 +194,13 @@ bool SaveUtils::isOwctrl(const QString& rootPath)
     return isOwctrl(propertyData);
 }
 
+// Returns true if given path belongs to main form
+// It doesn't check whether rootPath belong to a form or not.
+bool SaveUtils::isMain(const QString& rootPath)
+{
+    return (fname(rootPath) == DIR_MAINFORM);
+}
+
 SaveUtils::Skin SaveUtils::skin(const QString& rootPath)
 {
     const auto& propertyPath = rootPath + separator() + DIR_THIS + separator() + FILE_PROPERTIES;
