@@ -32,6 +32,7 @@
 
 class SaveUtils : public QObject
 {
+        Q_OBJECT
         Q_DISABLE_COPY(SaveUtils)
 
     public:
