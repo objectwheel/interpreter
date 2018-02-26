@@ -12,7 +12,7 @@ class Executer : public QObject
 
     public:
         static Executer* instance();
-        void init(const QString& skin);
+        void init(SaveUtils::Skin skin);
         void exec();
 
     private:

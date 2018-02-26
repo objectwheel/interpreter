@@ -16,12 +16,6 @@ namespace {
         NonGui
     };
 
-    template<typename QEnum>
-    QString estr(QEnum value)
-    {
-        return QString(QMetaEnum::fromType<QEnum>().valueToKey(value));
-    }
-
     Type type(const QObject* object)
     {
         if (object->inherits("QQuickItem"))
@@ -103,14 +97,9 @@ Executer* Executer::instance()
     return &instance;
 }
 
-void Executer::init(const QString& skin)
+void Executer::init(SaveUtils::Skin skin)
 {
-    if (estr(SaveUtils::PhoneLandscape) == skin)
-        _skin = SaveUtils::PhoneLandscape;
-    else if (estr(SaveUtils::PhonePortrait) == skin)
-        _skin = SaveUtils::PhonePortrait;
-    else
-        _skin = SaveUtils::Desktop;
+    _skin = skin;
 }
 
 void Executer::exec()

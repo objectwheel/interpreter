@@ -3,6 +3,7 @@
 #include <components.h>
 #include <filemanager.h>
 #include <projectmanager.h>
+#include <saveutils.h>
 
 #include <QtWidgets>
 #include <QtQuickControls2>
@@ -61,11 +62,10 @@ int main(int argc, char* argv[])
     #endif
     QApplication::setFont(font);
 
-    if (argc >= 2)
+    if (argc >= 2) {
         ProjectManager::instance()->init(argv[1]);
-
-    if (argc >= 3)
-        Executer::instance()->init(argv[2]);
+        Executer::instance()->init(SaveUtils::skin(argv[1]));
+    }
 
     // Start
     Executer::instance()->exec();
