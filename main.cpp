@@ -62,13 +62,13 @@ int main(int argc, char* argv[])
     QApplication::setFont(font);
 
     if (argc >= 2)
-        ProjectManager::init(argv[1]);
+        ProjectManager::instance()->init(argv[1]);
 
     if (argc >= 3)
-        Executer::init(argv[2]);
+        Executer::instance()->init(argv[2]);
 
     // Start
-    QTimer::singleShot(0, &Executer::exec);
+    Executer::instance()->exec();
 
     return a.exec();
 }

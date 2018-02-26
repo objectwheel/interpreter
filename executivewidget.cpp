@@ -36,15 +36,15 @@ ExecutiveWidget::ExecutiveWidget(QWidget* parent) : QWidget(parent)
     connect(qApp, SIGNAL(aboutToQuit()), SLOT(stop()));
 }
 
-Executer::Skin ExecutiveWidget::skin() const
+SaveUtils::Skin ExecutiveWidget::skin() const
 {
     return _skin;
 }
 
-void ExecutiveWidget::setSkin(const Executer::Skin& skin)
+void ExecutiveWidget::setSkin(SaveUtils::Skin skin)
 {
     _skin = skin;
-    if (_skin == Executer::PhonePortrait) {
+    if (_skin == SaveUtils::PhonePortrait) {
         setFixedSize(SIZE_SKIN);
         _containerWidget->setFixedSize(SIZE_FORM);
     } else {
@@ -123,7 +123,7 @@ void ExecutiveWidget::paintEvent(QPaintEvent* event)
     painter.setRenderHint(QPainter::Antialiasing);
 
     switch (_skin) {
-        case Executer::PhonePortrait: {
+        case SaveUtils::PhonePortrait: {
             skinRect = QRectF({0, 0}, SIZE_SKIN);
             skinRect.moveCenter(innerRect.center());
             QSvgRenderer svg(QString(":/resources/images/phnv.svg"));
@@ -131,7 +131,7 @@ void ExecutiveWidget::paintEvent(QPaintEvent* event)
             break;
         }
 
-        case Executer::PhoneLandscape: {
+        case SaveUtils::PhoneLandscape: {
             skinRect = QRectF({0, 0}, SIZE_SKIN.transposed());
             skinRect.moveCenter(innerRect.center());
             QSvgRenderer svg(QString(":/resources/images/phnh.svg"));

@@ -13,8 +13,8 @@ class ExecutiveWidget : public QWidget
 
     public:
         explicit ExecutiveWidget(QWidget* parent = nullptr);
-        Executer::Skin skin() const;
-        void setSkin(const Executer::Skin& skin);
+        SaveUtils::Skin skin() const;
+        void setSkin(SaveUtils::Skin skin);
         void setWindow(QQuickWindow* window);
 
     public slots:
@@ -33,7 +33,7 @@ class ExecutiveWidget : public QWidget
     private:
         int _x, _y;
         bool _pressed;
-        Executer::Skin _skin;
+        SaveUtils::Skin _skin;
         QVBoxLayout* _layout;
         QQuickWindow* _window;
         QWidget* _containerWidget;

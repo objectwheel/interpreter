@@ -10,6 +10,7 @@ QT += charts 3dcore 3drender 3dinput 3dlogic 3dextras 3danimation 3dquick multim
 SOURCES += $$PWD/main.cpp \
            $$PWD/zipper.cpp \
            $$PWD/executer.cpp \
+           $$PWD/saveutils.cpp \
            $$PWD/projectmanager.cpp \
            $$PWD/filemanager.cpp \
            $$PWD/qmlcomponent.cpp \
@@ -17,6 +18,7 @@ SOURCES += $$PWD/main.cpp \
 
 HEADERS += $$PWD/zipper.h \
            $$PWD/executer.h \
+           $$PWD/saveutils.h \
            $$PWD/projectmanager.h \
            $$PWD/filemanager.h \
            $$PWD/qmlcomponent.h \

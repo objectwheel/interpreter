@@ -1,30 +1,29 @@
 #include <projectmanager.h>
-#include <filemanager.h>
-#include <zipper.h>
 #include <QStandardPaths>
 #include <QCoreApplication>
-#include <QByteArray>
 
-namespace {
-    QString baseDir;
+ProjectManager* ProjectManager::instance()
+{
+    static ProjectManager instance;
+    return &instance;
 }
 
 void ProjectManager::init(const QString& dir)
 {
-    baseDir = dir;
+    _baseDir = dir;
 }
 
 QString ProjectManager::projectDirectory()
 {
-    if (baseDir.isEmpty()) {
+    if (_baseDir.isEmpty()) {
         #if defined(Q_OS_ANDROID)
-        baseDir = QString("assets:");
+        _baseDir = QString("assets:");
         #elif defined(Q_OS_IOS) || defined(Q_OS_WINPHONE)
-        baseDir = QStandardPaths::standardLocations(QStandardPaths::DataLocation).value(0);
+        _baseDir = QStandardPaths::standardLocations(QStandardPaths::DataLocation).value(0);
         #else
-        baseDir = QCoreApplication::applicationDirPath();
+        _baseDir = QCoreApplication::applicationDirPath();
         #endif
     }
 
-    return baseDir;
+    return _baseDir;
 }

@@ -1,7 +1,7 @@
 #ifndef EXECUTER_H
 #define EXECUTER_H
 
-#include <QObject>
+#include <saveutils.h>
 
 class ExecutiveWidget;
 
@@ -11,24 +11,16 @@ class Executer : public QObject
         Q_DISABLE_COPY(Executer)
 
     public:
-        enum Skin {
-            Invalid,
-            PhonePortrait,
-            PhoneLandscape,
-            Desktop,
-            NoSkin
-        };
-        Q_ENUM(Skin)
-
-        static void init(const QString& skin);
-        static void exec();
+        static Executer* instance();
+        void init(const QString& skin);
+        void exec();
 
     private:
-        Executer() {}
+        Executer();
 
     private:
-        static Skin _skin;
-        static ExecutiveWidget* _eW;
+        SaveUtils::Skin _skin;
+        ExecutiveWidget* _eW;
 };
 
 #endif // EXECUTER_H

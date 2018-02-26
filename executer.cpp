@@ -1,310 +1,117 @@
 #include <executer.h>
 #include <fit.h>
 #include <filemanager.h>
-#include <projectmanager.h>
 #include <qmlcomponent.h>
+#include <projectmanager.h>
 #include <executivewidget.h>
 
-#include <QtWidgets>
 #include <QtQml>
 #include <QtQuick>
 
-#define SIGN_OWDB "T3dkYl92Mi4w"
-#define SIGN_OWCTRL "T3djdHJsX3YyLjA"
-#define DIR_THIS "t"
-#define DIR_CHILDREN "c"
-#define DIR_OWDB "owdb"
-#define DIR_MAINFORM "1"
-#define DIR_QRC_OWDB ":/resources/qmls/owdb"
-#define DIR_QRC_FORM ":/resources/qmls/form"
-#define FILE_PROPERTIES "_properties.json"
-#define FILE_ICON "icon.png" //TODO: Apply everywhere
-#define FILE_MAIN "main.qml" //TODO: Apply everywhere
-#define TAG_ID "id"
-#define TAG_X "x"
-#define TAG_Y "y"
-#define TAG_Z "z"
-#define TAG_WIDTH "width"
-#define TAG_HEIGHT "height"
-#define TAG_UID "_uid"
-#define TAG_SUID "_suid"
-#define TAG_SKIN "_skin"
-#define TAG_NAME "_name"
-#define TAG_CATEGORY "_category"
-#define TAG_OWDB_SIGN "_owdbsign"
-#define TAG_OWCTRL_SIGN "_owctrlsign"
+namespace {
+    enum Type
+    {
+        Quick,
+        Window,
+        NonGui
+    };
 
-#define pS (qApp->primaryScreen())
-
-enum Type {
-    Quick,
-    Window,
-    NonGui
-};
-
-template<typename QEnum>
-static QString estr(QEnum value)
-{
-  return QString(QMetaEnum::fromType<QEnum>().valueToKey(value));
-}
-
-QJsonValue property(const QByteArray& propertyData, const QString& property)
-{
-    if (propertyData.isEmpty())
-        return QJsonValue();
-
-    auto jobj = QJsonDocument::fromJson(propertyData).object();
-    return jobj[property];
-}
-
-bool isOwctrl(const QByteArray& propertyData)
-{
-    auto sign = property(propertyData, TAG_OWCTRL_SIGN).toString();
-    auto uid = property(propertyData, TAG_OWCTRL_SIGN).toString();
-    return (sign == SIGN_OWCTRL && !uid.isEmpty());
-}
-
-// Returns (only) form paths.
-// Returned paths are rootPaths.
-QStringList formPaths()
-{
-    QStringList paths;
-    auto projectDir = ProjectManager::projectDirectory();
-
-    if (projectDir.isEmpty())
-        return paths;
-
-    auto baseDir = projectDir + separator() + DIR_OWDB;
-
-    for (auto dir : lsdir(baseDir)) {
-        auto propertyPath = baseDir + separator() + dir + separator() +
-                            DIR_THIS + separator() + FILE_PROPERTIES;
-        auto propertyData = rdfile(propertyPath);
-
-        if (isOwctrl(propertyData))
-            paths << dname(dname(propertyPath));
+    template<typename QEnum>
+    QString estr(QEnum value)
+    {
+        return QString(QMetaEnum::fromType<QEnum>().valueToKey(value));
     }
 
-    return paths;
-}
+    Type type(const QObject* object)
+    {
+        if (object->inherits("QQuickItem"))
+            return Quick;
 
-// Returns all children paths (rootPath) within given root path.
-// Returns children only if they have match between their and given suid.
-// If given suid is empty then rootPath's uid is taken.
-QStringList childrenPaths(const QString& rootPath, QString suid = QString())
-{
-    QStringList paths;
+        if (object->isWindowType())
+            return Window;
 
-    if (rootPath.isEmpty())
-        return paths;
-
-    if (suid.isEmpty()) {
-        auto propertyPath = rootPath + separator() + DIR_THIS +
-                            separator() + FILE_PROPERTIES;
-        auto propertyData = rdfile(propertyPath);
-        suid = property(propertyData, TAG_UID).toString();
+        return NonGui;
     }
 
-    auto childrenPath = rootPath + separator() + DIR_CHILDREN;
-    for (auto dir : lsdir(childrenPath)) {
-        auto propertyPath = childrenPath + separator() + dir + separator() +
-                            DIR_THIS + separator() + FILE_PROPERTIES;
-        auto propertyData = rdfile(propertyPath);
-
-        if (isOwctrl(propertyData) && property(propertyData, TAG_SUID).toString() == suid) {
-            paths << dname(dname(propertyPath));
-            paths << childrenPaths(dname(dname(propertyPath)), suid);
-        }
-    }
-    return paths;
-}
-
-QStringList controlPaths(const QString& topPath)
-{
-    QStringList paths;
-
-    if (topPath.isEmpty())
-        return paths;
-
-    for (auto path : fps(FILE_PROPERTIES, topPath)) {
-        auto propertyData = rdfile(path);
-        if (isOwctrl(propertyData))
-            paths << dname(dname(path));
-    }
-
-    return paths;
-}
-
-
-QString uid(const QString& rootPath)
-{
-    auto propertyPath = rootPath + separator() + DIR_THIS +
-                        separator() + FILE_PROPERTIES;
-    auto propertyData = rdfile(propertyPath);
-    return property(propertyData, TAG_UID).toString();
-}
-
-QString suid(const QString& rootPath)
-{
-    auto propertyPath = rootPath + separator() + DIR_THIS +
-                        separator() + FILE_PROPERTIES;
-    auto propertyData = rdfile(propertyPath);
-    return property(propertyData, TAG_SUID).toString();
-}
-
-qreal x(const QString& rootPath)
-{
-    auto propertyPath = rootPath + separator() + DIR_THIS +
-                        separator() + FILE_PROPERTIES;
-    auto propertyData = rdfile(propertyPath);
-    return property(propertyData, TAG_X).toDouble();
-}
-
-qreal y(const QString& rootPath)
-{
-    auto propertyPath = rootPath + separator() + DIR_THIS +
-                        separator() + FILE_PROPERTIES;
-    auto propertyData = rdfile(propertyPath);
-    return property(propertyData, TAG_Y).toDouble();
-}
-
-qreal z(const QString& rootPath)
-{
-    auto propertyPath = rootPath + separator() + DIR_THIS +
-                        separator() + FILE_PROPERTIES;
-    auto propertyData = rdfile(propertyPath);
-    return property(propertyData, TAG_Z).toDouble();
-}
-
-qreal width(const QString& rootPath)
-{
-    auto propertyPath = rootPath + separator() + DIR_THIS +
-                        separator() + FILE_PROPERTIES;
-    auto propertyData = rdfile(propertyPath);
-    return property(propertyData, TAG_WIDTH).toDouble();
-}
-
-qreal height(const QString& rootPath)
-{
-    auto propertyPath = rootPath + separator() + DIR_THIS +
-                        separator() + FILE_PROPERTIES;
-    auto propertyData = rdfile(propertyPath);
-    return property(propertyData, TAG_HEIGHT).toDouble();
-}
-
-QString id(const QString& rootPath)
-{
-    auto propertyPath = rootPath + separator() + DIR_THIS +
-                        separator() + FILE_PROPERTIES;
-    auto propertyData = rdfile(propertyPath);
-    return property(propertyData, TAG_ID).toString();
-}
-
-bool isForm(const QString& rootPath)
-{
-    auto projectDir = ProjectManager::projectDirectory();
-    auto baseDir = projectDir + separator() + DIR_OWDB;
-    return (baseDir == dname(rootPath));
-}
-
-QStringList masterPaths(const QString& topPath)
-{
-    QStringList paths;
-    auto controlPaths = ::controlPaths(topPath);
-
-    QStringList foundSuids;
-    for (auto path : controlPaths) {
-        auto _suid = suid(path);
-        if (!_suid.isEmpty() && !foundSuids.contains(_suid))
-            foundSuids << _suid;
-    }
-
-    for (auto path : controlPaths) {
-        if (foundSuids.contains(uid(path)))
-            paths << path;
-    }
-
-    std::sort(paths.begin(), paths.end(),
-              [](const QString& a, const QString& b)
-    { return a.size() > b.size(); });
-
-    if (paths.isEmpty() && isForm(topPath))
-        paths << topPath;
-
-    return paths;
-}
-
-Type type(QObject* object)
-{
-    if (qobject_cast<QQuickItem*>(object) != nullptr)
-        return Quick;
-
-    if (object->isWindowType())
-        return Window;
-
-    return NonGui;
-}
-
-// Build qml object form url
-QObject* create(
-    const QString& path,
-    QQmlEngine* engine,
-    QQmlContext* context,
-    QList<QmlComponent*>& components
-    )
-{
-    auto component =
-    #if defined(Q_OS_ANDROID)
-    new QmlComponent(
-        engine,
-         QUrl(
-             path +
-             separator() +
-             DIR_THIS +
-             separator() +
-             "main.qml"
-         )
-    );
-    #else
-    new QmlComponent(
-        engine,
-        QUrl::fromUserInput(
-            path +
-            separator() +
-            DIR_THIS +
-            separator() +
-            "main.qml"
+    // Build qml object form url
+    QObject* create(
+        const QString& path,
+        QQmlEngine* engine,
+        QQmlContext* context,
+        QList<QmlComponent*>& components
         )
-    );
-    #endif
+    {
+        auto component =
+        #if defined(Q_OS_ANDROID)
+        new QmlComponent(
+            engine,
+            QUrl(
+                path +
+                separator() +
+                DIR_THIS +
+                separator() +
+                "main.qml"
+            )
+        );
+        #else
+        new QmlComponent(
+            engine,
+            QUrl::fromUserInput(
+                path +
+                separator() +
+                DIR_THIS +
+                separator() +
+                "main.qml"
+            )
+        );
+       #endif
 
-    auto object = component->beginCreate(context);
+        auto object = component->beginCreate(context);
 
-    if (!component->isError() && object != nullptr) {
-        const auto t = type(object);
+        if (!component->isError() && object != nullptr) {
+            const auto t = type(object);
 
-        if (t == Window) {
-            auto window = qobject_cast<QQuickWindow*>(object);
-            window->setWidth(fit::fx(width(path)));
-            window->setHeight(fit::fx(height(path)));
-        } else if (t == Quick) {
-            auto item = qobject_cast<QQuickItem*>(object);
-            item->setX(fit::fx(x(path)));
-            item->setY(fit::fx(y(path)));
-            item->setWidth(fit::fx(width(path)));
-            item->setHeight(fit::fx(height(path)));
-            item->setZ(z(path));
-        }
+            if (t == Window) {
+                auto window = qobject_cast<QQuickWindow*>(object);
+                window->setWidth(fit::fx(SaveUtils::width(path)));
+                window->setHeight(fit::fx(SaveUtils::height(path)));
+            } else if (t == Quick) {
+                auto item = qobject_cast<QQuickItem*>(object);
+                item->setX(fit::fx(SaveUtils::x(path)));
+                item->setY(fit::fx(SaveUtils::y(path)));
+                item->setWidth(fit::fx(SaveUtils::width(path)));
+                item->setHeight(fit::fx(SaveUtils::height(path)));
+                item->setZ(SaveUtils::z(path));
+            }
 
-        components << component;
-    } else
-        delete component;
+            components << component;
+        } else
+            delete component;
 
-    return object;
+        return object;
+    }
 }
 
-ExecutiveWidget* Executer::_eW = nullptr;
-Executer::Skin Executer::_skin = Executer::Desktop;
+Executer::Executer() : _skin(SaveUtils::Desktop)
+{
+    _eW = new ExecutiveWidget;
+}
+
+Executer* Executer::instance()
+{
+    static Executer instance;
+    return &instance;
+}
+
+void Executer::init(const QString& skin)
+{
+    if (estr(SaveUtils::PhoneLandscape) == skin)
+        _skin = SaveUtils::PhoneLandscape;
+    else if (estr(SaveUtils::PhonePortrait) == skin)
+        _skin = SaveUtils::PhonePortrait;
+    else
+        _skin = SaveUtils::Desktop;
+}
 
 void Executer::exec()
 {
@@ -316,7 +123,7 @@ void Executer::exec()
     };
 
     auto engine = new QQmlEngine;
-    const auto& formPaths = ::formPaths();
+    const auto& formPaths = SaveUtils::formPaths(ProjectManager::instance()->projectDirectory());
 
     engine->rootContext()->setContextProperty("dpi", fit::ratio());
 
@@ -326,14 +133,14 @@ void Executer::exec()
     // Spin inside of form directories
     for (const auto& formPath : formPaths) {
         QHash<QString, QObject*> masterResults;
-        const auto& masterPaths = ::masterPaths(formPath);
+        const auto& masterPaths = SaveUtils::masterPaths(formPath);
 
         // Spin for masters inside of the form directory (form itself included)
         for (const auto& masterPath : masterPaths) {
             QObject* result;
             QMap<QString, QObject*> childResults;
             bool isMasterForm = masterPaths.last() == masterPath;
-            const auto& childPaths = ::childrenPaths(masterPath);
+            const auto& childPaths = SaveUtils::childrenPaths(masterPath);
             auto masterContext = new QQmlContext(engine, engine);
 
             // Create children of the master
@@ -357,7 +164,7 @@ void Executer::exec()
                 } else
                     result = masterResults.value(childPath);
 
-                masterContext->setContextProperty(id(childPath), result);
+                masterContext->setContextProperty(SaveUtils::id(childPath), result);
                 childResults[childPath] = result;
             }
 
@@ -375,7 +182,7 @@ void Executer::exec()
             // Handle if the master is a form
             if (isMasterForm) {
                 Form form;
-                form.id = id(masterPath);
+                form.id = SaveUtils::id(masterPath);
                 form.object = result;
                 form.context = masterContext;
                 form.isWindow = type(result) == Window;
@@ -422,7 +229,7 @@ void Executer::exec()
                 pmap[path] = cobject;
             }
 
-            masterContext->setContextProperty(id(masterPath), result);
+            masterContext->setContextProperty(SaveUtils::id(masterPath), result);
             masterResults[masterPath] = result;
         }
     }
@@ -434,10 +241,7 @@ void Executer::exec()
     for (auto component : components)
         component->completeCreate();
 
-    if (_skin == PhonePortrait || _skin == PhoneLandscape) {
-        if (!_eW)
-            _eW = new ExecutiveWidget;
-
+    if (_skin == SaveUtils::PhonePortrait || _skin == SaveUtils::PhoneLandscape) {
         for (const auto& form : forms) {
             if (form.isWindow) {
                 _eW->setWindow(qobject_cast<QQuickWindow*>(form.object));
@@ -452,14 +256,4 @@ void Executer::exec()
 
     connect(engine, SIGNAL(quit()), qApp, SLOT(quit()));
     connect(engine, SIGNAL(exit(int)), qApp, SLOT(quit()));
-}
-
-void Executer::init(const QString& skin)
-{
-    if (estr(PhoneLandscape) == skin)
-        _skin = PhoneLandscape;
-    else if (estr(PhonePortrait) == skin)
-        _skin = PhonePortrait;
-    else
-        _skin = Desktop;
 }
