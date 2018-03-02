@@ -19,7 +19,8 @@
 int main(int argc, char* argv[])
 {
     // Boot settings
-    qputenv("QT_QUICK_CONTROLS_STYLE", "Base");
+    qputenv("QT_QUICK_CONTROLS_STYLE", "Fusion");
+    qputenv("QT_QUICK_CONTROLS_1_STYLE", "Base");
     qputenv("QML_DISABLE_DISK_CACHE", "true");
     QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
     QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
@@ -32,8 +33,6 @@ int main(int argc, char* argv[])
     QApplication::setApplicationDisplayName("Objectwheel Interpreter");
     QApplication::setApplicationVersion("1.0.0");
     QApplication::setWindowIcon(QIcon(":/resources/images/owicon.png"));
-
-    QQuickStyle::setStyle("Default");
 
     // Initialize fit library
     fit::update(REF_DPI, MIN_DPI);
@@ -64,6 +63,7 @@ int main(int argc, char* argv[])
 
     if (argc >= 2) {
         ProjectManager::instance()->init(argv[1]);
+        QQuickStyle::setStyle(SaveUtils::theme(argv[1]));
         Executer::instance()->init(SaveUtils::skin(argv[1]));
     }
 
