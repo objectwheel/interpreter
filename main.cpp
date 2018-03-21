@@ -64,7 +64,7 @@ int main(int argc, char* argv[])
     if (argc >= 2) {
         ProjectManager::instance()->init(argv[1]);
         QQuickStyle::setStyle(SaveUtils::theme(argv[1]));
-        Executer::instance()->init(SaveUtils::skin(argv[1]));
+        Executer::instance()->init(argv[1]);
     }
 
     // Start

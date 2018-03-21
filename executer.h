@@ -12,14 +12,14 @@ class Executer : public QObject
 
     public:
         static Executer* instance();
-        void init(SaveUtils::Skin skin);
+        void init(const QString& skin);
         void exec();
 
     private:
         Executer();
 
     private:
-        SaveUtils::Skin _skin;
+        QString _skin;
         ExecutiveWidget* _eW;
 };
 

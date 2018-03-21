@@ -36,15 +36,15 @@ ExecutiveWidget::ExecutiveWidget(QWidget* parent) : QWidget(parent)
     connect(qApp, SIGNAL(aboutToQuit()), SLOT(stop()));
 }
 
-SaveUtils::Skin ExecutiveWidget::skin() const
+QString ExecutiveWidget::skin() const
 {
     return _skin;
 }
 
-void ExecutiveWidget::setSkin(SaveUtils::Skin skin)
+void ExecutiveWidget::setSkin(const QString& skin)
 {
     _skin = skin;
-    if (_skin == SaveUtils::PhonePortrait) {
+    if (_skin == "PhonePortrait") {
         setFixedSize(SIZE_SKIN);
         _containerWidget->setFixedSize(SIZE_FORM);
     } else {
@@ -122,26 +122,20 @@ void ExecutiveWidget::paintEvent(QPaintEvent* event)
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
 
-    switch (_skin) {
-        case SaveUtils::PhonePortrait: {
-            skinRect = QRectF({0, 0}, SIZE_SKIN);
-            skinRect.moveCenter(innerRect.center());
-            QSvgRenderer svg(QString(":/resources/images/phnv.svg"));
-            svg.render(&painter, skinRect);
-            break;
-        }
-
-        case SaveUtils::PhoneLandscape: {
-            skinRect = QRectF({0, 0}, SIZE_SKIN.transposed());
-            skinRect.moveCenter(innerRect.center());
-            QSvgRenderer svg(QString(":/resources/images/phnh.svg"));
-            svg.render(&painter, skinRect);
-            break;
-        }
-
-        default:
-            break;
+    if (_skin == "PhonePortrait") {
+        skinRect = QRectF({0, 0}, SIZE_SKIN);
+        skinRect.moveCenter(innerRect.center());
+        QSvgRenderer svg(QString(":/resources/images/phnv.svg"));
+        svg.render(&painter, skinRect);
     }
+
+    if (_skin == "PhoneLandscape") {
+        skinRect = QRectF({0, 0}, SIZE_SKIN.transposed());
+        skinRect.moveCenter(innerRect.center());
+        QSvgRenderer svg(QString(":/resources/images/phnh.svg"));
+        svg.render(&painter, skinRect);
+    }
+
 
     QWidget::paintEvent(event);
 }

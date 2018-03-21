@@ -62,31 +62,16 @@ namespace {
 
         auto object = component->beginCreate(context);
 
-        if (!component->isError() && object != nullptr) {
-            const auto t = type(object);
-
-            if (t == Window) {
-                auto window = qobject_cast<QQuickWindow*>(object);
-                window->setWidth(fit::fx(SaveUtils::width(path)));
-                window->setHeight(fit::fx(SaveUtils::height(path)));
-            } else if (t == Quick) {
-                auto item = qobject_cast<QQuickItem*>(object);
-                item->setX(fit::fx(SaveUtils::x(path)));
-                item->setY(fit::fx(SaveUtils::y(path)));
-                item->setWidth(fit::fx(SaveUtils::width(path)));
-                item->setHeight(fit::fx(SaveUtils::height(path)));
-                item->setZ(SaveUtils::z(path));
-            }
-
+        if (!component->isError() && object != nullptr)
             components << component;
-        } else
+        else
             delete component;
 
         return object;
     }
 }
 
-Executer::Executer() : _skin(SaveUtils::Desktop)
+Executer::Executer() : _skin("Desktop")
 {
     _eW = new ExecutiveWidget;
 }
@@ -97,7 +82,7 @@ Executer* Executer::instance()
     return &instance;
 }
 
-void Executer::init(SaveUtils::Skin skin)
+void Executer::init(const QString& skin)
 {
     _skin = skin;
 }
@@ -230,7 +215,7 @@ void Executer::exec()
     for (auto component : components)
         component->completeCreate();
 
-    if (_skin == SaveUtils::PhonePortrait || _skin == SaveUtils::PhoneLandscape) {
+    if (_skin == "PhonePortrait" || _skin == "PhoneLandscape") {
         for (const auto& form : forms) {
             if (form.isWindow) {
                 _eW->setWindow(qobject_cast<QQuickWindow*>(form.object));
