@@ -1,3 +1,3 @@
-DEPENDPATH += $$PWD
+DEPENDPATH  += $$PWD
 INCLUDEPATH += $$PWD
-RC_ICONS = $$PWD/icon.ico
+RC_ICONS     = $$PWD/icon.ico
