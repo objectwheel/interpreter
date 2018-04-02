@@ -19,9 +19,12 @@
 int main(int argc, char* argv[])
 {
     // Boot settings
-    qputenv("QT_QUICK_CONTROLS_STYLE", "Default"); // Qt Quick Controls 2 Styles [Default, Material, Fusion, Imagine, Universal]
+    qputenv("QT_QUICK_CONTROLS_MATERIAL_FOREGROUND", "#90ffffff");
+    qputenv("QT_QUICK_CONTROLS_MATERIAL_ACCENT", "white");
+    qputenv("QT_QUICK_CONTROLS_STYLE", "Material"); // Qt Quick Controls 2 Styles [Default, Material, Fusion, Imagine, Universal]
     qputenv("QT_QUICK_CONTROLS_1_STYLE", "Desktop");  // Qt Quick Controls 1 Styles [Base, Flat, Desktop]
     qputenv("QML_DISABLE_DISK_CACHE", "true");
+    QApplication::setAttribute(Qt::AA_UseSoftwareOpenGL); // For web view tool tips
     QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
     QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 
