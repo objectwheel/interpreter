@@ -1,5 +1,4 @@
 #include <executer.h>
-#include <fit.h>
 #include <filemanager.h>
 #include <qmlcomponent.h>
 #include <projectmanager.h>
@@ -98,8 +97,6 @@ void Executer::exec()
 
     auto engine = new QQmlEngine;
     const auto& formPaths = SaveUtils::formPaths(ProjectManager::instance()->projectDirectory());
-
-    engine->rootContext()->setContextProperty("dpi", fit::ratio());
 
     QList<Form> forms;
     QList<QmlComponent*> components;

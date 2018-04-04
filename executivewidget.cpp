@@ -1,5 +1,4 @@
 #include <executivewidget.h>
-#include <fit.h>
 #include <QPainter>
 #include <QSvgRenderer>
 #include <QQuickItem>
@@ -8,8 +7,8 @@
 #include <QApplication>
 #include <QScreen>
 
-#define SIZE_SKIN (QSize(fit::fx(320), fit::fx(662)))
-#define SIZE_FORM (QSize(fit::fx(285), fit::fx(535)))
+#define SIZE_SKIN (QSize(320, 662))
+#define SIZE_FORM (QSize(285, 535))
 
 ExecutiveWidget::ExecutiveWidget(QWidget* parent) : QWidget(parent)
   , _x(0)
