@@ -3,6 +3,7 @@
 #include <filemanager.h>
 #include <projectmanager.h>
 #include <saveutils.h>
+#include <fit.h>
 
 #include <QtWidgets>
 #include <QtQuickControls2>
@@ -10,6 +11,10 @@
 #if defined(QT_WEBVIEW_LIB)
 #include <QtWebView>
 #endif
+
+#define PIXEL_SIZE 14
+#define MIN_DPI 110.0
+#define REF_DPI 149.0
 
 int main(int argc, char* argv[])
 {
@@ -31,6 +36,9 @@ int main(int argc, char* argv[])
     QApplication::setApplicationDisplayName("Objectwheel Interpreter");
     QApplication::setApplicationVersion("1.0.0");
     QApplication::setWindowIcon(QIcon(":/resources/images/owicon.png"));
+
+    // Initialize fit library
+    fit::update(REF_DPI, MIN_DPI);
 
     // Init Components
     Components::init();

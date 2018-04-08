@@ -29,9 +29,12 @@ HEADERS += $$PWD/executer.h \
            $$PWD/projectmanager.h \
            $$PWD/executivewidget.h
 
-### Library Settings
-INCLUDEPATH += $$PWD/../lib
-INCLUDEPATH += $$PWD/../lib/fit
-INCLUDEPATH += $$PWD/../lib/miniz
-INCLUDEPATH += $$PWD/../lib/components
-LIBS        += -L$$OUT_PWD/../lib -lobjectwheel
+### Utils Settings
+INCLUDEPATH += $$PWD/../shared
+INCLUDEPATH += $$PWD/../utils
+INCLUDEPATH += $$PWD/../utils/fit
+INCLUDEPATH += $$PWD/../utils/miniz
+INCLUDEPATH += $$PWD/../utils/components
+LIBS        += -L$$OUT_PWD/../utils -lutils
+windows:CONFIG(release, debug | release):LIBS += -L$$OUT_PWD/../utils/release
+windows:CONFIG(debug, debug | release):LIBS += -L$$OUT_PWD/../utils/debug
