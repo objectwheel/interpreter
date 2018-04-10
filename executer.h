@@ -3,8 +3,6 @@
 
 #include <saveutils.h>
 
-class ExecutiveWidget;
-
 class Executer : public QObject
 {
         Q_OBJECT
@@ -12,15 +10,10 @@ class Executer : public QObject
 
     public:
         static Executer* instance();
-        void init(const QString& skin);
         void exec();
 
     private:
-        Executer();
-
-    private:
-        QString _skin;
-        ExecutiveWidget* _eW;
+        Executer() {}
 };
 
 #endif // EXECUTER_H

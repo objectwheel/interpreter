@@ -2,7 +2,7 @@
 #include <filemanager.h>
 #include <qmlcomponent.h>
 #include <projectmanager.h>
-#include <executivewidget.h>
+#include <fit.h>
 
 #include <QtQml>
 #include <QtQuick>
@@ -24,6 +24,28 @@ namespace {
             return Window;
 
         return NonGui;
+    }
+
+    void correctGeometry(QObject* object)
+    {
+        if (!object)
+            return;
+
+        QQuickItem* item = qobject_cast<QQuickItem*>(object);
+
+        if (item) {
+            item->setX(fit::fx(item->x()));
+            item->setY(fit::fx(item->y()));
+            item->setSize(fit::fx(item->size()));
+        } else {
+            auto window = qobject_cast<QQuickWindow*>(object);
+
+            if (window) {
+                window->setX(fit::fx(window->x()));
+                window->setY(fit::fx(window->y()));
+                window->resize(fit::fx(window->size()));
+            }
+        }
     }
 
     // Build qml object form url
@@ -61,29 +83,20 @@ namespace {
 
         auto object = component->beginCreate(context);
 
-        if (!component->isError() && object != nullptr)
+        if (!component->isError() && object != nullptr) {
+            correctGeometry(object);
             components << component;
-        else
+        } else
             delete component;
 
         return object;
     }
 }
 
-Executer::Executer() : _skin("Desktop")
-{
-    _eW = new ExecutiveWidget;
-}
-
 Executer* Executer::instance()
 {
     static Executer instance;
     return &instance;
-}
-
-void Executer::init(const QString& skin)
-{
-    _skin = skin;
 }
 
 void Executer::exec()
@@ -211,19 +224,6 @@ void Executer::exec()
 
     for (auto component : components)
         component->completeCreate();
-
-    if (_skin == "PhonePortrait" || _skin == "PhoneLandscape") {
-        for (const auto& form : forms) {
-            if (form.isWindow) {
-                _eW->setWindow(qobject_cast<QQuickWindow*>(form.object));
-                break;
-            }
-        }
-
-        _eW->setSkin(_skin);
-        _eW->show();
-        connect(_eW, SIGNAL(done()), qApp, SLOT(quit()));
-    }
 
     connect(engine, SIGNAL(quit()), qApp, SLOT(quit()));
     connect(engine, SIGNAL(exit(int)), qApp, SLOT(quit()));

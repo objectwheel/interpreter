@@ -20,14 +20,12 @@ DEPENDPATH  += $$PWD
 SOURCES += $$PWD/main.cpp \
            $$PWD/executer.cpp \
            $$PWD/qmlcomponent.cpp \
-           $$PWD/projectmanager.cpp \
-           $$PWD/executivewidget.cpp
+           $$PWD/projectmanager.cpp
 
 HEADERS += $$PWD/executer.h \
            $$PWD/qmlcomponent.h \
            $$PWD/qmlcomponent_p.h \
-           $$PWD/projectmanager.h \
-           $$PWD/executivewidget.h
+           $$PWD/projectmanager.h
 
 ### Utils Settings
 INCLUDEPATH += $$PWD/../shared
