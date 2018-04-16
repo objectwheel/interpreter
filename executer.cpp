@@ -25,28 +25,6 @@ namespace {
         return NonGui;
     }
 
-    void correctGeometry(QObject* object)
-    {
-        if (!object)
-            return;
-
-        QQuickItem* item = qobject_cast<QQuickItem*>(object);
-
-        if (item) {
-            item->setX(item->x());
-            item->setY(item->y());
-            item->setSize(item->size());
-        } else {
-            auto window = qobject_cast<QQuickWindow*>(object);
-
-            if (window) {
-                window->setX(window->x());
-                window->setY(window->y());
-                window->resize(window->size());
-            }
-        }
-    }
-
     // Build qml object form url
     QObject* create(
         const QString& path,
@@ -82,10 +60,9 @@ namespace {
 
         auto object = component->beginCreate(context);
 
-        if (!component->isError() && object != nullptr) {
-            correctGeometry(object);
+        if (!component->isError() && object != nullptr)
             components << component;
-        } else
+        else
             delete component;
 
         return object;
