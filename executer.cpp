@@ -2,7 +2,6 @@
 #include <filemanager.h>
 #include <qmlcomponent.h>
 #include <projectmanager.h>
-#include <fit.h>
 
 #include <QtQml>
 #include <QtQuick>
@@ -34,16 +33,16 @@ namespace {
         QQuickItem* item = qobject_cast<QQuickItem*>(object);
 
         if (item) {
-            item->setX(fit::fx(item->x()));
-            item->setY(fit::fx(item->y()));
-            item->setSize(fit::fx(item->size()));
+            item->setX(item->x());
+            item->setY(item->y());
+            item->setSize(item->size());
         } else {
             auto window = qobject_cast<QQuickWindow*>(object);
 
             if (window) {
-                window->setX(fit::fx(window->x()));
-                window->setY(fit::fx(window->y()));
-                window->resize(fit::fx(window->size()));
+                window->setX(window->x());
+                window->setY(window->y());
+                window->resize(window->size());
             }
         }
     }

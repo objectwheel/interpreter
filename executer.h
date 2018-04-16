@@ -5,15 +5,15 @@
 
 class Executer : public QObject
 {
-        Q_OBJECT
-        Q_DISABLE_COPY(Executer)
+    Q_OBJECT
+    Q_DISABLE_COPY(Executer)
 
-    public:
-        static Executer* instance();
-        void exec();
+public:
+    static Executer* instance();
+    void exec();
 
-    private:
-        Executer() {}
+private:
+    Executer() {}
 };
 
 #endif // EXECUTER_H

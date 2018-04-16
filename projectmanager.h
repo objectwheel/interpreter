@@ -5,19 +5,19 @@
 
 class ProjectManager : public QObject
 {
-        Q_OBJECT
-        Q_DISABLE_COPY(ProjectManager)
+    Q_OBJECT
+    Q_DISABLE_COPY(ProjectManager)
 
-    public:
-        static ProjectManager* instance();
-        void init(const QString& dir);
-        QString projectDirectory();
+public:
+    static ProjectManager* instance();
+    void init(const QString& dir);
+    QString projectDirectory();
 
-    private:
-        ProjectManager() {}
+private:
+    ProjectManager() {}
 
-    private:
-        QString _baseDir;
+private:
+    QString _baseDir;
 };
 
 #endif // PROJECTMANAGER_H

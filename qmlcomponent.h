@@ -11,9 +11,9 @@ class QmlComponent : public QQmlComponent
     Q_DECLARE_PRIVATE(QmlComponent)
     Q_DISABLE_COPY(QmlComponent)
 
-    public:
-        using QQmlComponent::QQmlComponent;
-        QObject* beginCreate(QQmlContext* publicContext) override;
+public:
+    using QQmlComponent::QQmlComponent;
+    QObject* beginCreate(QQmlContext* publicContext) override;
 };
 
 #endif // QMLCOMPONENT_H
