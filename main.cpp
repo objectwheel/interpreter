@@ -8,7 +8,7 @@
 #include <QtWebView>
 
 namespace {
-QString setTheme(const QString& projectDir);
+void setTheme(const QString& projectDir);
 }
 
 int main(int argc, char* argv[])
@@ -21,9 +21,8 @@ int main(int argc, char* argv[])
 
     QApplication::setAttribute(Qt::AA_UseSoftwareOpenGL); // For web view tool tips
     QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
-    QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 
-    if (argc > 1 && SaveUtils::scaling(argv[1]) == "highDpiScaling")
+    if (argc > 1 && SaveUtils::scaling(argv[1]) != "noScaling")
         QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 
     // Initialize application
@@ -65,53 +64,47 @@ int main(int argc, char* argv[])
 
 
 namespace {
-QString setTheme(const QString& projectDir)
+void setTheme(const QString& projectDir)
 {
     const auto& object = SaveUtils::theme(projectDir).toObject();
-    const auto& version = object.value("version").toString();
-    const auto& style = object.value("style").toString();
+    const auto& stylev1 = object.value("stylev1").toString();
+    const auto& stylev2 = object.value("stylev2").toString();
+    const auto& theme = object.value("theme").toString();
+    const auto& accent = object.value("accent").toString();
+    const auto& primary = object.value("primary").toString();
+    const auto& foreground = object.value("foreground").toString();
+    const auto& background = object.value("background").toString();
 
-    if (version == "v1") {
-        qputenv("QT_QUICK_CONTROLS_1_STYLE", style.toUtf8().constData());
-    } else {
-        const auto& theme = object.value("theme").toString();
-        const auto& accent = object.value("accent").toString();
-        const auto& primary = object.value("primary").toString();
-        const auto& foreground = object.value("foreground").toString();
-        const auto& background = object.value("background").toString();
+    qputenv("QT_QUICK_CONTROLS_1_STYLE", stylev1.toUtf8().constData());
+    qputenv("QT_QUICK_CONTROLS_STYLE", stylev2.toUtf8().constData());
 
-        qputenv("QT_QUICK_CONTROLS_STYLE", style.toUtf8().constData());
+    if (stylev2 == QString("Material")) {
+        if (!theme.isEmpty())
+            qputenv("QT_QUICK_CONTROLS_MATERIAL_THEME", theme.toUtf8().constData());
 
-        if (style == QString("Material")) {
-            if (!theme.isEmpty())
-                qputenv("QT_QUICK_CONTROLS_MATERIAL_THEME", theme.toUtf8().constData());
+        if (!accent.isEmpty())
+            qputenv("QT_QUICK_CONTROLS_MATERIAL_ACCENT", accent.toUtf8().constData());
 
-            if (!accent.isEmpty())
-                qputenv("QT_QUICK_CONTROLS_MATERIAL_ACCENT", accent.toUtf8().constData());
+        if (!primary.isEmpty())
+            qputenv("QT_QUICK_CONTROLS_MATERIAL_PRIMARY", primary.toUtf8().constData());
 
-            if (!primary.isEmpty())
-                qputenv("QT_QUICK_CONTROLS_MATERIAL_PRIMARY", primary.toUtf8().constData());
+        if (!foreground.isEmpty())
+            qputenv("QT_QUICK_CONTROLS_MATERIAL_FOREGROUND", foreground.toUtf8().constData());
 
-            if (!foreground.isEmpty())
-                qputenv("QT_QUICK_CONTROLS_MATERIAL_FOREGROUND", foreground.toUtf8().constData());
+        if (!background.isEmpty())
+            qputenv("QT_QUICK_CONTROLS_MATERIAL_BACKGROUND", background.toUtf8().constData());
+    } else if (stylev2 == QString("Universal")) {
+        if (!theme.isEmpty())
+            qputenv("QT_QUICK_CONTROLS_UNIVERSAL_THEME", theme.toUtf8().constData());
 
-            if (!background.isEmpty())
-                qputenv("QT_QUICK_CONTROLS_MATERIAL_BACKGROUND", background.toUtf8().constData());
-        } else if (style == QString("Universal")) {
-            if (!theme.isEmpty())
-                qputenv("QT_QUICK_CONTROLS_UNIVERSAL_THEME", theme.toUtf8().constData());
+        if (!accent.isEmpty())
+            qputenv("QT_QUICK_CONTROLS_UNIVERSAL_ACCENT", accent.toUtf8().constData());
 
-            if (!accent.isEmpty())
-                qputenv("QT_QUICK_CONTROLS_UNIVERSAL_ACCENT", accent.toUtf8().constData());
+        if (!foreground.isEmpty())
+            qputenv("QT_QUICK_CONTROLS_UNIVERSAL_FOREGROUND", foreground.toUtf8().constData());
 
-            if (!foreground.isEmpty())
-                qputenv("QT_QUICK_CONTROLS_UNIVERSAL_FOREGROUND", foreground.toUtf8().constData());
-
-            if (!background.isEmpty())
-                qputenv("QT_QUICK_CONTROLS_UNIVERSAL_BACKGROUND", background.toUtf8().constData());
-        }
+        if (!background.isEmpty())
+            qputenv("QT_QUICK_CONTROLS_UNIVERSAL_BACKGROUND", background.toUtf8().constData());
     }
-
-    return version;
 }
 }

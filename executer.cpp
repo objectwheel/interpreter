@@ -2,11 +2,31 @@
 #include <filemanager.h>
 #include <qmlcomponent.h>
 #include <projectmanager.h>
+#include <parserutils.h>
 
 #include <QtQml>
 #include <QtQuick>
 
 namespace {
+    /*
+     * For positioning new dropped controls, and for setting initial
+     * size (50x50) of errornous/nongui controls.
+     */
+    void setInitialProperties(QQuickItem* item, const QString& url)
+    {
+        if (!item)
+            return;
+
+        if (!ParserUtils::exists(url, "x") && !ParserUtils::contains(url, "anchors."))
+            item->setX(SaveUtils::x(dname(dname(url))));
+
+        if (!ParserUtils::exists(url, "y") && !ParserUtils::contains(url, "anchors."))
+            item->setY(SaveUtils::y(dname(dname(url))));
+
+        if (!ParserUtils::exists(url, "width") && !ParserUtils::exists(url, "height") && !ParserUtils::contains(url, "anchors."))
+            item->setSize(QSizeF(50, 50));
+    }
+
     enum Type
     {
         Quick,
@@ -64,6 +84,17 @@ namespace {
             components << component;
         else
             delete component;
+
+        /* FIXME: But errornous objects can't reach here, they return above?
+         * Forms (or their contentItem) have not included here, because;
+         * 1. A form cannot be a nongui object
+         * 2. An errornous object will be an Quick dummy item,
+         *    So, it will already be included
+         * 3. A form cannot be a "new dropped control", which
+         *    does not need x and y
+         */
+        setInitialProperties(qobject_cast<QQuickItem*>(object),
+          path + separator() + DIR_THIS + separator() + "main.qml");
 
         return object;
     }
