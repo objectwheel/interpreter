@@ -23,7 +23,7 @@ int main(int argc, char* argv[])
     QApplication::setAttribute(Qt::AA_UseSoftwareOpenGL); // For webview tooltips
     QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
 
-    if (argc > 1 && SaveUtils::scaling(argv[1]) != "noScaling")
+    if (SaveUtils::scaling(ProjectManager::projectDirectory()) != "noScaling")
         QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 
     // Initialize application
