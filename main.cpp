@@ -58,6 +58,15 @@ int main(int argc, char* argv[])
     #endif
     QGuiApplication::setFont(font);
 
+    // Initialize Web View
+    #if defined(QT_WEBVIEW_LIB)
+    QtWebView::initialize();
+    #endif
+
+    if (argc > 1) {
+        QQuickStyle::setStyle(SaveUtils::theme(argv[1]));
+    }
+
     // Start
     QTimer::singleShot(0, &Executer::exec);
 
