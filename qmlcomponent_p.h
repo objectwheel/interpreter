@@ -7,10 +7,10 @@ class QmlComponent;
 
 class QmlComponentPrivate : public QQmlComponentPrivate
 {
-        Q_DECLARE_PUBLIC(QmlComponent)
+    Q_DECLARE_PUBLIC(QmlComponent)
 
-    public:
-        QObject* beginCreate(QQmlContextData* context);
+public:
+    QObject* beginCreate(QQmlContextData* context);
 };
 
 #endif // QMLCOMPONENTPRIVATE_H

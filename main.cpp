@@ -1,38 +1,56 @@
-#include <fit.h>
 #include <executer.h>
 #include <components.h>
 #include <filemanager.h>
 #include <projectmanager.h>
+#include <saveutils.h>
 
-#include <QtGui>
-#include <QtQuickControls2>
+#include <QtWidgets>
 
+// Initialize Web View
 #if defined(QT_WEBVIEW_LIB)
 #include <QtWebView>
 #endif
 
-#define PIXEL_SIZE 14
-#define MIN_DPI 110.0
-#define REF_DPI 149.0
+namespace {
+void setTheme(const QString& projectDir);
+}
 
 int main(int argc, char* argv[])
 {
+    setTheme(ProjectManager::projectDirectory());
+
     // Boot settings
-    qputenv("QT_QUICK_CONTROLS_STYLE", "Base");
-    QGuiApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
-    QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+    QApplication::setAttribute(Qt::AA_UseSoftwareOpenGL); // For webview tooltips
+    QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
+
+    if (argc > 1 && SaveUtils::scaling(argv[1]) != "noScaling")
+        QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 
     // Initialize application
-    QGuiApplication a(argc, argv);
-    // TODO: QGuiApplication::setApplicationDisplayName(QObject::tr("Objectwheel Interpreter"));
-    // TODO: QGuiApplication::setWindowIcon(QIcon(":/resources/images/owicon.png"));
+    QApplication a(argc, argv);
+    // TODO: QApplication::setOrganizationName("Objectwheel");
+    // TODO: QApplication::setOrganizationDomain("objectwheel.com");
+    // TODO: QApplication::setApplicationName("objectwheel-interpreter");
+    // TODO: QApplication::setApplicationDisplayName("Objectwheel Interpreter");
+    // TODO: QApplication::setApplicationVersion("1.0.0");
+    // TODO: QApplication::setWindowIcon(QIcon(":/resources/images/owicon.png"));
 
-    QQuickStyle::setStyle("Default");
+    // Font settings
+    for (const auto& font : lsfile(":/resources/fonts"))
+        QFontDatabase::addApplicationFont(":/resources/fonts/" + font);
 
-    // TODO: Multiple instance protection option
+    /* Set Font */
+#if defined(Q_OS_MACOS)
+    QFont font(".SF NS Display");
+#elif defined(Q_OS_WIN)
+    QFont font("Segoe UI");
+#else
+    QFont font("Open Sans");
+#endif
 
-    // Initialize fit library
-    fit::update(REF_DPI, MIN_DPI);
+    font.setPixelSize(14);
+    font.setStyleStrategy(QFont::PreferAntialias);
+    QApplication::setFont(font);
 
     // Init Components
     Components::init();
@@ -42,33 +60,54 @@ int main(int argc, char* argv[])
     QtWebView::initialize();
     #endif
 
-    // Font settings
-    for (const auto& font : lsfile(":/resources/fonts"))
-        QFontDatabase::addApplicationFont(":/resources/fonts/" + font);
-
-    // Add system wide fonts and set default font
-    QFont font;
-    font.setPixelSize(fit::fx(PIXEL_SIZE));
-    #if defined(Q_OS_MACOS)
-    font.setFamily(".SF NS Display");
-    #elif defined(Q_OS_WIN)
-    font.setFamily("Segoe UI");
-    #else
-    font.setFamily("Open Sans");
-    #endif
-    QGuiApplication::setFont(font);
-
-    // Initialize Web View
-    #if defined(QT_WEBVIEW_LIB)
-    QtWebView::initialize();
-    #endif
-
-    if (argc > 1) {
-        QQuickStyle::setStyle(SaveUtils::theme(argv[1]));
-    }
-
     // Start
     QTimer::singleShot(0, &Executer::exec);
 
     return a.exec();
 }
+
+namespace {
+void setTheme(const QString& projectDir)
+{
+    const auto& object = SaveUtils::theme(projectDir).toObject();
+    const auto& stylev1 = object.value("stylev1").toString();
+    const auto& stylev2 = object.value("stylev2").toString();
+    const auto& theme = object.value("theme").toString();
+    const auto& accent = object.value("accent").toString();
+    const auto& primary = object.value("primary").toString();
+    const auto& foreground = object.value("foreground").toString();
+    const auto& background = object.value("background").toString();
+
+    qputenv("QT_QUICK_CONTROLS_1_STYLE", stylev1.toUtf8().constData());
+    qputenv("QT_QUICK_CONTROLS_STYLE", stylev2.toUtf8().constData());
+
+    if (stylev2 == QString("Material")) {
+        if (!theme.isEmpty())
+            qputenv("QT_QUICK_CONTROLS_MATERIAL_THEME", theme.toUtf8().constData());
+
+        if (!accent.isEmpty())
+            qputenv("QT_QUICK_CONTROLS_MATERIAL_ACCENT", accent.toUtf8().constData());
+
+        if (!primary.isEmpty())
+            qputenv("QT_QUICK_CONTROLS_MATERIAL_PRIMARY", primary.toUtf8().constData());
+
+        if (!foreground.isEmpty())
+            qputenv("QT_QUICK_CONTROLS_MATERIAL_FOREGROUND", foreground.toUtf8().constData());
+
+        if (!background.isEmpty())
+            qputenv("QT_QUICK_CONTROLS_MATERIAL_BACKGROUND", background.toUtf8().constData());
+    } else if (stylev2 == QString("Universal")) {
+        if (!theme.isEmpty())
+            qputenv("QT_QUICK_CONTROLS_UNIVERSAL_THEME", theme.toUtf8().constData());
+
+        if (!accent.isEmpty())
+            qputenv("QT_QUICK_CONTROLS_UNIVERSAL_ACCENT", accent.toUtf8().constData());
+
+        if (!foreground.isEmpty())
+            qputenv("QT_QUICK_CONTROLS_UNIVERSAL_FOREGROUND", foreground.toUtf8().constData());
+
+        if (!background.isEmpty())
+            qputenv("QT_QUICK_CONTROLS_UNIVERSAL_BACKGROUND", background.toUtf8().constData());
+    }
+}
+} // Anonymous Namespace

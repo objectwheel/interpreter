@@ -6,19 +6,19 @@
 #include <QByteArray>
 
 namespace {
-    QString baseDir;
+QString baseDir;
 }
 
 QString ProjectManager::projectDirectory()
 {
     if (baseDir.isEmpty()) {
-        #if defined(Q_OS_ANDROID)
+#if defined(Q_OS_ANDROID)
         baseDir = QString("assets:");
-        #elif defined(Q_OS_IOS) || defined(Q_OS_WINPHONE)
+#elif defined(Q_OS_IOS) || defined(Q_OS_WINPHONE)
         baseDir = QStandardPaths::standardLocations(QStandardPaths::DataLocation).value(0);
-        #else
+#else
         baseDir = QCoreApplication::applicationDirPath();
-        #endif
+#endif
     }
 
     return baseDir;

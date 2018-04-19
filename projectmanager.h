@@ -3,9 +3,8 @@
 
 #include <QString>
 
-namespace ProjectManager
-{
-    QString projectDirectory();
+namespace ProjectManager {
+QString projectDirectory();
 }
 
 #endif // PROJECTMANAGER_H

@@ -80,6 +80,6 @@ bool Zipper::extractZip(const QByteArray& zipData, const QString& path)
     }
 
     // Close the archive, freeing any resources it was using
-    mz_zip_reader_end(&zip);
+	mz_zip_reader_end(&zip);
     return true;
 }
