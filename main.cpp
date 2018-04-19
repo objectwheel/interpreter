@@ -56,9 +56,9 @@ int main(int argc, char* argv[])
     Components::init();
 
     // Initialize Web View
-    #if defined(QT_WEBVIEW_LIB)
+#if defined(QT_WEBVIEW_LIB)
     QtWebView::initialize();
-    #endif
+#endif
 
     // Start
     QTimer::singleShot(0, &Executer::exec);
