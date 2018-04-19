@@ -1,5 +1,5 @@
 #include <executer.h>
-#include <components.h>
+//#include <components.h>
 #include <filemanager.h>
 #include <projectmanager.h>
 #include <saveutils.h>
@@ -23,7 +23,7 @@ int main(int argc, char* argv[])
     QApplication::setAttribute(Qt::AA_UseSoftwareOpenGL); // For webview tooltips
     QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
 
-    if (argc > 1 && SaveUtils::scaling(argv[1]) != "noScaling")
+    if (SaveUtils::scaling(ProjectManager::projectDirectory()) != "noScaling")
         QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 
     // Initialize application
@@ -53,7 +53,7 @@ int main(int argc, char* argv[])
     QApplication::setFont(font);
 
     // Init Components
-    Components::init();
+//    Components::init();
 
     // Initialize Web View
     #if defined(QT_WEBVIEW_LIB)
