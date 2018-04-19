@@ -8,97 +8,16 @@
 #include <QtQuick>
 
 namespace {
-    /*
-     * For positioning new dropped controls, and for setting initial
-     * size (50x50) of errornous/nongui controls.
-     */
-    void setInitialProperties(QQuickItem* item, const QString& url)
-    {
-        if (!item)
-            return;
-
-        if (!ParserUtils::exists(url, "x") && !ParserUtils::contains(url, "anchors."))
-            item->setX(SaveUtils::x(dname(dname(url))));
-
-        if (!ParserUtils::exists(url, "y") && !ParserUtils::contains(url, "anchors."))
-            item->setY(SaveUtils::y(dname(dname(url))));
-
-        if (!ParserUtils::exists(url, "width") && !ParserUtils::exists(url, "height") && !ParserUtils::contains(url, "anchors."))
-            item->setSize(QSizeF(50, 50));
-    }
-
-    enum Type
-    {
-        Quick,
-        Window,
-        NonGui
-    };
-
-    Type type(const QObject* object)
-    {
-        if (object->inherits("QQuickItem"))
-            return Quick;
-
-        if (object->isWindowType())
-            return Window;
-
-        return NonGui;
-    }
-
-    // Build qml object form url
-    QObject* create(
-        const QString& path,
-        QQmlEngine* engine,
-        QQmlContext* context,
-        QList<QmlComponent*>& components
-        )
-    {
-        auto component =
-        #if defined(Q_OS_ANDROID)
-        new QmlComponent(
-            engine,
-            QUrl(
-                path +
-                separator() +
-                DIR_THIS +
-                separator() +
-                "main.qml"
-            )
-        );
-        #else
-        new QmlComponent(
-            engine,
-            QUrl::fromUserInput(
-                path +
-                separator() +
-                DIR_THIS +
-                separator() +
-                "main.qml"
-            )
-        );
-       #endif
-
-        auto object = component->beginCreate(context);
-
-        if (!component->isError() && object != nullptr)
-            components << component;
-        else
-            delete component;
-
-        /* FIXME: But errornous objects can't reach here, they return above?
-         * Forms (or their contentItem) have not included here, because;
-         * 1. A form cannot be a nongui object
-         * 2. An errornous object will be an Quick dummy item,
-         *    So, it will already be included
-         * 3. A form cannot be a "new dropped control", which
-         *    does not need x and y
-         */
-        setInitialProperties(qobject_cast<QQuickItem*>(object),
-          path + separator() + DIR_THIS + separator() + "main.qml");
-
-        return object;
-    }
-}
+enum Type
+{
+    Quick,
+    Window,
+    NonGui
+};
+Type type(const QObject* object);
+void setInitialProperties(QQuickItem* item, const QString& url);
+QObject* create(const QString& path, QQmlEngine* engine, QQmlContext* context, QList<QmlComponent*>& components);
+} // Anonymous Namespace
 
 Executer* Executer::instance()
 {
@@ -235,3 +154,83 @@ void Executer::exec()
     connect(engine, SIGNAL(quit()), qApp, SLOT(quit()));
     connect(engine, SIGNAL(exit(int)), qApp, SLOT(quit()));
 }
+
+namespace {
+Type type(const QObject* object)
+{
+    if (object->inherits("QQuickItem"))
+        return Quick;
+
+    if (object->isWindowType())
+        return Window;
+
+    return NonGui;
+}
+
+/*
+ * For positioning new dropped controls, and for setting initial
+ * size (50x50) of errornous/nongui controls.
+ */
+void setInitialProperties(QQuickItem* item, const QString& url)
+{
+    if (!item)
+        return;
+
+    if (!ParserUtils::exists(url, "x") && !ParserUtils::contains(url, "anchors."))
+        item->setX(SaveUtils::x(dname(dname(url))));
+
+    if (!ParserUtils::exists(url, "y") && !ParserUtils::contains(url, "anchors."))
+        item->setY(SaveUtils::y(dname(dname(url))));
+
+    if (!ParserUtils::exists(url, "width") && !ParserUtils::exists(url, "height") && !ParserUtils::contains(url, "anchors."))
+        item->setSize(QSizeF(50, 50));
+}
+
+// Build qml object form url
+QObject* create(const QString& path, QQmlEngine* engine, QQmlContext* context, QList<QmlComponent*>& components)
+{
+#if defined(Q_OS_ANDROID)
+    auto component = new QmlComponent(
+        engine,
+        QUrl(
+            path +
+            separator() +
+            DIR_THIS +
+            separator() +
+            "main.qml"
+        )
+    );
+#else
+    auto component = new QmlComponent(
+        engine,
+        QUrl::fromUserInput(
+            path +
+            separator() +
+            DIR_THIS +
+            separator() +
+            "main.qml"
+        )
+    );
+#endif
+
+    auto object = component->beginCreate(context);
+
+    if (!component->isError() && object != nullptr)
+        components << component;
+    else
+        delete component;
+
+    /* FIXME: But errornous objects can't reach here, they return above?
+     * Forms (or their contentItem) have not included here, because;
+     * 1. A form cannot be a nongui object
+     * 2. An errornous object will be an Quick dummy item,
+     *    So, it will already be included
+     * 3. A form cannot be a "new dropped control", which
+     *    does not need x and y
+     */
+    setInitialProperties(qobject_cast<QQuickItem*>(object),
+        path + separator() + DIR_THIS + separator() + "main.qml");
+
+    return object;
+}
+} // Anonymous Namespace

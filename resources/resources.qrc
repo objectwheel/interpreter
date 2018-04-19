@@ -1,7 +1,5 @@
 <RCC>
     <qresource prefix="/resources">
         <file>images/owicon.png</file>
-        <file>images/phnh.svg</file>
-        <file>images/phnv.svg</file>
     </qresource>
 </RCC>

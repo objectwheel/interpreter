@@ -62,7 +62,6 @@ int main(int argc, char* argv[])
     return a.exec();
 }
 
-
 namespace {
 void setTheme(const QString& projectDir)
 {
@@ -107,4 +106,4 @@ void setTheme(const QString& projectDir)
             qputenv("QT_QUICK_CONTROLS_UNIVERSAL_BACKGROUND", background.toUtf8().constData());
     }
 }
-}
+} // Anonymous Namespace
