@@ -17,6 +17,8 @@ void setTheme(const QString& projectDir);
 
 int main(int argc, char* argv[])
 {
+    ProjectManager::init(argv[0]);
+
     setTheme(ProjectManager::projectDirectory());
 
     // Boot settings
@@ -56,9 +58,9 @@ int main(int argc, char* argv[])
 //    Components::init();
 
     // Initialize Web View
-    #if defined(QT_WEBVIEW_LIB)
+#if defined(QT_WEBVIEW_LIB)
     QtWebView::initialize();
-    #endif
+#endif
 
     // Start
     QTimer::singleShot(0, &Executer::exec);

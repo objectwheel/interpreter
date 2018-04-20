@@ -5,6 +5,7 @@
 
 namespace ProjectManager {
 QString projectDirectory();
+void init(const QString& argv);
 }
 
 #endif // PROJECTMANAGER_H

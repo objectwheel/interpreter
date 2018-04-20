@@ -25,6 +25,16 @@ android {
     ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
 }
 
+ios|macx {
+    ios {
+        project.path =
+    } else {
+        project.path = Contents/MacOS
+    }
+    project.files = /Users/omergoktas/Desktop/11/owdb /Users/omergoktas/Desktop/11/project.json
+    QMAKE_BUNDLE_DATA += project
+}
+
 #include($$PWD/app.pri)
 include($$PWD/miniz/miniz.pri)
 include($$PWD/resources/resources.pri)

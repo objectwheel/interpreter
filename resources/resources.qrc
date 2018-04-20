@@ -10,5 +10,6 @@
         <file>fonts/OpenSans-Regular.ttf</file>
         <file>fonts/OpenSans-SemiBold.ttf</file>
         <file>fonts/OpenSans-SemiBoldItalic.ttf</file>
+        <file>module-resolver.qml</file>
     </qresource>
 </RCC>

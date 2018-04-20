@@ -1,26 +1,23 @@
 #include <projectmanager.h>
 #include <filemanager.h>
-#include <zipper.h>
 
-#include <QByteArray>
-#include <QStandardPaths>
-#include <QCoreApplication>
+namespace ProjectManager {
+QString g_argv, g_baseDir;
 
-namespace {
-QString baseDir;
-}
-
-QString ProjectManager::projectDirectory()
+QString projectDirectory()
 {
-    if (baseDir.isEmpty()) {
+    if (g_baseDir.isEmpty()) {
 #if defined(Q_OS_ANDROID)
-        baseDir = QString("assets:");
-#elif defined(Q_OS_IOS) || defined(Q_OS_WINPHONE)
-        baseDir = QStandardPaths::standardLocations(QStandardPaths::DataLocation).value(0);
+        g_baseDir = "assets:";
 #else
-        baseDir = QCoreApplication::applicationDirPath();
+        g_baseDir = dname(g_argv);
 #endif
     }
-
-    return baseDir;
+        return g_baseDir;
 }
+
+void init(const QString& argv)
+{
+    g_argv = argv;
+}
+} // ProjectManager
