@@ -1,7 +1,6 @@
 ### Includes
 include($$PWD/platform/platform.pri)
 include($$PWD/resources/resources.pri)
-include($$PWD/../shared/resources/shared_resources.pri)
 
 ### App Settings
 TEMPLATE = app
@@ -28,7 +27,6 @@ HEADERS += $$PWD/executer.h \
            $$PWD/projectmanager.h
 
 ### Utils Settings
-INCLUDEPATH += $$PWD/../shared
 INCLUDEPATH += $$PWD/../utils
 INCLUDEPATH += $$PWD/../utils/fit
 INCLUDEPATH += $$PWD/../utils/miniz
