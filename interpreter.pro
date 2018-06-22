@@ -6,7 +6,7 @@ include($$PWD/resources/resources.pri)
 TEMPLATE = app
 CONFIG  += console
 CONFIG  -= app_bundle
-TARGET   = objectwheel-interpreter
+TARGET   = interpreter
 
 QT += widgets network qml qml-private quick webview websockets gamepad webchannel
 QT += sensors svg scxml purchasing positioning nfc location bluetooth datavisualization webengine
