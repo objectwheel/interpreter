@@ -114,7 +114,7 @@ void Executer::exec()
             QHash<QString, QObject*> pmap; // Only non-master nongui children were passed (because they don't have a visual parent)
             pmap[masterPath] = result;    // Others are handled in anyway, either here or above(invalid cases)
             for (const auto& path : childResults.keys()) { // WARNING: Based on QMap's ordering feature
-                auto pobject = pmap.value(dname(dname(path))); // Master item (a form(master) or a child master)
+                auto pobject = pmap.value(SaveUtils::toParentDir(path)); // Master item (a form(master) or a child master)
                 auto cobject = childResults.value(path);
 
                 if (type(cobject) == NonGui)  // Child item (master or non-master, but not form)
@@ -178,10 +178,10 @@ void setInitialProperties(QQuickItem* item, const QString& url)
         return;
 
     if (!ParserUtils::exists(url, "x") && !ParserUtils::contains(url, "anchors."))
-        item->setX(SaveUtils::x(dname(dname(url))));
+        item->setX(SaveUtils::x(SaveUtils::toParentDir(url)));
 
     if (!ParserUtils::exists(url, "y") && !ParserUtils::contains(url, "anchors."))
-        item->setY(SaveUtils::y(dname(dname(url))));
+        item->setY(SaveUtils::y(SaveUtils::toParentDir(url)));
 
     if (!ParserUtils::exists(url, "width") && !ParserUtils::exists(url, "height") && !ParserUtils::contains(url, "anchors."))
         item->setSize(QSizeF(50, 50));
