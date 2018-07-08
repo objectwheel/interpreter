@@ -3,6 +3,7 @@
 #include <qmlcomponent.h>
 #include <projectmanager.h>
 #include <parserutils.h>
+#include <saveutils.h>
 
 #include <QtQml>
 #include <QtQuick>
