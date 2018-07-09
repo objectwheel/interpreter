@@ -229,8 +229,7 @@ QObject* create(const QString& path, QQmlEngine* engine, QQmlContext* context, Q
      * 3. A form cannot be a "new dropped control", which
      *    does not need x and y
      */
-    setInitialProperties(qobject_cast<QQuickItem*>(object),
-        path + separator() + DIR_THIS + separator() + "main.qml");
+    setInitialProperties(qobject_cast<QQuickItem*>(object), SaveUtils::toUrl(path));
 
     return object;
 }
