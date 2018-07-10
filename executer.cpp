@@ -191,27 +191,9 @@ void setInitialProperties(QQuickItem* item, const QString& url)
 QObject* create(const QString& path, QQmlEngine* engine, QQmlContext* context, QList<QmlComponent*>& components)
 {
 #if defined(Q_OS_ANDROID)
-    auto component = new QmlComponent(
-        engine,
-        QUrl(
-            path +
-            separator() +
-            DIR_THIS +
-            separator() +
-            "main.qml"
-        )
-    );
+    auto component = new QmlComponent(engine, QUrl(SaveUtils::toUrl(path)));
 #else
-    auto component = new QmlComponent(
-        engine,
-        QUrl::fromUserInput(
-            path +
-            separator() +
-            DIR_THIS +
-            separator() +
-            "main.qml"
-        )
-    );
+    auto component = new QmlComponent(engine, QUrl::fromUserInput(SaveUtils::toUrl(path)));
 #endif
 
     auto object = component->beginCreate(context);
