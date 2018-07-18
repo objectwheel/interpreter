@@ -16,7 +16,6 @@ enum Type
     NonGui
 };
 Type type(const QObject* object);
-void setInitialProperties(QQuickItem* item, const QString& url);
 QObject* create(const QString& path, QQmlEngine* engine, QQmlContext* context, QList<QmlComponent*>& components);
 } // Anonymous Namespace
 
@@ -75,7 +74,7 @@ void Executer::exec()
                 } else
                     result = masterResults.value(childPath);
 
-                masterContext->setContextProperty(SaveUtils::id(childPath), result);
+                masterContext->setContextProperty(ParserUtils::id(SaveUtils::toUrl(childPath)), result);
                 childResults[childPath] = result;
             }
 
@@ -93,7 +92,7 @@ void Executer::exec()
             // Handle if the master is a form
             if (isMasterForm) {
                 Form form;
-                form.id = SaveUtils::id(masterPath);
+                form.id = ParserUtils::id(SaveUtils::toUrl(masterPath));
                 form.object = result;
                 form.context = masterContext;
                 form.isWindow = type(result) == Window;
@@ -140,7 +139,7 @@ void Executer::exec()
                 pmap[path] = cobject;
             }
 
-            masterContext->setContextProperty(SaveUtils::id(masterPath), result);
+            masterContext->setContextProperty(ParserUtils::id(SaveUtils::toUrl(masterPath)), result);
             masterResults[masterPath] = result;
         }
     }
@@ -168,25 +167,6 @@ Type type(const QObject* object)
     return NonGui;
 }
 
-/*
- * For positioning new dropped controls, and for setting initial
- * size (50x50) of errornous/nongui controls.
- */
-void setInitialProperties(QQuickItem* item, const QString& url)
-{
-    if (!item)
-        return;
-
-    if (!ParserUtils::exists(url, "x") && !ParserUtils::contains(url, "anchors."))
-        item->setX(SaveUtils::x(SaveUtils::toParentDir(url)));
-
-    if (!ParserUtils::exists(url, "y") && !ParserUtils::contains(url, "anchors."))
-        item->setY(SaveUtils::y(SaveUtils::toParentDir(url)));
-
-    if (!ParserUtils::exists(url, "width") && !ParserUtils::exists(url, "height") && !ParserUtils::contains(url, "anchors."))
-        item->setSize(QSizeF(50, 50));
-}
-
 // Build qml object form url
 QObject* create(const QString& path, QQmlEngine* engine, QQmlContext* context, QList<QmlComponent*>& components)
 {
@@ -202,16 +182,6 @@ QObject* create(const QString& path, QQmlEngine* engine, QQmlContext* context, Q
         components << component;
     else
         delete component;
-
-    /* FIXME: But errornous objects can't reach here, they return above?
-     * Forms (or their contentItem) have not included here, because;
-     * 1. A form cannot be a nongui object
-     * 2. An errornous object will be an Quick dummy item,
-     *    So, it will already be included
-     * 3. A form cannot be a "new dropped control", which
-     *    does not need x and y
-     */
-    setInitialProperties(qobject_cast<QQuickItem*>(object), SaveUtils::toUrl(path));
 
     return object;
 }
