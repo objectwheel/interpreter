@@ -1,7 +1,6 @@
-#include <executer.h>
+#include <executionmanager.h>
 #include <filemanager.h>
 #include <qmlcomponent.h>
-#include <projectmanager.h>
 #include <parserutils.h>
 #include <saveutils.h>
 
@@ -9,23 +8,54 @@
 #include <QtQuick>
 
 namespace {
-enum Type
+Type type(const QObject* object)
 {
-    Quick,
-    Window,
-    NonGui
-};
-Type type(const QObject* object);
-QObject* create(const QString& path, QQmlEngine* engine, QQmlContext* context, QList<QmlComponent*>& components);
-} // Anonymous Namespace
+    if (object->inherits("QQuickItem"))
+        return Quick;
 
-Executer* Executer::instance()
-{
-    static Executer instance;
-    return &instance;
+    if (object->isWindowType())
+        return Window;
+
+    return NonGui;
 }
 
-void Executer::exec()
+// Build qml object form url
+QObject* create(const QString& path, QQmlEngine* engine, QQmlContext* context, QList<QmlComponent*>& components)
+{
+#if defined(Q_OS_ANDROID)
+    auto component = new QmlComponent(engine, QUrl(SaveUtils::toUrl(path)));
+#else
+    auto component = new QmlComponent(engine, QUrl::fromUserInput(SaveUtils::toUrl(path)));
+#endif
+
+    auto object = component->beginCreate(context);
+
+    if (!component->isError() && object != nullptr)
+        components << component;
+    else
+        delete component;
+
+    return object;
+}
+}
+
+ExecutionManager* ExecutionManager::s_instance = nullptr;
+ExecutionManager::ExecutionManager(QObject* parent) : QObject(parent)
+{
+    s_instance = this;
+}
+
+ExecutionManager::~ExecutionManager()
+{
+    s_instance = nullptr;
+}
+
+ExecutionManager* ExecutionManager::instance()
+{
+    return s_instance;
+}
+
+void ExecutionManager::exec()
 {
     struct Form {
         bool isWindow;
@@ -34,7 +64,7 @@ void Executer::exec()
         QQmlContext* context;
     };
 
-    auto engine = new QQmlEngine;
+    auto engine = new QQmlEngine(instance());
     const auto& formPaths = SaveUtils::formPaths(ProjectManager::instance()->projectDirectory());
 
     QList<Form> forms;
@@ -154,35 +184,3 @@ void Executer::exec()
     connect(engine, SIGNAL(quit()), qApp, SLOT(quit()));
     connect(engine, SIGNAL(exit(int)), qApp, SLOT(quit()));
 }
-
-namespace {
-Type type(const QObject* object)
-{
-    if (object->inherits("QQuickItem"))
-        return Quick;
-
-    if (object->isWindowType())
-        return Window;
-
-    return NonGui;
-}
-
-// Build qml object form url
-QObject* create(const QString& path, QQmlEngine* engine, QQmlContext* context, QList<QmlComponent*>& components)
-{
-#if defined(Q_OS_ANDROID)
-    auto component = new QmlComponent(engine, QUrl(SaveUtils::toUrl(path)));
-#else
-    auto component = new QmlComponent(engine, QUrl::fromUserInput(SaveUtils::toUrl(path)));
-#endif
-
-    auto object = component->beginCreate(context);
-
-    if (!component->isError() && object != nullptr)
-        components << component;
-    else
-        delete component;
-
-    return object;
-}
-} // Anonymous Namespace
