@@ -3,7 +3,7 @@
 
 #include <QObject>
 
-class ExecutionManager;
+class QmlApplication;
 
 class ApplicationCore final : public QObject
 {
@@ -16,8 +16,11 @@ public:
 private:
     explicit ApplicationCore(QObject* parent = nullptr);
 
+private slots:
+    void onError(const QString& errorString) const;
+
 private:
-    static ExecutionManager* s_executionManager;
+    static QmlApplication* s_executionManager;
 };
 
 #endif // APPLICATIONCORE_H

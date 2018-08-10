@@ -1,12 +1,13 @@
 #include <applicationcore.h>
 #include <components.h>
 #include <appfontsettings.h>
-#include <executionmanager.h>
+#include <qmlapplication.h>
+#include <commandlineparser.h>
 
 #include <QApplication>
 #include <QtWebView>
 
-ExecutionManager* ApplicationCore::s_executionManager = nullptr;
+QmlApplication* ApplicationCore::s_executionManager = nullptr;
 
 ApplicationCore::ApplicationCore(QObject* parent) : QObject(parent)
 {
@@ -18,8 +19,6 @@ ApplicationCore::ApplicationCore(QObject* parent) : QObject(parent)
     QApplication::setApplicationVersion("1.0.0");
     QApplication::setWindowIcon(QIcon(":/resources/images/owicon.png"));
 
-    s_executionManager = new ExecutionManager(this);
-
     /* Set Font */
     AppFontSettings::apply();
 
@@ -29,7 +28,20 @@ ApplicationCore::ApplicationCore(QObject* parent) : QObject(parent)
     // Initialize Web View
     QtWebView::initialize();
 
-    ExecutionManager::exec();
+    s_executionManager = new QmlApplication(this);
+    connect(s_executionManager, &QmlApplication::error,
+            this, &ApplicationCore::onError, Qt::QueuedConnection);
+    connect(s_executionManager, &QmlApplication::quit,
+            qApp, &QApplication::quit, Qt::QueuedConnection);
+    connect(s_executionManager, QOverload<int>::of(&QmlApplication::exit),
+            this, [=] (int c) { qApp->exit(c); }, Qt::QueuedConnection);
+    s_executionManager->exec(CommandlineParser::projectDirectory());
+}
+
+void ApplicationCore::onError(const QString& errorString) const
+{
+    qWarning().noquote() << errorString.trimmed();
+    QApplication::exit(EXIT_FAILURE);
 }
 
 void ApplicationCore::init(QObject* parent)

@@ -19,13 +19,13 @@ INCLUDEPATH += $$PWD
 DEPENDPATH  += $$PWD
 
 SOURCES += $$PWD/main.cpp \
-           $$PWD/executionmanager.cpp \
+           $$PWD/qmlapplication.cpp \
            $$PWD/qmlcomponent.cpp \
            $$PWD/applicationcore.cpp \
            $$PWD/bootsettings.cpp \
            $$PWD/commandlineparser.cpp
 
-HEADERS += $$PWD/executionmanager.h \
+HEADERS += $$PWD/qmlapplication.h \
            $$PWD/qmlcomponent.h \
            $$PWD/bootsettings.h \
            $$PWD/applicationcore.h \
