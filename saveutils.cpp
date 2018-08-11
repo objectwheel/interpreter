@@ -3,116 +3,172 @@
 #include <hashfactory.h>
 
 #include <QJsonArray>
-#include <QJsonDocument>
 #include <QJsonObject>
+#include <QJsonDocument>
 
-/******************************************************************/
-/**          D A T A B A S E  I N F R A S T R U C T U R E        **/
-/******************************************************************/
-/** POPERTIES:                                                   **/
-/*  Elements: Main-form(master), Ordinary-form(master),           */
-/*            Child-item(master), Child-item(non-master)          */
-/*  Types:    Quick, Non-gui, Window                              */
-/*                                                                */
-/** RULES:                                                       **/
-/* - Non-gui elements can not be master (or form)                 */
-/* - Main form has to be window type                              */
-/* - Other forms could be quick item or window type (not non-gui) */
-/* - Children could be non-gui or quick item type (not window)    */
-/* - A form has to be master item                                 */
-/******************************************************************/
+/*
+                   DATABASE INFRASTRUCTURE
 
-void SaveUtils::setProperty(QByteArray& propertyData, const QString& property, const QJsonValue& value)
+    POPERTIES:
+        Elements:
+            Main-form(master), Ordinary-form(master),
+            Child-item(master), Child-item(non-master)
+
+        Types:
+            Quick, Non-gui, Window
+
+    RULES:
+        Non-gui elements can not be master (or form)
+        Main form has to be window type
+        Other forms could be quick item or window type (not non-gui)
+        Children could be non-gui or quick item type (not window)
+        A form has to be master item
+*/
+
+namespace {
+
+void exchangeMatchesForFile(const QString& filePath, const QString& from, const QString& to)
 {
-    if (propertyData.isEmpty())
-        return;
-
-    auto jobj = QJsonDocument::fromJson(propertyData).object();
-    jobj[property] = value;
-    propertyData = QJsonDocument(jobj).toJson();
+    QByteArray data = rdfile(filePath);
+    data.replace(from.toUtf8(), to.toUtf8());
+    wrfile(filePath, data);
 }
 
-QJsonValue SaveUtils::property(const QByteArray& propertyData, const QString& property)
+QJsonObject rootJsonObjectForFile(const QString& fileName)
 {
-    if (propertyData.isEmpty())
-        return QJsonValue();
-
-    const auto& jobj = QJsonDocument::fromJson(propertyData).object();
-    return jobj.value(property);
+    return QJsonDocument::fromJson(rdfile(fileName)).object();
 }
 
-void SaveUtils::setX(const QString& rootPath, qreal x)
+void writeJsonObjectToFile(const QJsonObject& jsonObject, const QString& fileName)
 {
-    const auto& propertyPath = rootPath + separator() + DIR_THIS + separator() + FILE_PROPERTIES;
-    auto propertyData = rdfile(propertyPath);
-    setProperty(propertyData, TAG_X, x);
-    wrfile(propertyPath, propertyData);
+    wrfile(fileName, QJsonDocument(jsonObject).toJson());
+}
 }
 
-void SaveUtils::setY(const QString& rootPath, qreal y)
+bool SaveUtils::isForm(const QString& rootPath)
 {
-    const auto& propertyPath = rootPath + separator() + DIR_THIS + separator() + FILE_PROPERTIES;
-    auto propertyData = rdfile(propertyPath);
-    setProperty(propertyData, TAG_Y, y);
-    wrfile(propertyPath, propertyData);
+    return DIR_OWDB == fname(dname(rootPath));
 }
 
-void SaveUtils::flushId(const QString& topPath, const QString& id)
+/*
+    Returns true if given path belongs to main form
+    It doesn't check whether rootPath belong to a form or not.
+*/
+bool SaveUtils::isMain(const QString& rootPath)
 {
-    const auto& propertyPath = topPath + separator() + DIR_THIS + separator() + FILE_PROPERTIES;
-    auto propertyData = rdfile(propertyPath);
-    setProperty(propertyData, TAG_ID, id);
-    wrfile(propertyPath, propertyData);
-}
-
-void SaveUtils::flushSuid(const QString& topPath, const QString& suid)
-{
-    const auto& fromUid = SaveUtils::suid(topPath);
-    if (!fromUid.isEmpty()) {
-        for (const auto& path : fps(FILE_PROPERTIES, topPath)) {
-            if (SaveUtils::suid(dname(dname(path))) == fromUid) {
-                auto propertyData = rdfile(path);
-                setProperty(propertyData, TAG_SUID, suid);
-                wrfile(path, propertyData);
-            }
-        }
-    } else {
-        const auto& propertyPath = topPath + separator() + DIR_THIS + separator() + FILE_PROPERTIES;
-        auto propertyData = rdfile(propertyPath);
-        setProperty(propertyData, TAG_SUID, suid);
-        wrfile(propertyPath, propertyData);
-    }
-}
-
-bool SaveUtils::isOwctrl(const QByteArray& propertyData)
-{
-    const auto& sign = property(propertyData, TAG_OWCTRL_SIGN).toString();
-    const auto& uid = property(propertyData, TAG_UID).toString();
-    return (sign == SIGN_OWCTRL && !uid.isEmpty());
+    return fname(rootPath) == DIR_MAINFORM;
 }
 
 bool SaveUtils::isOwctrl(const QString& rootPath)
 {
-    const auto& propertyPath = rootPath + separator() + DIR_THIS + separator() + FILE_PROPERTIES;
-    const auto& propertyData = rdfile(propertyPath);
-    return isOwctrl(propertyData);
-}
-
-bool SaveUtils::isOwprj(const QByteArray& propertyData)
-{
-    const auto& sign = property(propertyData, PTAG_OWPRJ_SIGN).toString();
-    return sign == SIGN_OWPRJ;
+    const QString& sign = property(rootPath, TAG_OWCTRL_SIGN).toString();
+    return sign == SIGN_OWCTRL && !uid(rootPath).isEmpty();
 }
 
 bool SaveUtils::isOwprj(const QString& projectDir)
 {
-    const auto& propertyPath = projectDir + separator() + FILE_PROJECT;
-    const auto& propertyData = rdfile(propertyPath);
-    return isOwprj(propertyData);
+    const QString& sign = projectProperty(projectDir, PTAG_OWPRJ_SIGN).toString();
+    return sign == SIGN_OWPRJ;
 }
 
-// Searches for all controls paths, starting from topPath.
-// Returns all control paths (rootPaths) within given topPath.
+/*
+    Returns biggest number from integer named dirs.
+    If no integer named dir exists, 0 returned.
+    If no dir exists or dirs are smaller than zero, 0 returned.
+*/
+int SaveUtils::biggestDir(const QString& basePath)
+{
+    int num = 0;
+    for (const QString& dir : lsdir(basePath)) {
+        if (dir.toInt() > num)
+            num = dir.toInt();
+    }
+    return num;
+}
+
+/*
+    Counts all children paths (rootPath) within given root path.
+    Returns children count only if they have match between their and given suid.
+    If given suid is empty then rootPath's uid is taken.
+*/
+int SaveUtils::childrenCount(const QString& rootPath, QString suid)
+{
+    int counter = 0;
+
+    if (rootPath.isEmpty())
+        return counter;
+
+    if (suid.isEmpty())
+        suid = uid(rootPath);
+
+    const QString& childrenDir = toChildrenDir(rootPath);
+    for (const QString& childFolder : lsdir(childrenDir)) {
+        const QString& childDir = childrenDir + separator() + childFolder;
+        if (isOwctrl(childDir) && SaveUtils::suid(childDir) == suid) {
+            ++counter;
+            counter += childrenCount(childDir, suid);
+        }
+    }
+
+    return counter;
+}
+
+QString SaveUtils::toUrl(const QString& rootPath)
+{
+    return rootPath + separator() + DIR_THIS + separator() + FILE_MAIN;
+}
+
+QString SaveUtils::toIcon(const QString& rootPath)
+{
+    return rootPath + separator() + DIR_THIS + separator() + FILE_ICON;
+}
+
+QString SaveUtils::toThisDir(const QString& rootPath)
+{
+    return rootPath + separator() + DIR_THIS;
+}
+
+QString SaveUtils::toParentDir(const QString& topPath)
+{
+    return dname(dname(topPath));
+}
+
+QString SaveUtils::toChildrenDir(const QString& rootPath)
+{
+    return rootPath + separator() + DIR_CHILDREN;
+}
+
+QString SaveUtils::toProjectFile(const QString& projectDir)
+{
+    return projectDir + separator() + FILE_PROJECT;
+}
+
+QString SaveUtils::toControlFile(const QString& rootPath)
+{
+    return rootPath + separator() + DIR_THIS + separator() + FILE_CONTROL;
+}
+
+QStringList SaveUtils::formPaths(const QString& projectDir)
+{
+    QStringList paths;
+
+    if (projectDir.isEmpty())
+        return paths;
+
+    const QString& dirOwdb = projectDir + separator() + DIR_OWDB;
+    for (const QString& formFolder : lsdir(dirOwdb)) {
+        const QString& formDir = dirOwdb + separator() + formFolder;
+        if (isOwctrl(formDir))
+            paths.append(formDir);
+    }
+
+    return paths;
+}
+
+/*
+    Searches for all controls paths, starting from topPath.
+    Returns all control paths (rootPaths) within given topPath.
+*/
 QStringList SaveUtils::controlPaths(const QString& topPath)
 {
     QStringList paths;
@@ -120,106 +176,10 @@ QStringList SaveUtils::controlPaths(const QString& topPath)
     if (topPath.isEmpty())
         return paths;
 
-    for (const auto& path : fps(FILE_PROPERTIES, topPath)) {
-        const auto& propertyData = rdfile(path);
-        if (isOwctrl(propertyData))
-            paths << dname(dname(path));
-    }
-
-    return paths;
-}
-
-// Update all matching 'from's to 'to's within given file
-void SaveUtils::updateFile(const QString& filePath, const QString& from, const QString& to)
-{
-    auto data = rdfile(filePath);
-    data.replace(from.toUtf8(), to.toUtf8());
-    wrfile(filePath, data);
-}
-
-// Recalculates all uids belongs to given control and its children (all).
-// Both database and in-memory data are updated.
-void SaveUtils::recalculateUids(const QString& topPath)
-{
-    if (topPath.isEmpty())
-        return;
-
-    QStringList paths, properties;
-
-    properties << fps(FILE_PROPERTIES, topPath);
-    paths << properties;
-
-    for (auto pfile : properties) {
-        auto propertyData = rdfile(pfile);
-
-        if (!SaveUtils::isOwctrl(propertyData))
-            continue;
-
-        auto uid = SaveUtils::property(propertyData, TAG_UID).toString();
-        auto newUid = HashFactory::generate();
-
-        for (auto file : paths)
-            SaveUtils::updateFile(file, uid, newUid);
-    }
-}
-
-// Returns biggest number from integer named dirs.
-// If no integer named dir exists, 0 returned.
-// If no dir exists or dirs are smaller than zero, 0 returned.
-int SaveUtils::biggestDir(const QString& basePath)
-{
-    int num = 0;
-    for (const auto& dir : lsdir(basePath))
-        if (dir.toInt() > num)
-            num = dir.toInt();
-    return num;
-}
-
-QStringList SaveUtils::formPaths(const QString& projectDir)
-{
-    QStringList paths;
-    if (projectDir.isEmpty())
-        return paths;
-
-    auto baseDir = projectDir + separator() + DIR_OWDB;
-
-    for (auto dir : lsdir(baseDir)) {
-        auto propertyPath = baseDir + separator() + dir + separator() +
-                DIR_THIS + separator() + FILE_PROPERTIES;
-        auto propertyData = rdfile(propertyPath);
-
-        if (isOwctrl(propertyData))
-            paths << dname(dname(propertyPath));
-    }
-
-    return paths;
-}
-
-// Returns all children paths (rootPath) within given root path.
-// Returns children only if they have match between their and given suid.
-// If given suid is empty then rootPath's uid is taken.
-QStringList SaveUtils::childrenPaths(const QString& rootPath, QString suid)
-{
-    QStringList paths;
-
-    if (rootPath.isEmpty())
-        return paths;
-
-    if (suid.isEmpty()) {
-        const auto& propertyPath = rootPath + separator() + DIR_THIS + separator() + FILE_PROPERTIES;
-        const auto& propertyData = rdfile(propertyPath);
-        suid = property(propertyData, TAG_UID).toString();
-    }
-
-    const auto& childrenPath = rootPath + separator() + DIR_CHILDREN;
-    for (const auto& dir : lsdir(childrenPath)) {
-        const auto& propertyPath = childrenPath + separator() + dir + separator() + DIR_THIS + separator() + FILE_PROPERTIES;
-        const auto& propertyData = rdfile(propertyPath);
-
-        if (isOwctrl(propertyData) && property(propertyData, TAG_SUID).toString() == suid) {
-            paths << dname(dname(propertyPath));
-            paths << childrenPaths(dname(dname(propertyPath)), suid);
-        }
+    for (const QString& controlFilePath : fps(FILE_CONTROL, topPath)) {
+        const QString& controlDir = toParentDir(controlFilePath);
+        if (isOwctrl(controlDir))
+            paths.append(controlDir);
     }
 
     return paths;
@@ -228,161 +188,178 @@ QStringList SaveUtils::childrenPaths(const QString& rootPath, QString suid)
 QStringList SaveUtils::masterPaths(const QString& topPath)
 {
     QStringList paths;
-    const auto& ctrlPaths = controlPaths(topPath);
-
     QStringList foundSuids;
-    for (const auto& path : ctrlPaths) {
-        const auto& _suid = suid(path);
-        if (!_suid.isEmpty() && !foundSuids.contains(_suid))
-            foundSuids << _suid;
+
+    const QStringList& ctrlPaths = controlPaths(topPath);
+    for (const QString& controlPath : ctrlPaths) {
+        const QString& controlSuid = suid(controlPath);
+        if (!controlSuid.isEmpty() && !foundSuids.contains(controlSuid))
+            foundSuids.append(controlSuid);
     }
 
-    for (const auto& path : ctrlPaths) {
-        if (foundSuids.contains(uid(path)))
-            paths << path;
+    for (const QString& controlPath : ctrlPaths) {
+        if (foundSuids.contains(uid(controlPath)))
+            paths.append(controlPath);
     }
 
-    std::sort(paths.begin(), paths.end(),
-    [](const QString& a, const QString& b)
+    std::sort(paths.begin(), paths.end(), [] (const QString& a, const QString& b)
     { return a.size() > b.size(); });
 
     if (paths.isEmpty() && isForm(topPath))
-        paths << topPath;
+        paths.append(topPath);
 
     return paths;
 }
 
-bool SaveUtils::isForm(const QString& rootPath)
+/*
+    Returns all children paths (rootPath) within given root path.
+    Returns children only if they have match between their and given suid.
+    If given suid is empty then rootPath's uid is taken.
+*/
+QStringList SaveUtils::childrenPaths(const QString& rootPath, QString suid)
 {
-    return DIR_OWDB == fname(dname(rootPath));
-}
+    QStringList paths;
 
-// Returns true if given path belongs to main form
-// It doesn't check whether rootPath belong to a form or not.
-bool SaveUtils::isMain(const QString& rootPath)
-{
-    return (fname(rootPath) == DIR_MAINFORM);
-}
+    if (rootPath.isEmpty())
+        return paths;
 
-qreal SaveUtils::x(const QString& rootPath)
-{
-    const auto& propertyPath = rootPath + separator() + DIR_THIS + separator() + FILE_PROPERTIES;
-    const auto& propertyData = rdfile(propertyPath);
-    return property(propertyData, TAG_X).toDouble();
-}
+    if (suid.isEmpty())
+        suid = uid(rootPath);
 
-qreal SaveUtils::y(const QString& rootPath)
-{
-    const auto& propertyPath = rootPath + separator() + DIR_THIS + separator() + FILE_PROPERTIES;
-    const auto& propertyData = rdfile(propertyPath);
-    return property(propertyData, TAG_Y).toDouble();
+    const QString& childrenDir = toChildrenDir(rootPath);
+    for (const QString& childFolder : lsdir(childrenDir)) {
+        const QString& childDir = childrenDir + separator() + childFolder;
+        if (isOwctrl(childDir) && SaveUtils::suid(childDir) == suid) {
+            paths.append(childDir);
+            paths.append(childrenPaths(childDir, suid));
+        }
+    }
+
+    return paths;
 }
 
 QString SaveUtils::id(const QString& rootPath)
 {
-    const auto& propertyPath = rootPath + separator() + DIR_THIS + separator() + FILE_PROPERTIES;
-    const auto& propertyData = rdfile(propertyPath);
-    return property(propertyData, TAG_ID).toString();
+    return property(rootPath, TAG_ID).toString();
 }
 
 QString SaveUtils::uid(const QString& rootPath)
 {
-    const auto& propertyPath = rootPath + separator() + DIR_THIS + separator() + FILE_PROPERTIES;
-    const auto& propertyData = rdfile(propertyPath);
-    return property(propertyData, TAG_UID).toString();
+    return property(rootPath, TAG_UID).toString();
 }
 
 QString SaveUtils::suid(const QString& rootPath)
 {
-    const auto& propertyPath = rootPath + separator() + DIR_THIS + separator() + FILE_PROPERTIES;
-    const auto& propertyData = rdfile(propertyPath);
-    return property(propertyData, TAG_SUID).toString();
+    return property(rootPath, TAG_SUID).toString();
 }
 
-QString SaveUtils::toolName(const QString& toolRootPath)
+QString SaveUtils::name(const QString& rootPath)
 {
-    const auto& propertyPath = toolRootPath + separator() + DIR_THIS + separator() + FILE_PROPERTIES;
-    const auto& propertyData = rdfile(propertyPath);
-    return property(propertyData, TAG_NAME).toString();
+    return property(rootPath, TAG_NAME).toString();
 }
 
-QString SaveUtils::toolCategory(const QString& toolRootPath)
+QString SaveUtils::category(const QString& rootPath)
 {
-    const auto& propertyPath = toolRootPath + separator() + DIR_THIS + separator() + FILE_PROPERTIES;
-    const auto& propertyData = rdfile(propertyPath);
-    return property(propertyData, TAG_CATEGORY).toString();
+    return property(rootPath, TAG_CATEGORY).toString();
 }
 
-QString SaveUtils::hash(const QString& projectDir)
+QString SaveUtils::projectHash(const QString& projectDir)
 {
-    const auto& propertyPath = projectDir + separator() + FILE_PROJECT;
-    const auto& propertyData = rdfile(propertyPath);
-    return property(propertyData, PTAG_HASH).toString();
+    return projectProperty(projectDir, PTAG_HASH).toString();
 }
 
 QString SaveUtils::projectName(const QString& projectDir)
 {
-    const auto& propertyPath = projectDir + separator() + FILE_PROJECT;
-    const auto& propertyData = rdfile(propertyPath);
-    return property(propertyData, PTAG_PROJECTNAME).toString();
+    return projectProperty(projectDir, PTAG_NAME).toString();
 }
 
-QString SaveUtils::description(const QString& projectDir)
+QString SaveUtils::projectDescription(const QString& projectDir)
 {
-    const auto& propertyPath = projectDir + separator() + FILE_PROJECT;
-    const auto& propertyData = rdfile(propertyPath);
-    return property(propertyData, PTAG_DESCRIPTION).toString();
+    return projectProperty(projectDir, PTAG_DESCRIPTION).toString();
 }
 
-QString SaveUtils::owner(const QString& projectDir)
+QString SaveUtils::projectOwner(const QString& projectDir)
 {
-    const auto& propertyPath = projectDir + separator() + FILE_PROJECT;
-    const auto& propertyData = rdfile(propertyPath);
-    return property(propertyData, PTAG_OWNER).toString();
+    return projectProperty(projectDir, PTAG_OWNER).toString();
 }
 
-QString SaveUtils::crDate(const QString& projectDir)
+QString SaveUtils::projectCrDate(const QString& projectDir)
 {
-    const auto& propertyPath = projectDir + separator() + FILE_PROJECT;
-    const auto& propertyData = rdfile(propertyPath);
-    return property(propertyData, PTAG_CRDATE).toString();
+    return projectProperty(projectDir, PTAG_CRDATE).toString();
 }
 
-QString SaveUtils::mfDate(const QString& projectDir)
+QString SaveUtils::projectMfDate(const QString& projectDir)
 {
-    const auto& propertyPath = projectDir + separator() + FILE_PROJECT;
-    const auto& propertyData = rdfile(propertyPath);
-    return property(propertyData, PTAG_MFDATE).toString();
+    return projectProperty(projectDir, PTAG_MFDATE).toString();
 }
 
-QString SaveUtils::size(const QString& projectDir)
+QString SaveUtils::projectSize(const QString& projectDir)
 {
-    const auto& propertyPath = projectDir + separator() + FILE_PROJECT;
-    const auto& propertyData = rdfile(propertyPath);
-    return property(propertyData, PTAG_SIZE).toString();
+    return projectProperty(projectDir, PTAG_SIZE).toString();
 }
 
-QString SaveUtils::scaling(const QString& projectDir)
+QString SaveUtils::projectScaling(const QString& projectDir)
 {
-    const auto& propertyPath = projectDir + separator() + FILE_PROJECT;
-    const auto& propertyData = rdfile(propertyPath);
-    return property(propertyData, PTAG_SCALING).toString();
+    return projectProperty(projectDir, PTAG_SCALING).toString();
 }
 
-QJsonValue SaveUtils::theme(const QString& projectDir)
+QJsonValue SaveUtils::projectTheme(const QString& projectDir)
 {
-    const auto& propertyPath = projectDir + separator() + FILE_PROJECT;
-    const auto& propertyData = rdfile(propertyPath);
-    return property(propertyData, PTAG_THEME);
+    return projectProperty(projectDir, PTAG_THEME);
+}
+
+QJsonValue SaveUtils::property(const QString& rootPath, const QString& property)
+{
+    return rootJsonObjectForFile(toControlFile(rootPath)).value(property);
+}
+
+QJsonValue SaveUtils::projectProperty(const QString& projectDir, const QString& property)
+{
+    return rootJsonObjectForFile(toProjectFile(projectDir)).value(property);
+}
+
+void SaveUtils::setProperty(const QString& rootPath, const QString& property, const QJsonValue& value)
+{
+    Q_ASSERT(!rootPath.isEmpty() && !property.isEmpty() && isOwctrl(rootPath));
+
+    const QString& controlFile = toControlFile(rootPath);
+    QJsonObject rootJsonObject = rootJsonObjectForFile(controlFile);
+    rootJsonObject.insert(property, value);
+    writeJsonObjectToFile(rootJsonObject, controlFile);
 }
 
 void SaveUtils::setProjectProperty(const QString& projectDir, const QString& property, const QJsonValue& value)
 {
-    if (projectDir.isEmpty() || !isOwprj(projectDir))
+    Q_ASSERT(!projectDir.isEmpty() && !property.isEmpty() && isOwprj(projectDir));
+
+    const QString& projectFile = toProjectFile(projectDir);
+    QJsonObject rootJsonObject = rootJsonObjectForFile(projectFile);
+    rootJsonObject.insert(property, value);
+    writeJsonObjectToFile(rootJsonObject, projectFile);
+}
+
+/*
+    Recalculates all uids belongs to given control and its children (all).
+    Suids and everything that are related to given uid also updated in control files.
+*/
+void SaveUtils::regenerateUids(const QString& topPath)
+{
+    if (topPath.isEmpty())
         return;
 
-    const auto& propertyPath = projectDir + separator() + FILE_PROJECT;
-    auto propertyData = rdfile(propertyPath);
-    setProperty(propertyData, property, value);
-    wrfile(propertyPath, propertyData);
+    const QStringList& controlFiles = fps(FILE_CONTROL, topPath);
+    for (const QString& controlFile : controlFiles) {
+        const QString& controlDir = toParentDir(controlFile);
+
+        if (!isOwctrl(controlDir))
+            continue;
+
+        const QString& controlUid = uid(controlDir);
+        const QString& newUid = HashFactory::generate();
+
+        for (const QString& controlFile : controlFiles) {
+            if (isOwctrl(toParentDir(controlFile)))
+                exchangeMatchesForFile(controlFile, controlUid, newUid);
+        }
+    }
 }

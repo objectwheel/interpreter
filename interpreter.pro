@@ -1,11 +1,9 @@
 ### Includes
-include($$PWD/platform/platform.pri)
 include($$PWD/resources/resources.pri)
+include($$PWD/components/components.pri)
 
 ### App Settings
 TEMPLATE = app
-CONFIG  += console
-CONFIG  -= app_bundle
 TARGET   = interpreter
 DEFINES += QT_DEPRECATED_WARNINGS
 DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000
@@ -23,19 +21,36 @@ SOURCES += $$PWD/main.cpp \
            $$PWD/qmlcomponent.cpp \
            $$PWD/applicationcore.cpp \
            $$PWD/bootsettings.cpp \
-           $$PWD/commandlineparser.cpp
+           $$PWD/commandlineparser.cpp \
+           $$PWD/filemanager.cpp \
+           $$PWD/saveutils.cpp \
+           $$PWD/hashfactory.cpp \
+           $$PWD/appfontsettings.cpp \
+           $$PWD/quicktheme.cpp
 
 HEADERS += $$PWD/qmlapplication.h \
            $$PWD/qmlcomponent.h \
            $$PWD/bootsettings.h \
            $$PWD/applicationcore.h \
-           $$PWD/commandlineparser.h
+           $$PWD/commandlineparser.h \
+           $$PWD/filemanager.h \
+           $$PWD/saveutils.h \
+           $$PWD/hashfactory.h \
+           $$PWD/appfontsettings.h \
+           $$PWD/quicktheme.h
 
-### Utils Settings
-INCLUDEPATH += $$PWD/../utils
-INCLUDEPATH += $$PWD/../utils/fit
-INCLUDEPATH += $$PWD/../utils/miniz
-INCLUDEPATH += $$PWD/../utils/components
-LIBS        += -L$$OUT_PWD/../utils -lutils
-windows:CONFIG(release, debug | release):LIBS += -L$$OUT_PWD/../utils/release
-windows:CONFIG(debug, debug | release):LIBS += -L$$OUT_PWD/../utils/debug
+android {
+    DISTFILES += $$PWD/android/AndroidManifest.xml \
+                 $$PWD/android/res/values/libs.xml
+    ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
+}
+
+ios|macx {
+    ios {
+        project.path =
+    } else {
+        project.path = Contents/MacOS
+    }
+    project.files = /Users/omergoktas/Desktop/owtestsuite/owdb /Users/omergoktas/Desktop/owtestsuite/project.json
+    QMAKE_BUNDLE_DATA += project
+}

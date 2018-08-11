@@ -1,10 +1,11 @@
 #ifndef FILEMANAGER_H
 #define FILEMANAGER_H
 
+//#include <utils_global.h>
 #include <QObject>
 #include <QVariant>
 
-class FileManager : public QObject
+class /*UTILS_EXPORT*/ FileManager : public QObject
 {
     Q_OBJECT
 

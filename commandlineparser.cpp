@@ -1,11 +1,16 @@
 #include <commandlineparser.h>
+#include <filemanager.h>
 
 QString CommandlineParser::s_projectDirectory;
 
 void CommandlineParser::init(int argc, char* argv[])
 {
-    Q_ASSERT_X(argc == 2, "init", "Number of total commandline arguments must be equal to 2");
-    s_projectDirectory = argv[1];
+    Q_UNUSED(argc);
+#if defined(Q_OS_ANDROID)
+    s_projectDirectory = "assets:";
+#else
+    s_projectDirectory = dname(argv[0]);
+#endif
 }
 
 QString CommandlineParser::projectDirectory()

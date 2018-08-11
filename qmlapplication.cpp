@@ -1,6 +1,5 @@
 #include <qmlapplication.h>
 #include <qmlcomponent.h>
-#include <parserutils.h>
 #include <saveutils.h>
 
 namespace {
@@ -58,7 +57,7 @@ QmlApplication::ControlInstance QmlApplication::createInstance(const QString& di
     Q_ASSERT_X(SaveUtils::isOwctrl(dir), "createInstance", "Owctrl™ structure is corrupted.");
 
     const QString& url = SaveUtils::toUrl(dir);
-    const QString& id = ParserUtils::id(url);
+    const QString& id = SaveUtils::id(dir);
 
     Q_ASSERT(!id.isEmpty());
 

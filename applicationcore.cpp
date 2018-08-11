@@ -17,7 +17,7 @@ ApplicationCore::ApplicationCore(QObject* parent) : QObject(parent)
     QApplication::setApplicationName("interpreter");
     QApplication::setApplicationDisplayName("Objectwheel Interpreter");
     QApplication::setApplicationVersion("1.0.0");
-    QApplication::setWindowIcon(QIcon(":/resources/images/owicon.png"));
+    // QApplication::setWindowIcon(QIcon(":/resources/images/owicon.png"));
 
     /* Set Font */
     AppFontSettings::apply();
