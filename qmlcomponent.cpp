@@ -1,5 +1,4 @@
 #include <qmlcomponent.h>
-#include <qmlcomponent_p.h>
 
 QObject* QmlComponentPrivate::beginCreate(QQmlContextData* context)
 {
@@ -7,27 +6,27 @@ QObject* QmlComponentPrivate::beginCreate(QQmlContextData* context)
 
     if (!context) {
         qWarning("QQmlComponent: Cannot create a component in a null context");
-        return 0;
+        return nullptr;
     }
 
     if (!context->isValid()) {
         qWarning("QQmlComponent: Cannot create a component in an invalid context");
-        return 0;
+        return nullptr;
     }
 
     if (context->engine != engine) {
         qWarning("QQmlComponent: Must create component in context from the same QQmlEngine");
-        return 0;
+        return nullptr;
     }
 
     if (state.completePending) {
         qWarning("QQmlComponent: Cannot create new component instance before completing the previous");
-        return 0;
+        return nullptr;
     }
 
     if (!q->isReady()) {
         qWarning("QQmlComponent: Component is not ready");
-        return 0;
+        return nullptr;
     }
 
     QQmlEnginePrivate *enginePriv = QQmlEnginePrivate::get(engine);
@@ -37,7 +36,7 @@ QObject* QmlComponentPrivate::beginCreate(QQmlContextData* context)
     state.completePending = true;
 
     enginePriv->referenceScarceResources();
-    QObject *rv = 0;
+    QObject *rv = nullptr;
     state.creator.reset(new QQmlObjectCreator(context, compilationUnit, creationContext));
     rv = state.creator->create(start);
     if (!rv)

@@ -1,7 +1,7 @@
 #ifndef QMLCOMPONENT_H
 #define QMLCOMPONENT_H
 
-#include <QQmlComponent>
+#include <QtQml/private/qqmlcomponent_p.h>
 
 class QmlComponentPrivate;
 
@@ -14,6 +14,14 @@ class QmlComponent : public QQmlComponent
 public:
     using QQmlComponent::QQmlComponent;
     QObject* beginCreate(QQmlContext* publicContext) override;
+};
+
+class QmlComponentPrivate : public QQmlComponentPrivate
+{
+    Q_DECLARE_PUBLIC(QmlComponent)
+
+public:
+    QObject* beginCreate(QQmlContextData* context);
 };
 
 #endif // QMLCOMPONENT_H
