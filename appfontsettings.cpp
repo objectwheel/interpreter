@@ -1,7 +1,7 @@
 #include <appfontsettings.h>
 #include <filemanager.h>
 #include <QFontDatabase>
-#include <QApplication>
+#include <QGuiApplication>
 #include <QDebug>
 
 void AppFontSettings::apply()
@@ -21,5 +21,5 @@ void AppFontSettings::apply()
     font.setPixelSize(defaultPixelSize());
     font.setStyleStrategy(QFont::PreferAntialias);
 
-    QApplication::setFont(font);
+    QGuiApplication::setFont(font);
 }

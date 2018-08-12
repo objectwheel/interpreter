@@ -3,7 +3,7 @@
 #include <quicktheme.h>
 #include <saveutils.h>
 
-#include <QApplication>
+#include <QGuiApplication>
 
 void BootSettings::apply()
 {
@@ -12,9 +12,15 @@ void BootSettings::apply()
     // Boot settings
     // qputenv("QML_DISABLE_DISK_CACHE", "true");
 
-    // QApplication::setAttribute(Qt::AA_UseSoftwareOpenGL); // For web view tool tips
-    QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps); // For devices that devicePixelRatio > 1
+    // QGuiApplication::setAttribute(Qt::AA_UseSoftwareOpenGL); // For web view tool tips
+    QGuiApplication::setAttribute(Qt::AA_UseHighDpiPixmaps); // For devices that devicePixelRatio > 1
 
     if (SaveUtils::projectScaling(CommandlineParser::projectDirectory()) != "noScaling")
-        QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+        QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+}
+
+bool BootSettings::useGuiApplication()
+{
+    return qEnvironmentVariableIsSet("QT_QUICK_CONTROLS_1_STYLE")
+            && qgetenv("QT_QUICK_CONTROLS_1_STYLE") != "Desktop";
 }

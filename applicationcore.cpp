@@ -4,7 +4,7 @@
 #include <qmlapplication.h>
 #include <commandlineparser.h>
 
-#include <QApplication>
+#include <QGuiApplication>
 #include <QtWebView>
 
 QmlApplication* ApplicationCore::s_executionManager = nullptr;
@@ -12,12 +12,12 @@ QmlApplication* ApplicationCore::s_executionManager = nullptr;
 ApplicationCore::ApplicationCore(QObject* parent) : QObject(parent)
 {
     // Initialize application
-    QApplication::setOrganizationName("Objectwheel");
-    QApplication::setOrganizationDomain("objectwheel.com");
-    QApplication::setApplicationName("interpreter");
-    QApplication::setApplicationDisplayName("Objectwheel Interpreter");
-    QApplication::setApplicationVersion("1.0.0");
-    // QApplication::setWindowIcon(QIcon(":/resources/images/owicon.png"));
+    QGuiApplication::setOrganizationName("Objectwheel");
+    QGuiApplication::setOrganizationDomain("objectwheel.com");
+    QGuiApplication::setApplicationName("interpreter");
+    QGuiApplication::setApplicationDisplayName("Objectwheel Interpreter");
+    QGuiApplication::setApplicationVersion("1.0.0");
+    // QGuiApplication::setWindowIcon(QIcon(":/resources/images/owicon.png"));
 
     /* Set Font */
     AppFontSettings::apply();
@@ -32,16 +32,16 @@ ApplicationCore::ApplicationCore(QObject* parent) : QObject(parent)
     connect(s_executionManager, &QmlApplication::error,
             this, &ApplicationCore::onError, Qt::QueuedConnection);
     connect(s_executionManager, &QmlApplication::quit,
-            qApp, &QApplication::quit, Qt::QueuedConnection);
+            qGuiApp, &QGuiApplication::quit, Qt::QueuedConnection);
     connect(s_executionManager, QOverload<int>::of(&QmlApplication::exit),
-            this, [=] (int c) { qApp->exit(c); }, Qt::QueuedConnection);
+            this, [=] (int c) { qGuiApp->exit(c); }, Qt::QueuedConnection);
     s_executionManager->exec(CommandlineParser::projectDirectory());
 }
 
 void ApplicationCore::onError(const QString& errorString) const
 {
     qWarning().noquote() << errorString.trimmed();
-    QApplication::exit(EXIT_FAILURE);
+    QGuiApplication::exit(EXIT_FAILURE);
 }
 
 void ApplicationCore::init(QObject* parent)

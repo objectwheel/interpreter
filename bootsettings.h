@@ -9,6 +9,7 @@ class BootSettings final
 
 public:
     static void apply();
+    static bool useGuiApplication();
 
 private:
     BootSettings() {}

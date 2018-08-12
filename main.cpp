@@ -3,6 +3,7 @@
 #include <commandlineparser.h>
 
 #include <QApplication>
+#include <QSharedPointer>
 
 int main(int argc, char* argv[])
 {
@@ -13,10 +14,12 @@ int main(int argc, char* argv[])
     BootSettings::apply();
 
     // Initialize application
-    QApplication app(argc, argv);
+    QSharedPointer<QGuiApplication> app(BootSettings::useGuiApplication()
+            ? new QGuiApplication(argc, argv)
+            : new QApplication(argc, argv));
 
     // Initialize application core
-    ApplicationCore::init(&app);
+    ApplicationCore::init(app.data());
 
-    return app.exec();
+    return app->exec();
 }
