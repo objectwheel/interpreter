@@ -33,9 +33,8 @@ HEADERS += $$PWD/qmlapplication.h \
 
 ### Utils Settings
 INCLUDEPATH += $$PWD/../utils
-INCLUDEPATH += $$PWD/../utils/fit
-INCLUDEPATH += $$PWD/../utils/miniz
 INCLUDEPATH += $$PWD/../utils/components
+RESOURCES   += $$PWD/../utils/resources/shared/moduleresolver/moduleresolver.qrc
 LIBS        += -L$$OUT_PWD/../utils -lutils
 windows:CONFIG(release, debug | release):LIBS += -L$$OUT_PWD/../utils/release
 windows:CONFIG(debug, debug | release):LIBS += -L$$OUT_PWD/../utils/debug
