@@ -20,6 +20,7 @@ QmlApplication::QmlApplication(QObject* parent) : QObject(parent)
 
 void QmlApplication::exec(const QString& projectDirectory)
 {
+    m_engine->addImportPath(SaveUtils::toImportsDir(projectDirectory));
     /* Create instances, handle parent-child relationship, set ids, save form instances */
     QMap<QString, ControlInstance> instanceTree;
     for (const QString& formPath : SaveUtils::formPaths(projectDirectory)) {
