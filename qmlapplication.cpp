@@ -1,6 +1,7 @@
 #include <qmlapplication.h>
 #include <qmlcomponent.h>
 #include <saveutils.h>
+#include <utilityfunctions.h>
 
 namespace {
 
@@ -21,6 +22,9 @@ QmlApplication::QmlApplication(QObject* parent) : QObject(parent)
 void QmlApplication::exec(const QString& projectDirectory)
 {
     m_engine->addImportPath(SaveUtils::toImportsDir(projectDirectory));
+    m_engine->addImportPath(SaveUtils::toGlobalDir(projectDirectory));
+    UtilityFunctions::registerGlobalPath(projectDirectory);
+
     /* Create instances, handle parent-child relationship, set ids, save form instances */
     QMap<QString, ControlInstance> instanceTree;
     for (const QString& formPath : SaveUtils::formPaths(projectDirectory)) {
