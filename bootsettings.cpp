@@ -12,7 +12,6 @@ void BootSettings::apply()
     // Boot settings
     qputenv("QML_DISABLE_DISK_CACHE", "true");
 
-    // QApplication::setAttribute(Qt::AA_UseSoftwareOpenGL); // For web view tool tips
     QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps); // For devices that devicePixelRatio > 1
 
     if (SaveUtils::projectScaling(CommandlineParser::projectDirectory()) != "noScaling")
