@@ -1,21 +1,23 @@
 INCLUDEPATH += $$PWD
+DEPENDPATH  += $$PWD
 
-HEADERS += $$PWD/aispeak.h \
+HEADERS += $$PWD/components.h \
            $$PWD/apiai.h \
-           $$PWD/audioplayer.h \
            $$PWD/audiorecorder.h \
-           $$PWD/components.h \
-           $$PWD/fm.h
+           $$PWD/audioplayer.h \
+           $$PWD/aispeak.h \
+           $$PWD/firebasedatabase.h
 
-SOURCES += $$PWD/aispeak.cpp \
+SOURCES += $$PWD/components.cpp \
            $$PWD/apiai.cpp \
-           $$PWD/audioplayer.cpp \
            $$PWD/audiorecorder.cpp \
-           $$PWD/components.cpp \
-           $$PWD/fm.cpp
+           $$PWD/audioplayer.cpp \
+           $$PWD/aispeak.cpp \
+           $$PWD/firebasedatabase.cpp
 
 DEFINES += OW_APIAI \
            OW_AUDIORECORDER \
            OW_AUDIOPLAYER \
            OW_AISPEAK \
-           OW_FM
+           OW_FM \
+           OW_FIREBASE_DATABASE

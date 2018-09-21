@@ -9,10 +9,6 @@ void BootSettings::apply()
 {
     QuickTheme::setTheme(CommandlineParser::projectDirectory());
 
-    // Boot settings
-    // qputenv("QML_DISABLE_DISK_CACHE", "true");
-
-    // QGuiApplication::setAttribute(Qt::AA_UseSoftwareOpenGL); // For web view tool tips
     QGuiApplication::setAttribute(Qt::AA_UseHighDpiPixmaps); // For devices that devicePixelRatio > 1
 
     if (SaveUtils::projectScaling(CommandlineParser::projectDirectory()) != "noScaling")

@@ -1,8 +1,6 @@
 #ifndef SAVEUTILS_H
 #define SAVEUTILS_H
 
-//#include <utils_global.h>
-
 #include <QJsonValue>
 
 #define SIGN_OWDB        "T3dkYl92Mi4w"    // FIXME: There is no function of this
@@ -13,6 +11,8 @@
 #define DIR_CHILDREN     "c"
 #define DIR_MAINFORM     "1"
 #define DIR_OWDB         "owdb"
+#define DIR_IMPORTS      "imports"
+#define DIR_GLOBAL       "Global"
 
 #define FILE_PROJECT     "project.json"
 #define FILE_OWDB        "owdb.json"       // FIXME: There is no function of this
@@ -39,7 +39,7 @@
 #define PTAG_SCALING     "scaling"
 #define PTAG_OWPRJ_SIGN  "owprj"
 
-class /*UTILS_EXPORT*/ SaveUtils final
+class SaveUtils final
 {
     Q_DISABLE_COPY(SaveUtils)
 
@@ -58,6 +58,8 @@ public:
     static QString toParentDir(const QString& topPath);
     static QString toChildrenDir(const QString& rootPath);
     static QString toProjectFile(const QString& projectDir);
+    static QString toImportsDir(const QString& projectDir);
+    static QString toGlobalDir(const QString& projectDir);
     static QString toControlFile(const QString& rootPath);
 
     static QStringList formPaths(const QString& projectDir);

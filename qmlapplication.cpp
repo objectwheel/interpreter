@@ -4,10 +4,26 @@
 
 namespace {
 
+QString projectDirectory;
+
 void setId(QQmlContext* context, QObject* object, const QString& id)
 {
     if (!id.isEmpty() && context)
         context->setContextProperty(id, object);
+}
+
+void registerGlobalPath(const QString& projectDir)
+{
+    projectDirectory = projectDir;
+    qmlRegisterSingletonType("Global", 1, 0, "Global",
+                             [] (QQmlEngine* engine, QJSEngine* scriptEngine) -> QJSValue {
+        Q_UNUSED(engine)
+        QJSValue globalPath = scriptEngine->newObject();
+        globalPath.setProperty("path", SaveUtils::toGlobalDir(projectDirectory));
+        globalPath.setProperty("url", scriptEngine->toScriptValue(
+                                   QUrl::fromLocalFile(SaveUtils::toGlobalDir(projectDirectory))));
+        return globalPath;
+    });
 }
 }
 
@@ -20,6 +36,10 @@ QmlApplication::QmlApplication(QObject* parent) : QObject(parent)
 
 void QmlApplication::exec(const QString& projectDirectory)
 {
+    m_engine->addImportPath(SaveUtils::toImportsDir(projectDirectory));
+    m_engine->addImportPath(SaveUtils::toGlobalDir(projectDirectory));
+    registerGlobalPath(projectDirectory);
+
     /* Create instances, handle parent-child relationship, set ids, save form instances */
     QMap<QString, ControlInstance> instanceTree;
     for (const QString& formPath : SaveUtils::formPaths(projectDirectory)) {
