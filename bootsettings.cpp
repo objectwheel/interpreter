@@ -9,7 +9,6 @@ void BootSettings::apply()
 {
     QuickTheme::setTheme(CommandlineParser::projectDirectory());
 
-    // Boot settings
     qputenv("QML_DISABLE_DISK_CACHE", "true");
 
     QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps); // For devices that devicePixelRatio > 1
