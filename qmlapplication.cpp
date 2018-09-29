@@ -24,7 +24,7 @@ void QmlApplication::exec(const QString& projectDirectory)
     m_engine->addImportPath(SaveUtils::toImportsDir(projectDirectory));
     m_engine->addImportPath(SaveUtils::toGlobalDir(projectDirectory));
     UtilityFunctions::registerGlobalPath(projectDirectory);
-    UtilityFunctions::registerOfflineStorage(m_engine);
+    UtilityFunctions::registerOfflineStorage();
 
     /* Create instances, handle parent-child relationship, set ids, save form instances */
     QMap<QString, ControlInstance> instanceTree;
