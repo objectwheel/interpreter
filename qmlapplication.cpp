@@ -1,6 +1,7 @@
 #include <qmlapplication.h>
 #include <qmlcomponent.h>
 #include <saveutils.h>
+#include <offlinestorage.h>
 
 namespace {
 
@@ -15,7 +16,7 @@ void setId(QQmlContext* context, QObject* object, const QString& id)
 void registerGlobalPath(const QString& projectDir)
 {
     projectDirectory = projectDir;
-    qmlRegisterSingletonType("Global", 1, 0, "Global",
+    qmlRegisterSingletonType("Objectwheel.GlobalResources", 1, 0, "GlobalResources",
                              [] (QQmlEngine* engine, QJSEngine* scriptEngine) -> QJSValue {
         Q_UNUSED(engine)
         QJSValue globalPath = scriptEngine->newObject();
@@ -23,6 +24,14 @@ void registerGlobalPath(const QString& projectDir)
         globalPath.setProperty("url", scriptEngine->toScriptValue(
                                    QUrl::fromLocalFile(SaveUtils::toGlobalDir(projectDirectory))));
         return globalPath;
+    });
+}
+void registerOfflineStorage()
+{
+    qmlRegisterSingletonType<OfflineStorage>("Objectwheel.OfflineStorage", 1, 0, "OfflineStorage",
+                                        [] (QQmlEngine* engine, QJSEngine* jsEngine) -> QObject* {
+        Q_UNUSED(jsEngine)
+        return new OfflineStorage(engine);
     });
 }
 }
@@ -39,6 +48,7 @@ void QmlApplication::exec(const QString& projectDirectory)
     m_engine->addImportPath(SaveUtils::toImportsDir(projectDirectory));
     m_engine->addImportPath(SaveUtils::toGlobalDir(projectDirectory));
     registerGlobalPath(projectDirectory);
+    registerOfflineStorage();
 
     /* Create instances, handle parent-child relationship, set ids, save form instances */
     QMap<QString, ControlInstance> instanceTree;
