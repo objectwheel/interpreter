@@ -1,8 +1,8 @@
 #include <applicationcore.h>
 #include <components.h>
-#include <appfontsettings.h>
 #include <qmlapplication.h>
 #include <commandlineparser.h>
+#include <filemanager.h>
 
 #include <QApplication>
 #include <QtWebView>
@@ -19,8 +19,10 @@ ApplicationCore::ApplicationCore(QObject* parent) : QObject(parent)
     QApplication::setApplicationVersion("1.0.0");
     QApplication::setWindowIcon(QIcon(":/resources/images/owicon.png"));
 
-    /* Set Font */
-    AppFontSettings::apply();
+    /* Load default fonts */
+    const QString fontPath = ":/fonts";
+    for (const QString& fontName : lsfile(fontPath))
+        QFontDatabase::addApplicationFont(fontPath + fontName);
 
     // Init Components
     Components::init();
