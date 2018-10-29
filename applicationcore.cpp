@@ -22,7 +22,7 @@ ApplicationCore::ApplicationCore(QObject* parent) : QObject(parent)
     /* Load default fonts */
     const QString fontPath = ":/fonts";
     for (const QString& fontName : lsfile(fontPath))
-        QFontDatabase::addApplicationFont(fontPath + fontName);
+        QFontDatabase::addApplicationFont(fontPath + separator() + fontName);
 
     // Init Components
     Components::init();
