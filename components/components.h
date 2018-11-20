@@ -3,7 +3,7 @@
 
 namespace Components
 {
-    void init();
+void init();
 }
 
 #endif // COMPONENTS_H

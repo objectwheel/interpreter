@@ -25,7 +25,6 @@ SOURCES += $$PWD/main.cpp \
            $$PWD/filemanager.cpp \
            $$PWD/saveutils.cpp \
            $$PWD/hashfactory.cpp \
-           $$PWD/appfontsettings.cpp \
            $$PWD/quicktheme.cpp \
            $$PWD/offlinestorage.cpp
 
@@ -37,7 +36,6 @@ HEADERS += $$PWD/qmlapplication.h \
            $$PWD/filemanager.h \
            $$PWD/saveutils.h \
            $$PWD/hashfactory.h \
-           $$PWD/appfontsettings.h \
            $$PWD/quicktheme.h \
            $$PWD/offlinestorage.h
 

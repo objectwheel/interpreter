@@ -1,6 +1,5 @@
 #include <applicationcore.h>
 #include <components.h>
-#include <appfontsettings.h>
 #include <qmlapplication.h>
 #include <commandlineparser.h>
 
@@ -17,10 +16,6 @@ ApplicationCore::ApplicationCore(QObject* parent) : QObject(parent)
     QGuiApplication::setApplicationName("interpreter");
     QGuiApplication::setApplicationDisplayName("Objectwheel Interpreter");
     QGuiApplication::setApplicationVersion("1.0.0");
-    // QGuiApplication::setWindowIcon(QIcon(":/resources/images/owicon.png"));
-
-    /* Set Font */
-    AppFontSettings::apply();
 
     // Init Components
     Components::init();
