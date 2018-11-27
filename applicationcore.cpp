@@ -3,12 +3,13 @@
 #include <qmlapplication.h>
 #include <commandlineparser.h>
 #include <filemanager.h>
+#include <globalresources.h>
 
 #include <QApplication>
 #include <QtWebView>
 
 QmlApplication* ApplicationCore::s_executionManager = nullptr;
-
+GlobalResources* ApplicationCore::s_globalResources = nullptr;
 ApplicationCore::ApplicationCore(QObject* parent) : QObject(parent)
 {
     // Initialize application
@@ -19,18 +20,14 @@ ApplicationCore::ApplicationCore(QObject* parent) : QObject(parent)
     QApplication::setApplicationVersion("1.0.0");
     QApplication::setWindowIcon(QIcon(":/resources/images/owicon.png"));
 
-    /* Load default fonts */
-    const QString fontPath = ":/fonts";
-    for (const QString& fontName : lsfile(fontPath))
-        QFontDatabase::addApplicationFont(fontPath + separator() + fontName);
-
-    // Init Components
-    Components::init();
-
     // Initialize Web View
     QtWebView::initialize();
 
     s_executionManager = new QmlApplication(this);
+    s_globalResources = new GlobalResources(&CommandlineParser::projectDirectory, this);
+
+    Components::init();
+
     connect(s_executionManager, &QmlApplication::error,
             this, &ApplicationCore::onError, Qt::QueuedConnection);
     connect(s_executionManager, &QmlApplication::quit,

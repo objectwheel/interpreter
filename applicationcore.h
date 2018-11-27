@@ -4,6 +4,7 @@
 #include <QObject>
 
 class QmlApplication;
+class GlobalResources;
 
 class ApplicationCore final : public QObject
 {
@@ -21,6 +22,7 @@ private slots:
 
 private:
     static QmlApplication* s_executionManager;
+    static GlobalResources* s_globalResources;
 };
 
 #endif // APPLICATIONCORE_H
