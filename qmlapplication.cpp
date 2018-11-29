@@ -3,6 +3,10 @@
 #include <saveutils.h>
 #include <components.h>
 
+#include <QQmlContext>
+#include <QQmlEngine>
+#include <QQmlProperty>
+
 namespace {
 
 void setId(QQmlContext* context, QObject* object, const QString& id)

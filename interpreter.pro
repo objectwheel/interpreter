@@ -20,16 +20,16 @@ DEPENDPATH  += $$PWD
 
 SOURCES += $$PWD/main.cpp \
            $$PWD/qmlapplication.cpp \
-           $$PWD/qmlcomponent.cpp \
            $$PWD/applicationcore.cpp \
            $$PWD/bootsettings.cpp \
-           $$PWD/commandlineparser.cpp
+           $$PWD/commandlineparser.cpp \
+           $$PWD/qmlcomponent.cpp
 
 HEADERS += $$PWD/qmlapplication.h \
-           $$PWD/qmlcomponent.h \
            $$PWD/bootsettings.h \
            $$PWD/applicationcore.h \
-           $$PWD/commandlineparser.h
+           $$PWD/commandlineparser.h \
+           $$PWD/qmlcomponent.cpp
 
 ### Utils Settings
 INCLUDEPATH += $$PWD/../utils
