@@ -29,7 +29,7 @@ HEADERS += $$PWD/qmlapplication.h \
            $$PWD/bootsettings.h \
            $$PWD/applicationcore.h \
            $$PWD/commandlineparser.h \
-           $$PWD/qmlcomponent.cpp
+           $$PWD/qmlcomponent.h
 
 ### Utils Settings
 INCLUDEPATH += $$PWD/../utils
