@@ -1,16 +1,12 @@
 #ifndef QMLAPPLICATION_H
 #define QMLAPPLICATION_H
 
-#include <QObject>
+#include <QQmlEngine>
 
-class QQmlContext;
-class QQmlEngine;
 class QmlComponent;
-
-class QmlApplication : public QObject
+class QmlApplication final : public QObject
 {
     Q_OBJECT
-    Q_DISABLE_COPY(QmlApplication)
 
     struct ControlInstance {
         QString errorString;
@@ -21,9 +17,10 @@ class QmlApplication : public QObject
 
 public:
     explicit QmlApplication(QObject* parent = nullptr);
+    ~QmlApplication();
 
 public slots:
-    void exec(const QString& projectDirectory);
+    void run(const QString& projectDirectory);
 
 signals:
     void quit();
@@ -34,7 +31,8 @@ private:
     ControlInstance createInstance(const QString& dir, const ControlInstance& parentInstance);
 
 private:
-    QQmlEngine* m_engine;
+    QQmlEngine m_engine;
+    QMap<QString, ControlInstance> m_instanceTree;
 };
 
 #endif // QMLAPPLICATION_H

@@ -3,9 +3,12 @@
 #include <saveutils.h>
 #include <components.h>
 
+#include <private/qjsengine_p.h>
+
 #include <QQmlContext>
 #include <QQmlEngine>
 #include <QQmlProperty>
+#include <QCoreApplication>
 
 namespace {
 
@@ -17,19 +20,35 @@ void setId(QQmlContext* context, QObject* object, const QString& id)
 }
 
 QmlApplication::QmlApplication(QObject* parent) : QObject(parent)
-  , m_engine(new QQmlEngine(this))
 {
-    connect(m_engine, &QQmlEngine::quit, this, &QmlApplication::quit);
-    connect(m_engine, &QQmlEngine::exit, this, &QmlApplication::exit);
+    connect(&m_engine, &QQmlEngine::quit, this, &QmlApplication::quit);
+    connect(&m_engine, &QQmlEngine::exit, this, &QmlApplication::exit);
+
+    QCoreApplication::instance()->setProperty("__qml_using_qqmlapplicationengine", QVariant(true));
+    QJSEnginePrivate::addToDebugServer(&m_engine);
 }
 
-void QmlApplication::exec(const QString& projectDirectory)
+QmlApplication::~QmlApplication()
 {
-    m_engine->addImportPath(SaveUtils::toImportsDir(projectDirectory));
-    m_engine->addImportPath(SaveUtils::toGlobalDir(projectDirectory));
+    QJSEnginePrivate::removeFromDebugServer(&m_engine);
+
+    for (auto instance : m_instanceTree)
+        instance.object->disconnect(&m_engine);
+
+    const QList<ControlInstance>& instanceList = m_instanceTree.values();
+    QList<ControlInstance>::const_iterator i = instanceList.constEnd();
+    while(i != instanceList.constBegin()) {
+        --i;
+        delete (*i).object;
+    }
+}
+
+void QmlApplication::run(const QString& projectDirectory)
+{
+    m_engine.addImportPath(SaveUtils::toImportsDir(projectDirectory));
+    m_engine.addImportPath(SaveUtils::toGlobalDir(projectDirectory));
 
     /* Create instances, handle parent-child relationship, set ids, save form instances */
-    QMap<QString, ControlInstance> instanceTree;
     for (const QString& formPath : SaveUtils::formPaths(projectDirectory)) {
         const ControlInstance& formInstance = createInstance(formPath, ControlInstance());
 
@@ -38,11 +57,11 @@ void QmlApplication::exec(const QString& projectDirectory)
             goto error;
         }
 
-        instanceTree.insert(formPath, formInstance);
+        m_instanceTree.insert(formPath, formInstance);
 
         // TODO: What if a child is a master-control?
         for (const QString& childPath : SaveUtils::childrenPaths(formPath)) {
-            const ControlInstance& parentInstance = instanceTree.value(SaveUtils::toParentDir(childPath));
+            const ControlInstance& parentInstance = m_instanceTree.value(SaveUtils::toParentDir(childPath));
             const ControlInstance& childInstance = createInstance(childPath, parentInstance);
 
             if (!childInstance.object) {
@@ -50,12 +69,12 @@ void QmlApplication::exec(const QString& projectDirectory)
                 goto error;
             }
 
-            instanceTree.insert(childPath, childInstance);
+            m_instanceTree.insert(childPath, childInstance);
         }
     }
 
 error:
-    for (const ControlInstance& instance : instanceTree.values())
+    for (const ControlInstance& instance : m_instanceTree.values())
         instance.component->completeCreate();
 }
 
@@ -71,14 +90,14 @@ QmlApplication::ControlInstance QmlApplication::createInstance(const QString& di
 
     ControlInstance instance;
     if (SaveUtils::isForm(dir))
-        instance.context = new QQmlContext(m_engine, m_engine);
+        instance.context = new QQmlContext(&m_engine, &m_engine);
     else
         instance.context = parentInstance.context;
 
 #if defined(Q_OS_ANDROID)
-    auto component = new QmlComponent(m_engine, QUrl(url), m_engine);
+    auto component = new QmlComponent(&m_engine, QUrl(url), &m_engine);
 #else
-    auto component = new QmlComponent(m_engine, QUrl::fromUserInput(url), m_engine);
+    auto component = new QmlComponent(&m_engine, QUrl::fromUserInput(url), &m_engine);
 #endif
 
     QObject* object = component->beginCreate(instance.context);
@@ -99,7 +118,7 @@ QmlApplication::ControlInstance QmlApplication::createInstance(const QString& di
     Q_ASSERT(object);
 
     if (SaveUtils::isForm(dir))
-        setId(m_engine->rootContext(), object, id);
+        setId(m_engine.rootContext(), object, id);
     setId(instance.context, object, id);
 
     instance.object = object;
