@@ -34,13 +34,6 @@ QmlApplication::~QmlApplication()
 
     for (auto instance : m_instanceTree)
         instance.object->disconnect(&m_engine);
-
-    const QList<ControlInstance>& instanceList = m_instanceTree.values();
-    QList<ControlInstance>::const_iterator i = instanceList.constEnd();
-    while(i != instanceList.constBegin()) {
-        --i;
-        delete (*i).object;
-    }
 }
 
 void QmlApplication::run(const QString& projectDirectory)
@@ -101,6 +94,7 @@ QmlApplication::ControlInstance QmlApplication::createInstance(const QString& di
 #endif
 
     QObject* object = component->beginCreate(instance.context);
+    object->setParent(&m_engine);
 
     if (component->isError()) {
         instance.errorString = component->errorString();
