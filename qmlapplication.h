@@ -1,9 +1,12 @@
 #ifndef QMLAPPLICATION_H
 #define QMLAPPLICATION_H
 
+#include <QObject>
 #include <QQmlEngine>
 
 class QmlComponent;
+class QQmlContext;
+
 class QmlApplication final : public QObject
 {
     Q_OBJECT

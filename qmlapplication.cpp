@@ -6,7 +6,6 @@
 #include <private/qjsengine_p.h>
 
 #include <QQmlContext>
-#include <QQmlEngine>
 #include <QQmlProperty>
 #include <QCoreApplication>
 
@@ -30,6 +29,8 @@ QmlApplication::QmlApplication(QObject* parent) : QObject(parent)
 
 QmlApplication::~QmlApplication()
 {
+    qWarning("~QmlApplication()");
+
     QJSEnginePrivate::removeFromDebugServer(&m_engine);
 
     for (auto instance : m_instanceTree)

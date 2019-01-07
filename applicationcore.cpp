@@ -1,16 +1,15 @@
 #include <applicationcore.h>
 #include <components.h>
 #include <commandlineparser.h>
-#include <filemanager.h>
 #include <quicktheme.h>
 #include <saveutils.h>
+#include <qtwebviewfunctions.h>
 
 #include <QApplication>
-#include <QtWebView>
+#include <QIcon>
+#include <QDebug>
 
-ApplicationCore::ApplicationCore(QObject* parent) : QObject(parent)
-  , m_globalResources(&CommandlineParser::projectDirectory, this)
-  , m_qmlApplication(this)
+ApplicationCore::ApplicationCore() : m_globalResources(&CommandlineParser::projectDirectory)
 {
     // Initialize application
     QApplication::setOrganizationName("Objectwheel");
@@ -20,30 +19,21 @@ ApplicationCore::ApplicationCore(QObject* parent) : QObject(parent)
     QApplication::setApplicationVersion("1.0.0");
     QApplication::setWindowIcon(QIcon(":/resources/images/owicon.png"));
 
-    connect(&m_qmlApplication, &QmlApplication::error,
-            this, &ApplicationCore::onError);
-    connect(&m_qmlApplication, &QmlApplication::quit,
-            QCoreApplication::instance(), &QCoreApplication::quit);
-    connect(&m_qmlApplication, &QmlApplication::exit,
-            QCoreApplication::instance(), &QCoreApplication::exit);
-
     // Initialize Web View
     QtWebView::initialize();
 
     // Initialize Components
     Components::init();
-}
 
-void ApplicationCore::prepare()
-{
-    QuickTheme::setTheme(CommandlineParser::projectDirectory());
-
-    qputenv("QML_DISABLE_DISK_CACHE", "true");
-
-    QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps); // For devices that devicePixelRatio > 1
-
-    if (SaveUtils::projectScaling(CommandlineParser::projectDirectory()) != "noScaling")
-        QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+    // Connections
+    QObject::connect(&m_qmlApplication, &QmlApplication::quit,
+            QCoreApplication::instance(), &QCoreApplication::quit);
+    QObject::connect(&m_qmlApplication, &QmlApplication::exit,
+            QCoreApplication::instance(), &QCoreApplication::exit);
+    QObject::connect(&m_qmlApplication, &QmlApplication::error, [=] (const QString& errorString) {
+        qWarning().noquote() << errorString.trimmed();
+        QCoreApplication::exit(EXIT_FAILURE);
+    });
 }
 
 void ApplicationCore::run()
@@ -51,8 +41,11 @@ void ApplicationCore::run()
     m_qmlApplication.run(CommandlineParser::projectDirectory());
 }
 
-void ApplicationCore::onError(const QString& errorString) const
+void ApplicationCore::prepare()
 {
-    qWarning().noquote() << errorString.trimmed();
-    QCoreApplication::exit(EXIT_FAILURE);
+    QuickTheme::setTheme(CommandlineParser::projectDirectory());
+    qputenv("QML_DISABLE_DISK_CACHE", "true");
+    QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps); // For devices that devicePixelRatio > 1
+    if (SaveUtils::projectScaling(CommandlineParser::projectDirectory()) != "noScaling")
+        QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 }

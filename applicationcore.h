@@ -4,21 +4,22 @@
 #include <globalresources.h>
 #include <qmlapplication.h>
 
-class ApplicationCore final : public QObject
+class ApplicationCore final
 {
-    Q_OBJECT
-
 public:
-    explicit ApplicationCore(QObject* parent = nullptr);
-    static void prepare();
+    ApplicationCore();
+
     void run();
 
-private slots:
-    void onError(const QString& errorString) const;
+    static void prepare();
 
 private:
     GlobalResources m_globalResources;
     QmlApplication m_qmlApplication;
+
+public:
+    ApplicationCore(const ApplicationCore&) = delete;
+    ApplicationCore& operator=(const ApplicationCore&) = delete;
 };
 
 #endif // APPLICATIONCORE_H
