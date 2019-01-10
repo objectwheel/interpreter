@@ -1,20 +1,20 @@
 #include <qmlapplication.h>
 #include <qmlcomponent.h>
 #include <saveutils.h>
-#include <components.h>
 
 #include <private/qjsengine_p.h>
 
 #include <QQmlContext>
 #include <QQmlProperty>
 #include <QCoreApplication>
+#include <QDebug>
 
 namespace {
 
 void setId(QQmlContext* context, QObject* object, const QString& id)
 {
-    if (!id.isEmpty() && context)
-        context->setContextProperty(id, object);
+    Q_ASSERT(!id.isEmpty() && context);
+    context->setContextProperty(id, object);
 }
 }
 
@@ -29,19 +29,10 @@ QmlApplication::QmlApplication(QObject* parent) : QObject(parent)
 
 QmlApplication::~QmlApplication()
 {
-    qWarning("~QmlApplication()");
-
     QJSEnginePrivate::removeFromDebugServer(&m_engine);
 
     for (auto instance : m_instanceTree)
         instance.object->disconnect(&m_engine);
-
-    const QList<ControlInstance>& instanceList = m_instanceTree.values();
-    QList<ControlInstance>::const_iterator i = instanceList.constEnd();
-    while(i != instanceList.constBegin()) {
-        --i;
-        delete (*i).object;
-    }
 }
 
 void QmlApplication::run(const QString& projectDirectory)
@@ -55,7 +46,7 @@ void QmlApplication::run(const QString& projectDirectory)
 
         if (!formInstance.object) {
             emit error(formInstance.errorString);
-            goto error;
+            return;
         }
 
         m_instanceTree.insert(formPath, formInstance);
@@ -67,16 +58,18 @@ void QmlApplication::run(const QString& projectDirectory)
 
             if (!childInstance.object) {
                 emit error(childInstance.errorString);
-                goto error;
+                return;
             }
 
             m_instanceTree.insert(childPath, childInstance);
         }
     }
 
-error:
-    for (const ControlInstance& instance : m_instanceTree.values())
+    for (ControlInstance& instance : m_instanceTree) {
         instance.component->completeCreate();
+        instance.component->deleteLater();
+        instance.component = nullptr;
+    }
 }
 
 QmlApplication::ControlInstance QmlApplication::createInstance(const QString& dir,
@@ -90,16 +83,16 @@ QmlApplication::ControlInstance QmlApplication::createInstance(const QString& di
     Q_ASSERT(!id.isEmpty());
 
     ControlInstance instance;
+#if defined(Q_OS_ANDROID)
+    auto component = new QmlComponent(&m_engine, QUrl(url), &m_rootObject);
+#else
+    auto component = new QmlComponent(&m_engine, QUrl::fromUserInput(url), &m_rootObject);
+#endif
+
     if (SaveUtils::isForm(dir))
-        instance.context = new QQmlContext(&m_engine, &m_engine);
+        instance.context = new QQmlContext(&m_engine, &m_rootObject);
     else
         instance.context = parentInstance.context;
-
-#if defined(Q_OS_ANDROID)
-    auto component = new QmlComponent(&m_engine, QUrl(url), &m_engine);
-#else
-    auto component = new QmlComponent(&m_engine, QUrl::fromUserInput(url), &m_engine);
-#endif
 
     QObject* object = component->beginCreate(instance.context);
 
@@ -128,8 +121,11 @@ QmlApplication::ControlInstance QmlApplication::createInstance(const QString& di
     if (!SaveUtils::isForm(dir)) {
         QQmlProperty defaultProperty(parentInstance.object);
         Q_ASSERT(defaultProperty.isValid());
+        instance.object->setParent(parentInstance.object);
         QQmlListReference childList = defaultProperty.read().value<QQmlListReference>();
         childList.append(instance.object);
+    } else {
+        instance.object->setParent(&m_rootObject);
     }
 
     return instance;

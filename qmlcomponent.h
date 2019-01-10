@@ -5,7 +5,7 @@
 
 class QmlComponentPrivate;
 
-class QmlComponent : public QQmlComponent
+class QmlComponent final : public QQmlComponent
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QmlComponent)

@@ -8,6 +8,7 @@
 #include <QApplication>
 #include <QIcon>
 #include <QDebug>
+#include <QTimer>
 
 ApplicationCore::ApplicationCore() : m_globalResources(&CommandlineParser::projectDirectory)
 {
@@ -32,7 +33,8 @@ ApplicationCore::ApplicationCore() : m_globalResources(&CommandlineParser::proje
             QCoreApplication::instance(), &QCoreApplication::exit);
     QObject::connect(&m_qmlApplication, &QmlApplication::error, [=] (const QString& errorString) {
         qWarning().noquote() << errorString.trimmed();
-        QCoreApplication::exit(EXIT_FAILURE);
+        qInstallMessageHandler([] (QtMsgType, const QMessageLogContext&, const QString&) {});
+        QTimer::singleShot(0, std::bind(&QCoreApplication::exit, EXIT_FAILURE));
     });
 }
 
