@@ -16,8 +16,8 @@ ApplicationCore::ApplicationCore() : m_globalResources(&CommandlineParser::proje
     QApplication::setOrganizationName("Objectwheel");
     QApplication::setOrganizationDomain("objectwheel.com");
     QApplication::setApplicationName("interpreter");
-    QApplication::setApplicationDisplayName("Objectwheel Interpreter");
     QApplication::setApplicationVersion("1.0.0");
+    QApplication::setApplicationDisplayName("Objectwheel Interpreter");
     QApplication::setWindowIcon(QIcon(":/resources/images/owicon.png"));
 
     // Initialize Web View

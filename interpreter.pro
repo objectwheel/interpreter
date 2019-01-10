@@ -4,8 +4,6 @@ include($$PWD/resources/resources.pri)
 
 ### App Settings
 TEMPLATE = app
-CONFIG  += console
-CONFIG  -= app_bundle
 TARGET   = interpreter
 DEFINES += QT_DEPRECATED_WARNINGS
 DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000

@@ -7,7 +7,6 @@
 #include <QQmlContext>
 #include <QQmlProperty>
 #include <QCoreApplication>
-#include <QDebug>
 
 namespace {
 
