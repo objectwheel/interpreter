@@ -1,4 +1,13 @@
 #include <qmlcomponent.h>
+#include <private/qqmlcomponent_p.h>
+
+class QmlComponentPrivate : public QQmlComponentPrivate
+{
+    Q_DECLARE_PUBLIC(QmlComponent)
+
+public:
+    QObject* beginCreate(QQmlContextData* context);
+};
 
 QObject* QmlComponentPrivate::beginCreate(QQmlContextData* context)
 {

@@ -1,26 +1,26 @@
 #ifndef APPLICATIONCORE_H
 #define APPLICATIONCORE_H
 
-#include <QObject>
+#include <globalresources.h>
+#include <qmlapplication.h>
 
-class QmlApplication;
-
-class ApplicationCore final : public QObject
+class ApplicationCore final
 {
-    Q_OBJECT
-    Q_DISABLE_COPY(ApplicationCore)
+public:
+    ApplicationCore();
+
+    void run();
+
+    static void prepare();
+    static bool useGuiApplication();
+
+private:
+    GlobalResources m_globalResources;
+    QmlApplication m_qmlApplication;
 
 public:
-    static void init(QObject* parent);
-
-private:
-    explicit ApplicationCore(QObject* parent = nullptr);
-
-private slots:
-    void onError(const QString& errorString) const;
-
-private:
-    static QmlApplication* s_executionManager;
+    ApplicationCore(const ApplicationCore&) = delete;
+    ApplicationCore& operator=(const ApplicationCore&) = delete;
 };
 
 #endif // APPLICATIONCORE_H

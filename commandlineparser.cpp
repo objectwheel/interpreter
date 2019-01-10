@@ -3,17 +3,16 @@
 
 QString CommandlineParser::s_projectDirectory;
 
-void CommandlineParser::init(int argc, char* argv[])
+QString CommandlineParser::projectDirectory()
 {
-    Q_UNUSED(argc);
+    return s_projectDirectory;
+}
+
+void CommandlineParser::init(int /*argc*/, char* argv[])
+{
 #if defined(Q_OS_ANDROID)
     s_projectDirectory = "assets:";
 #else
     s_projectDirectory = dname(argv[0]);
 #endif
-}
-
-QString CommandlineParser::projectDirectory()
-{
-    return s_projectDirectory;
 }

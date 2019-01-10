@@ -18,26 +18,20 @@ DEPENDPATH  += $$PWD
 
 SOURCES += $$PWD/main.cpp \
            $$PWD/qmlapplication.cpp \
-           $$PWD/qmlcomponent.cpp \
            $$PWD/applicationcore.cpp \
-           $$PWD/bootsettings.cpp \
            $$PWD/commandlineparser.cpp \
-           $$PWD/filemanager.cpp \
+           $$PWD/qmlcomponent.cpp \
            $$PWD/saveutils.cpp \
            $$PWD/hashfactory.cpp \
-           $$PWD/quicktheme.cpp \
-           $$PWD/offlinestorage.cpp
+           $$PWD/quicktheme.cpp
 
 HEADERS += $$PWD/qmlapplication.h \
-           $$PWD/qmlcomponent.h \
-           $$PWD/bootsettings.h \
            $$PWD/applicationcore.h \
            $$PWD/commandlineparser.h \
-           $$PWD/filemanager.h \
+           $$PWD/qmlcomponent.h \
            $$PWD/saveutils.h \
            $$PWD/hashfactory.h \
-           $$PWD/quicktheme.h \
-           $$PWD/offlinestorage.h
+           $$PWD/quicktheme.h
 
 android {
     DISTFILES += $$PWD/android/AndroidManifest.xml \

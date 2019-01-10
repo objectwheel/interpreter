@@ -1,49 +1,56 @@
 #include <applicationcore.h>
 #include <components.h>
-#include <qmlapplication.h>
 #include <commandlineparser.h>
+#include <quicktheme.h>
+#include <saveutils.h>
+#include <qtwebviewfunctions.h>
 
 #include <QGuiApplication>
-#include <QtWebView>
+#include <QDebug>
+#include <QTimer>
 
-QmlApplication* ApplicationCore::s_executionManager = nullptr;
-
-ApplicationCore::ApplicationCore(QObject* parent) : QObject(parent)
+ApplicationCore::ApplicationCore() : m_globalResources(&CommandlineParser::projectDirectory)
 {
     // Initialize application
     QGuiApplication::setOrganizationName("Objectwheel");
     QGuiApplication::setOrganizationDomain("objectwheel.com");
     QGuiApplication::setApplicationName("interpreter");
-    QGuiApplication::setApplicationDisplayName("Objectwheel Interpreter");
     QGuiApplication::setApplicationVersion("1.0.0");
-
-    // Init Components
-    Components::init();
+    QGuiApplication::setApplicationDisplayName("Objectwheel Interpreter");
 
     // Initialize Web View
     QtWebView::initialize();
 
-    s_executionManager = new QmlApplication(this);
-    connect(s_executionManager, &QmlApplication::error,
-            this, &ApplicationCore::onError, Qt::QueuedConnection);
-    connect(s_executionManager, &QmlApplication::quit,
-            qGuiApp, &QGuiApplication::quit, Qt::QueuedConnection);
-    connect(s_executionManager, QOverload<int>::of(&QmlApplication::exit),
-            this, [=] (int c) { qGuiApp->exit(c); }, Qt::QueuedConnection);
-    s_executionManager->exec(CommandlineParser::projectDirectory());
+    // Initialize Components
+    Components::init();
+
+    // Connections
+    QObject::connect(&m_qmlApplication, &QmlApplication::quit,
+            QCoreApplication::instance(), &QCoreApplication::quit);
+    QObject::connect(&m_qmlApplication, &QmlApplication::exit,
+            QCoreApplication::instance(), &QCoreApplication::exit);
+    QObject::connect(&m_qmlApplication, &QmlApplication::error, [=] (const QString& errorString) {
+        qWarning().noquote() << errorString.trimmed();
+        qInstallMessageHandler([] (QtMsgType, const QMessageLogContext&, const QString&) {});
+        QTimer::singleShot(0, std::bind(&QCoreApplication::exit, EXIT_FAILURE));
+    });
 }
 
-void ApplicationCore::onError(const QString& errorString) const
+void ApplicationCore::run()
 {
-    qWarning().noquote() << errorString.trimmed();
-    QGuiApplication::exit(EXIT_FAILURE);
+    m_qmlApplication.run(CommandlineParser::projectDirectory());
 }
 
-void ApplicationCore::init(QObject* parent)
+void ApplicationCore::prepare()
 {
-    static ApplicationCore* instance = nullptr;
-    if (instance)
-        return;
+    QuickTheme::setTheme(CommandlineParser::projectDirectory());
+    QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps); // For devices that devicePixelRatio > 1
+    if (SaveUtils::projectScaling(CommandlineParser::projectDirectory()) != "noScaling")
+        QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+}
 
-    instance = new ApplicationCore(parent);
+bool ApplicationCore::useGuiApplication()
+{
+    return qEnvironmentVariableIsSet("QT_QUICK_CONTROLS_1_STYLE")
+            && qgetenv("QT_QUICK_CONTROLS_1_STYLE") != "Desktop";
 }

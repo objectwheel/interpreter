@@ -1,25 +1,24 @@
 #include <applicationcore.h>
-#include <bootsettings.h>
 #include <commandlineparser.h>
-
 #include <QApplication>
-#include <QSharedPointer>
 
 int main(int argc, char* argv[])
 {
     // Parse commandline arguments
     CommandlineParser::init(argc, argv);
 
-    // Apply boot settings
-    BootSettings::apply();
+    // Prepare core
+    ApplicationCore::prepare();
 
     // Initialize application
-    QSharedPointer<QGuiApplication> app(BootSettings::useGuiApplication()
+    QScopedPointer<QGuiApplication> app(ApplicationCore::useGuiApplication()
             ? new QGuiApplication(argc, argv)
             : new QApplication(argc, argv));
 
-    // Initialize application core
-    ApplicationCore::init(app.data());
+    // Run core
+    ApplicationCore core;
+    core.run();
 
+    // Start main event loop
     return app->exec();
 }

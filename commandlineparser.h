@@ -5,17 +5,17 @@
 
 class CommandlineParser final
 {
-    Q_DISABLE_COPY(CommandlineParser)
-
 public:
-    static void init(int argc, char* argv[]);
     static QString projectDirectory();
-
-private:
-    CommandlineParser() {}
+    static void init(int argc, char* argv[]);
 
 private:
     static QString s_projectDirectory;
+
+public:
+    CommandlineParser() = delete;
+    CommandlineParser(const CommandlineParser&) = delete;
+    CommandlineParser& operator=(const CommandlineParser&) = delete;
 };
 
 #endif // COMMANDLINEPARSER_H
