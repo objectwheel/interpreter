@@ -2,10 +2,7 @@ android {
     contains(ANDROID_TARGET_ARCH, x86|armeabi-v7a|arm64-v8a) {
         ANDROID_PACKAGE_SOURCE_DIR = $$PWD
         DISTFILES += $$PWD/AndroidManifest.xml \
-                     $$PWD/res/values/libs.xml \
-                     $$PWD/res/drawable-hdpi/icon.png \
-                     $$PWD/res/drawable-mdpi/icon.png \
-                     $$PWD/res/drawable-ldpi/icon.png \
+                     $$PWD/res/values/libs.xml
 
         LIB_SUBDIR = arm
         contains(ANDROID_TARGET_ARCH, x86):LIB_SUBDIR = x86
