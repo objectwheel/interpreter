@@ -11,6 +11,7 @@ QString CommandlineParser::projectDirectory()
 void CommandlineParser::init(int /*argc*/, char* argv[])
 {
 #if defined(Q_OS_ANDROID)
+    Q_UNUSED(argv)
     s_projectDirectory = "assets:";
 #else
     s_projectDirectory = dname(argv[0]);

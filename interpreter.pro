@@ -1,7 +1,3 @@
-### Includes
-include($$PWD/resources/resources.pri)
-include($$PWD/components/components.pri)
-
 ### App Settings
 TEMPLATE = app
 TARGET   = interpreter
@@ -33,18 +29,7 @@ HEADERS += $$PWD/qmlapplication.h \
            $$PWD/hashfactory.h \
            $$PWD/quicktheme.h
 
-android {
-    DISTFILES += $$PWD/android/AndroidManifest.xml \
-                 $$PWD/android/res/values/libs.xml
-    ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
-}
-
-ios|macx {
-    ios {
-        project.path =
-    } else {
-        project.path = Contents/MacOS
-    }
-    project.files = /Users/omergoktas/Desktop/owtestsuite/owdb /Users/omergoktas/Desktop/owtestsuite/project.json
-    QMAKE_BUNDLE_DATA += project
-}
+### Includes
+include($$PWD/resources/resources.pri)
+include($$PWD/components/components.pri)
+include($$PWD/platform/platform.pri)
