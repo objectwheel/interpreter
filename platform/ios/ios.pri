@@ -1,5 +1,5 @@
 ios {
     installProject.files = $$files($$PWD/../../project/*)
-    installProject.path =
+    installProject.path = owprj
     QMAKE_BUNDLE_DATA += installProject
 }
