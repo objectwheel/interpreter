@@ -11,10 +11,6 @@ android {
         ANDROID_EXTRA_LIBS = \
             $$PWD/libs/$$LIB_SUBDIR/libssl.so \
             $$PWD/libs/$$LIB_SUBDIR/libcrypto.so
-
-        installProject.files = $$files($$PWD/../../project/*)
-        installProject.path = /assets/owprj
-        INSTALLS += installProject
     } else {
         error("We don't support this arch yet")
     }

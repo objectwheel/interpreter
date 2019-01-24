@@ -2,6 +2,7 @@
 #define DISCOVERYMANAGER_H
 
 #include <QObject>
+#include <QBasicTimer>
 
 class QUdpSocket;
 class QWebSocket;
@@ -22,10 +23,20 @@ class DiscoveryManager : public QObject
 private:
     explicit DiscoveryManager(QObject* parent = nullptr);
 
+protected:
+    void timerEvent(QTimerEvent* event) override;
+
 private slots:
+    void start();
+    void stop();
     void onBroadcastReadyRead();
 
+signals:
+    void connected();
+    void disconnected();
+
 private:
+    static QBasicTimer s_emulatorTimer;
     static QUdpSocket* s_broadcastSocket;
     static QWebSocket* s_webSocket;
 };
