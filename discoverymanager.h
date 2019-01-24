@@ -23,13 +23,13 @@ class DiscoveryManager : public QObject
 private:
     explicit DiscoveryManager(QObject* parent = nullptr);
 
-protected:
-    void timerEvent(QTimerEvent* event) override;
-
 private slots:
     void start();
     void stop();
     void onBroadcastReadyRead();
+
+protected:
+    void timerEvent(QTimerEvent* event) override;
 
 signals:
     void connected();

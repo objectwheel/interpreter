@@ -6,12 +6,45 @@
 #include <QTimerEvent>
 #include <QJsonObject>
 #include <QJsonDocument>
+#include <QDataStream>
 
 #if defined(Q_OS_ANDROID)
 #include <QAndroidJniObject>
 #endif
 
 namespace {
+
+void pushValuesHelper(QDataStream&) {}
+
+template <typename Arg, typename... Args>
+void pushValuesHelper(QDataStream& stream, const Arg& arg, const Args&... args) {
+    stream << arg;
+    pushValuesHelper(stream, args...);
+}
+
+template <typename... Args>
+QByteArray pushValues(const Args&... args) {
+    QByteArray data;
+    QDataStream stream(&data, QIODevice::WriteOnly);
+    stream.setVersion(QDataStream::Qt_5_12);
+    pushValuesHelper(stream, args...);
+    return data;
+}
+
+void pullValuesHelper(QDataStream&) {}
+
+template <typename Arg, typename... Args>
+void pullValuesHelper(QDataStream& stream, Arg& arg, Args&... args) {
+    stream >> arg;
+    pullValuesHelper(stream, args...);
+}
+
+template <typename... Args>
+void pullValues(const QByteArray& data, Args&... args) {
+    QDataStream stream(data);
+    stream.setVersion(QDataStream::Qt_5_12);
+    pullValuesHelper(stream, args...);
+}
 
 bool isAndroidEmulator()
 {
@@ -32,22 +65,31 @@ QUrl hostAddressToUrl(const QHostAddress& address, int port)
         return QString("ws://%1:%2").arg(address.toString()).arg(port);
 }
 
-QString deviceInfo()
+QVariantMap deviceInfo()
 {
-    static const QString info = QJsonDocument(
-                QJsonObject{
-                    {"deviceUid", HashFactory::generate()},
-                    {"buildCpuArchitecture", QSysInfo::buildCpuArchitecture()},
-                    {"currentCpuArchitecture", QSysInfo::currentCpuArchitecture()},
-                    {"buildAbi", QSysInfo::buildAbi()},
-                    {"kernelType", QSysInfo::kernelType()},
-                    {"kernelVersion", QSysInfo::kernelVersion()},
-                    {"productType", QSysInfo::productType()},
-                    {"productVersion", QSysInfo::productVersion()},
-                    {"prettyProductName", QSysInfo::prettyProductName()},
-                    {"machineHostName", QSysInfo::machineHostName()}
-                }).toJson();
-    return info;
+    static const QJsonObject info = {
+        {"deviceUid", HashFactory::generate()},
+        {"buildCpuArchitecture", QSysInfo::buildCpuArchitecture()},
+        {"currentCpuArchitecture", QSysInfo::currentCpuArchitecture()},
+        {"buildAbi", QSysInfo::buildAbi()},
+        {"kernelType", QSysInfo::kernelType()},
+        {"kernelVersion", QSysInfo::kernelVersion()},
+        {"productType", QSysInfo::productType()},
+        {"productVersion", QSysInfo::productVersion()},
+        {"prettyProductName", QSysInfo::prettyProductName()},
+        {"machineHostName", QSysInfo::machineHostName()}
+    };
+    return info.toVariantMap();
+}
+
+QByteArray serialize(const QByteArray& data, const QString& command)
+{
+    QByteArray outgoingData;
+    QDataStream outgoing(&outgoingData, QIODevice::WriteOnly);
+    outgoing.setVersion(QDataStream::Qt_5_12);
+    outgoing << command;
+    outgoing << data;
+    return outgoingData;
 }
 }
 
@@ -76,7 +118,7 @@ DiscoveryManager::DiscoveryManager(QObject* parent) : QObject(parent)
     connect(s_webSocket, &QWebSocket::connected, this, [=] {
         if (isAndroidEmulator())
             stop();
-        s_webSocket->sendTextMessage(deviceInfo());
+        s_webSocket->sendBinaryMessage(serialize(pushValues(deviceInfo()), "DeviceInfo"));
         emit connected();
     });
 
