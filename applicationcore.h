@@ -2,6 +2,7 @@
 #define APPLICATIONCORE_H
 
 #include <globalresources.h>
+#include <discoverymanager.h>
 #include <qmlapplication.h>
 
 class ApplicationCore final
@@ -16,6 +17,7 @@ public:
 
 private:
     GlobalResources m_globalResources;
+    DiscoveryManager m_discoveryManager;
     QmlApplication m_qmlApplication;
 
 public:
