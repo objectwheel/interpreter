@@ -11,14 +11,12 @@ int main(int argc, char* argv[])
     ApplicationCore::prepare();
 
     // Initialize application
-    QScopedPointer<QGuiApplication> app(ApplicationCore::useGuiApplication()
-            ? new QGuiApplication(argc, argv)
-            : new QApplication(argc, argv));
+    QApplication app(argc, argv);
 
     // Run core
     ApplicationCore core;
     core.run();
 
     // Start main event loop
-    return app->exec();
+    return app.exec();
 }

@@ -19,7 +19,9 @@ SOURCES += $$PWD/main.cpp \
            $$PWD/qmlcomponent.cpp \
            $$PWD/saveutils.cpp \
            $$PWD/hashfactory.cpp \
-           $$PWD/quicktheme.cpp
+           $$PWD/quicktheme.cpp \
+           $$PWD/applicationwindow.cpp \
+           $$PWD/discoverymanager.cpp
 
 HEADERS += $$PWD/qmlapplication.h \
            $$PWD/applicationcore.h \
@@ -27,7 +29,9 @@ HEADERS += $$PWD/qmlapplication.h \
            $$PWD/qmlcomponent.h \
            $$PWD/saveutils.h \
            $$PWD/hashfactory.h \
-           $$PWD/quicktheme.h
+           $$PWD/quicktheme.h \
+           $$PWD/applicationwindow.h \
+           $$PWD/discoverymanager.h
 
 ### Includes
 include($$PWD/resources/resources.pri)

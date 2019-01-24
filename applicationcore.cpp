@@ -45,12 +45,5 @@ void ApplicationCore::prepare()
 {
     QuickTheme::setTheme(CommandlineParser::projectDirectory());
     QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps); // For devices that devicePixelRatio > 1
-    if (SaveUtils::projectScaling(CommandlineParser::projectDirectory()) != "noScaling")
-        QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-}
-
-bool ApplicationCore::useGuiApplication()
-{
-    return qEnvironmentVariableIsSet("QT_QUICK_CONTROLS_1_STYLE")
-            && qgetenv("QT_QUICK_CONTROLS_1_STYLE") != "Desktop";
+    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 }
