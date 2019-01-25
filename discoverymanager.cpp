@@ -94,12 +94,14 @@ QByteArray serialize(const QByteArray& data, const QString& command)
 }
 
 const QByteArray DiscoveryManager::BROADCAST_MESSAGE = "Objectwheel Device Discovery Broadcast";
+DiscoveryManager* DiscoveryManager::s_instance = nullptr;
 QBasicTimer DiscoveryManager::s_emulatorTimer;
 QUdpSocket* DiscoveryManager::s_broadcastSocket = nullptr;
 QWebSocket* DiscoveryManager::s_webSocket = nullptr;
 
 DiscoveryManager::DiscoveryManager(QObject* parent) : QObject(parent)
 {
+    s_instance = this;
     s_broadcastSocket = new QUdpSocket(this);
     s_webSocket = new QWebSocket(QStringLiteral(), QWebSocketProtocol::VersionLatest, this);
 
@@ -128,6 +130,16 @@ DiscoveryManager::DiscoveryManager(QObject* parent) : QObject(parent)
     //    void textMessageReceived(const QString &message)
 
     start();
+}
+
+DiscoveryManager::~DiscoveryManager()
+{
+    s_instance = nullptr;
+}
+
+DiscoveryManager* DiscoveryManager::instance()
+{
+    return s_instance;
 }
 
 void DiscoveryManager::start()

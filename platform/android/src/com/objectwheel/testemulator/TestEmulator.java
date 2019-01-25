@@ -1,11 +1,9 @@
 package com.objectwheel.testemulator;
 
 import android.os.Build;
-import android.util.Log;
 
 public final class TestEmulator {
     public static boolean isEmulator() {
-        Log.v("####", "LAAAAAAAAAAAAAAAAAAAAN");
         return Build.FINGERPRINT.startsWith("generic")
                 || Build.FINGERPRINT.startsWith("unknown")
                 || Build.MODEL.contains("google_sdk")

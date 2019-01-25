@@ -5,12 +5,13 @@
 #include <discoverymanager.h>
 #include <qmlapplication.h>
 
+class ApplicationWindow;
+
 class ApplicationCore final
 {
 public:
     ApplicationCore();
-
-    void run();
+    ~ApplicationCore();
 
     static void prepare();
 
@@ -18,6 +19,7 @@ private:
     GlobalResources m_globalResources;
     DiscoveryManager m_discoveryManager;
     QmlApplication m_qmlApplication;
+    ApplicationWindow* m_applicationWindow;
 
 public:
     ApplicationCore(const ApplicationCore&) = delete;

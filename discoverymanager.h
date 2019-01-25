@@ -22,6 +22,9 @@ class DiscoveryManager : public QObject
 
 private:
     explicit DiscoveryManager(QObject* parent = nullptr);
+    ~DiscoveryManager() override;
+
+    static DiscoveryManager* instance();
 
 private slots:
     void start();
@@ -36,6 +39,7 @@ signals:
     void disconnected();
 
 private:
+    static DiscoveryManager* s_instance;
     static QBasicTimer s_emulatorTimer;
     static QUdpSocket* s_broadcastSocket;
     static QWebSocket* s_webSocket;
