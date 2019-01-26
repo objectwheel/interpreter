@@ -1,10 +1,13 @@
 #include <radarwidget.h>
-#include <cmath>
+#include <QtMath>
 #include <QPainter>
 #include <QTimerEvent>
 
 RadarWidget::RadarWidget(QWidget* parent) : QWidget(parent)
+  , m_scaleFactor(1.0)
 {
+    setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+
     m_waveAnimation.setLoopCount(-1);
     m_waveAnimation.setStartValue(0.0);
     m_waveAnimation.setEndValue(1.0);
@@ -73,12 +76,13 @@ void RadarWidget::paintEvent(QPaintEvent*)
     QColor waveColor = "#f0f0f0";
     QColor baseColor = "#4ba086";
     QColor frameColor = "#ffffff";
-    QColor frameBorderColor = "#c7c7c7"; // #242a2d for light mode
+    QColor frameBorderColor = "#242a2d"; // #c7c7c7 for light mode
     QColor circleColor = "#50ffffff";
     QColor needleColor = "#ffffff";
     QColor scanningColor = "#77ffd4";
 
     const QPointF center(QRectF(rect()).center());
+    const qreal sf = m_scaleFactor;
     const qreal radius = qMin(width(), height()) / 2.0;
     const qreal waveFactor = m_waveAnimation.currentValue().toReal();
     const qreal needleFactor = m_needleAnimation.currentValue().toReal();
@@ -88,40 +92,40 @@ void RadarWidget::paintEvent(QPaintEvent*)
 
     // Wave
     waveColor.setAlphaF(1.0 - waveFactor);
-    painter.setPen(QPen(waveColor, 1.5));
-    painter.drawEllipse(center, waveFactor * radius - 0.5, waveFactor * radius - 0.5);
+    painter.setPen(QPen(waveColor, 1.5 * sf));
+    painter.drawEllipse(center, waveFactor * radius - 0.5 * sf, waveFactor * radius - 0.5 * sf);
 
     // Base
     painter.setPen(Qt::NoPen);
     painter.setBrush(baseColor);
-    painter.drawEllipse(center, 64, 64);
+    painter.drawEllipse(center, FRAME_RADIUS * sf, FRAME_RADIUS * sf);
 
     // Frame outer drop shadow
     painter.setBrush(Qt::NoBrush);
-    painter.setPen(QPen(QColor("#10000000"), 1.5));
-    painter.drawEllipse(center + QPointF(0, 1), 64, 64);
+    painter.setPen(QPen(QColor("#10000000"), 1.5 * sf));
+    painter.drawEllipse(center + QPointF(0, 1 * sf), FRAME_RADIUS * sf, FRAME_RADIUS * sf);
 
     // Frame outer border
     painter.setBrush(Qt::NoBrush);
-    painter.setPen(QPen(frameBorderColor, 1));
-    painter.drawEllipse(center, 64, 64);
+    painter.setPen(QPen(frameBorderColor, 1 * sf));
+    painter.drawEllipse(center, FRAME_RADIUS * sf, FRAME_RADIUS * sf);
 
     // Frame
     painter.setBrush(Qt::NoBrush);
-    painter.setPen(QPen(frameColor, 1.5));
-    painter.drawEllipse(center, 64 - 1, 64 - 1);
-    painter.setPen(QPen(frameColor.darker(104), 1.5));
-    painter.drawEllipse(center, 64 - 2, 64 - 2);
-    painter.setPen(QPen(frameColor.darker(109), 1.5));
-    painter.drawEllipse(center, 64 - 3, 64 - 3);
-    painter.setPen(QPen(frameColor.darker(115), 1.5));
-    painter.drawEllipse(center, 64 - 4, 64 - 4);
+    painter.setPen(QPen(frameColor, 1.5 * sf));
+    painter.drawEllipse(center, FRAME_RADIUS * sf - 1 * sf, FRAME_RADIUS * sf - 1 * sf);
+    painter.setPen(QPen(frameColor.darker(104), 1.5 * sf));
+    painter.drawEllipse(center, FRAME_RADIUS * sf - 2 * sf, FRAME_RADIUS * sf - 2 * sf);
+    painter.setPen(QPen(frameColor.darker(109), 1.5 * sf));
+    painter.drawEllipse(center, FRAME_RADIUS * sf - 3 * sf, FRAME_RADIUS * sf - 3 * sf);
+    painter.setPen(QPen(frameColor.darker(115), 1.5 * sf));
+    painter.drawEllipse(center, FRAME_RADIUS * sf - 4 * sf, FRAME_RADIUS * sf - 4 * sf);
 
     // Circles
     painter.setBrush(Qt::NoBrush);
     painter.setPen(circleColor);
-    painter.drawEllipse(center, 45, 45);
-    painter.drawEllipse(center, 25, 25);
+    painter.drawEllipse(center, 45 * sf, 45 * sf);
+    painter.drawEllipse(center, 25 * sf, 25 * sf);
 
     // Bubbling circles
     static const qreal begins[] = {
@@ -131,10 +135,10 @@ void RadarWidget::paintEvent(QPaintEvent*)
         1.10 * M_PI
     };
     const QPointF points[] = {
-        center + QPoint(25, -20),
-        center + QPoint(35, 35),
-        center + QPoint(35, 35),
-        center + QPoint(-35, -5)
+        center + QPoint(25 * sf, -20 * sf),
+        center + QPoint(35 * sf, 35 * sf),
+        center + QPoint(35 * sf, 35 * sf),
+        center + QPoint(-35 * sf, -5 * sf)
     };
     painter.setBrush(Qt::NoBrush);
     for (size_t i = 0; i < sizeof(begins) / sizeof(begins[0]); ++i) {
@@ -142,7 +146,7 @@ void RadarWidget::paintEvent(QPaintEvent*)
         if (needleFactor > begins[i] && needleFactor < begins[i] + DIFF) {
             const qreal factor = (needleFactor - begins[i]) / DIFF;
             painter.setPen(QColor(255, 255, 255, 255 * (1 - factor)));
-            painter.drawEllipse(points[i], factor * 6, factor * 6);
+            painter.drawEllipse(points[i], factor * 6 * sf, factor * 6 * sf);
         }
     }
 
@@ -158,18 +162,18 @@ void RadarWidget::paintEvent(QPaintEvent*)
     scanningEffect.setColorAt(0.9, scanningColor);
     painter.setBrush(scanningEffect);
     painter.setPen(Qt::NoPen);
-    painter.drawEllipse(center, 64 - 5, 64 - 5);
+    painter.drawEllipse(center, FRAME_RADIUS * sf - 5 * sf, FRAME_RADIUS * sf - 5 * sf);
 
     // Needle
     painter.setBrush(Qt::NoBrush);
-    painter.setPen(QPen(needleColor, 2.0));
-    painter.drawLine(center, center + QPointF(std::cos(needleFactor) * (64 - 6),
-                                              std::sin(needleFactor) * (64 - 6)));
+    painter.setPen(QPen(needleColor, 2.0 * sf));
+    painter.drawLine(center, center + QPointF(std::cos(needleFactor) * (FRAME_RADIUS * sf - 6 * sf),
+                                              std::sin(needleFactor) * (FRAME_RADIUS * sf - 6 * sf)));
 
     // Needle core drop shadow
     painter.setBrush(Qt::NoBrush);
     painter.setPen("#15000000");
-    painter.drawEllipse(center, 8.5, 8.5);
+    painter.drawEllipse(center, 8.5 * sf, 8.5 * sf);
 
     // Needle core
     QLinearGradient grad(0, 0, 0, 1);
@@ -178,17 +182,36 @@ void RadarWidget::paintEvent(QPaintEvent*)
     grad.setColorAt(1, needleColor.darker(115));
     painter.setBrush(grad);
     painter.setPen(Qt::NoPen);
-    painter.drawEllipse(center, 8, 8);
+    painter.drawEllipse(center, 8 * sf, 8 * sf);
 
     // Frame inner drop shadow
     painter.setBrush(Qt::NoBrush);
-    painter.setPen(QPen(QColor("#20000000"), 1.5));
-    painter.drawEllipse(center, 64 - 5, 64 - 5);
-    painter.setPen(QPen(QColor("#05000000"), 1.5));
-    painter.drawEllipse(center, 64 - 6, 64 - 6);
+    painter.setPen(QPen(QColor("#20000000"), 1.5 * sf));
+    painter.drawEllipse(center, FRAME_RADIUS * sf - 5 * sf, FRAME_RADIUS * sf - 5 * sf);
+    painter.setPen(QPen(QColor("#05000000"), 1.5 * sf));
+    painter.drawEllipse(center, FRAME_RADIUS * sf - 6 * sf, FRAME_RADIUS * sf - 6 * sf);
+}
+
+qreal RadarWidget::scaleFactor() const
+{
+    return m_scaleFactor;
+}
+
+void RadarWidget::setScaleFactor(const qreal scaleFactor)
+{
+    m_scaleFactor = scaleFactor;
+    update();
 }
 
 QSize RadarWidget::sizeHint() const
 {
-    return {320, 320};
+    return {300, 300};
+}
+
+QSize RadarWidget::minimumSizeHint() const
+{
+    return {
+        qCeil(2 * FRAME_RADIUS * m_scaleFactor) + 1,
+        qCeil(2 * FRAME_RADIUS * m_scaleFactor) + 1
+    };
 }

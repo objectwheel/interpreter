@@ -10,7 +10,8 @@ class RadarWidget : public QWidget
     Q_OBJECT
 
     enum {
-        REFRESH_RATE = 33 // 30 fps
+        REFRESH_RATE = 33, // 30 fps
+        FRAME_RADIUS = 64
     };
 
 public:
@@ -20,6 +21,9 @@ public:
 
     int period() const;
 
+    qreal scaleFactor() const;
+    void setScaleFactor(const qreal scaleFactor);
+
 public slots:
     void start(int period = 2000);
     void stop();
@@ -28,6 +32,7 @@ public slots:
 
 protected:
     QSize sizeHint() const override;
+    QSize minimumSizeHint() const override;
     void timerEvent(QTimerEvent* event) override;
     void paintEvent(QPaintEvent* event) override;
 
@@ -35,6 +40,7 @@ signals:
     void stateChanged(QAbstractAnimation::State newState, QAbstractAnimation::State oldState);
 
 private:
+    qreal m_scaleFactor;
     QBasicTimer m_updateTimer;
     QVariantAnimation m_waveAnimation;
     QVariantAnimation m_needleAnimation;

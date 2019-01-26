@@ -45,7 +45,7 @@ ApplicationCore::ApplicationCore() : m_globalResources(&CommandlineParser::proje
     palette.setColor(QPalette::Active, QPalette::ButtonText, "#e5e5e5");
     palette.setColor(QPalette::Inactive, QPalette::ButtonText, "#e5e5e5");
     palette.setColor(QPalette::Disabled, QPalette::ButtonText, "#b0b0b0");
-    palette.setColor(QPalette::Window, "#f0f0f0");
+    palette.setColor(QPalette::Window, "#2F363C");
 
     QApplication::setPalette(palette);
 
