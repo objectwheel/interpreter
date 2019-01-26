@@ -9,7 +9,7 @@ RadarWidget::RadarWidget(QWidget* parent) : QWidget(parent)
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 
     QPalette palette(this->palette());
-    palette.setColor(QPalette::Link, "#8077ffd4");        // Wave color
+    palette.setColor(QPalette::Link, "#755EC8A7");        // Wave color
     palette.setColor(QPalette::Base, "#4ba086");          // Base color
     palette.setColor(QPalette::Button, "#ffffff");        // Frame color
     palette.setColor(QPalette::ButtonText, "#242a2d");    // Frame border color
