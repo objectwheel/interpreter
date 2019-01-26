@@ -17,8 +17,8 @@ CentralWidget::CentralWidget(QWidget* parent) : QWidget(parent)
     m_layout->addStretch(3);
 
     QFont font;
-    font.setPixelSize(18);
-    font.setWeight(QFont::ExtraLight);
+    font.setPixelSize(17);
+    font.setWeight(QFont::Light);
     m_searchingText->setFont(font);
     m_searchingText->setText(tr("Searching for Objectwheel..."));
 }

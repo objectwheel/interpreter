@@ -1,7 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>module-resolver.qml</file>
-        <file>images/scanning.gif</file>
         <file>fonts/Roboto-Black.ttf</file>
         <file>fonts/Roboto-BlackItalic.ttf</file>
         <file>fonts/Roboto-Bold.ttf</file>
@@ -14,6 +13,5 @@
         <file>fonts/Roboto-Regular.ttf</file>
         <file>fonts/Roboto-Thin.ttf</file>
         <file>fonts/Roboto-ThinItalic.ttf</file>
-        <file>images/scanning@2x.gif</file>
     </qresource>
 </RCC>

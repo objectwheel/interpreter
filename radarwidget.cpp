@@ -1,7 +1,7 @@
 #include <radarwidget.h>
+#include <cmath>
 #include <QPainter>
 #include <QTimerEvent>
-#include <cmath>
 
 RadarWidget::RadarWidget(QWidget* parent) : QWidget(parent)
 {
@@ -14,10 +14,10 @@ RadarWidget::RadarWidget(QWidget* parent) : QWidget(parent)
 //    connect(&m_circleRadiusAnimation, &QVariantAnimation::valueChanged,
 //            this, QOverload<>::of(&RadarWidget::update));
 
-    m_needleAnimation.setStartValue(0.0);
-    m_needleAnimation.setEndValue(2 * M_PI);
+    m_needleAnimation.setStartValue( - M_PI / 2.0);
+    m_needleAnimation.setEndValue(2 * M_PI + M_PI / 2.0 + M_PI);
     m_needleAnimation.setLoopCount(-1);
-    m_needleAnimation.setDuration(2000);
+    m_needleAnimation.setDuration(4000);
     m_needleAnimation.setEasingCurve(QEasingCurve::Linear);
     m_needleAnimation.start();
     connect(&m_needleAnimation, &QVariantAnimation::valueChanged,
@@ -33,6 +33,7 @@ void RadarWidget::paintEvent(QPaintEvent*)
 {
     QPointF center(QRectF(rect()).center());
     const qreal circleRadiusFactor = m_circleRadiusAnimation.currentValue().toReal();
+    const qreal needleFactor = m_needleAnimation.currentValue().toReal();
     const qreal length = qMin(width(), height());
     const qreal circleRadius = circleRadiusFactor * length / 2.0 - 0.75;
     QColor circleBorderColor(palette().windowText().color());
@@ -43,9 +44,14 @@ void RadarWidget::paintEvent(QPaintEvent*)
     painter.setPen(QPen(circleBorderColor, 1.5));
     painter.drawEllipse(center, circleRadius, circleRadius);
 
+    // Draw core's drop shadow
+    painter.setBrush(Qt::NoBrush);
+    painter.setPen(QPen(QColor("#10000000"), 1.5));
+    painter.drawEllipse(center + QPointF(0, 2), length / 5.0, length / 5.0);
+
     // Draw core's background
     painter.setPen(Qt::NoPen);
-    painter.setBrush(QColor("#2683E1"));
+    painter.setBrush(QColor("#4BA086"));
     painter.drawEllipse(center, length / 5.0, length / 5.0);
 
     // Draw core's border
@@ -58,11 +64,35 @@ void RadarWidget::paintEvent(QPaintEvent*)
     painter.drawEllipse(center, length / 5.0 - 2, length / 5.0 - 2);
     painter.setPen(QPen(QColor("#e0e0e0"), 1.5));
     painter.drawEllipse(center, length / 5.0 - 3, length / 5.0 - 3);
+    painter.setPen(QPen(QColor("#d0d0d0"), 1)); // #202528 for dark mode
+    painter.drawEllipse(center, length / 5.0 + 1, length / 5.0 + 1);
 
     // Draw core's inner lines
-    painter.setPen("#30ffffff");
+    painter.setPen("#40ffffff");
     painter.drawEllipse(center, length / 7.0, length / 7.0);
     painter.drawEllipse(center, length / 12.0, length / 12.0);
+
+    // Draw core's inner lines
+    static const qreal begins[] = {
+        1.75 * M_PI,
+        0.25 * M_PI,
+        2.25 * M_PI,
+        1.10 * M_PI
+    };
+    const QPointF points[] = {
+        center + QPoint(25, -20),
+        center + QPoint(35, 35),
+        center + QPoint(35, 35),
+        center + QPoint(-35, -5)
+    };
+    for (size_t i = 0; i < sizeof(begins) / sizeof(begins[0]); ++i) {
+        static const qreal DIFF = 1.25 * M_PI;
+        if (needleFactor > begins[i] && needleFactor < begins[i] + DIFF) {
+            qreal factor = (needleFactor - begins[i]) / DIFF;
+            painter.setPen(QColor(255, 255, 255, 255 * (1 - factor)));
+            painter.drawEllipse(points[i], factor * 6, factor * 6);
+        }
+    }
 
     // Draw core's needle
     painter.setPen(QPen(QColor("white"), 2.0));
@@ -73,7 +103,7 @@ void RadarWidget::paintEvent(QPaintEvent*)
     QConicalGradient grad2(center, -m_needleAnimation.currentValue().toReal() * 180 / M_PI);
     grad2.setColorAt(0.0, "#50ffffff");
     grad2.setColorAt(0.2, "#40ffffff");
-    grad2.setColorAt(0.8, "#05ffffff");
+    grad2.setColorAt(0.5, "#10ffffff");
     grad2.setColorAt(1.0, "#00ffffff");
     painter.setBrush(grad2);
     painter.setPen(Qt::NoPen);
@@ -81,11 +111,9 @@ void RadarWidget::paintEvent(QPaintEvent*)
 
     // Draw core's border drop shadow
     painter.setBrush(Qt::NoBrush);
-    painter.setPen(QPen(QColor("#35000000"), 1.5));
+    painter.setPen(QPen(QColor("#25000000"), 1.5));
     painter.drawEllipse(center, length / 5.0 - 4, length / 5.0 - 4);
-    painter.setPen(QPen(QColor("#15000000"), 1.5));
-    painter.drawEllipse(center, length / 5.0 - 5, length / 5.0 - 5);
-    painter.setPen(QPen(QColor("#07000000"), 1.5));
+    painter.setPen(QPen(QColor("#05000000"), 1.5));
     painter.drawEllipse(center, length / 5.0 - 5, length / 5.0 - 5);
 
     // Draw core's needle ball
@@ -99,6 +127,6 @@ void RadarWidget::paintEvent(QPaintEvent*)
 
     // Draw core's needle ball drop shadow
     painter.setBrush(Qt::NoBrush);
-    painter.setPen("#20000000");
+    painter.setPen("#15000000");
     painter.drawEllipse(center, 8.5, 8.5);
 }
