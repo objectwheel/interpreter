@@ -201,7 +201,7 @@ qreal RadarWidget::scaleFactor() const
     return m_scaleFactor;
 }
 
-void RadarWidget::setScaleFactor(const qreal scaleFactor)
+void RadarWidget::setScaleFactor(qreal scaleFactor)
 {
     m_scaleFactor = scaleFactor;
     update();

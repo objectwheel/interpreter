@@ -22,7 +22,7 @@ public:
     int period() const;
 
     qreal scaleFactor() const;
-    void setScaleFactor(const qreal scaleFactor);
+    void setScaleFactor(qreal scaleFactor);
 
 public slots:
     void start(int period = 2000);
