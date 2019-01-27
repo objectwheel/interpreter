@@ -20,11 +20,14 @@ class DiscoveryManager : public QObject
     };
     static const QByteArray BROADCAST_MESSAGE;
 
+public:
+    static DiscoveryManager* instance();
+    static bool isConnected();
+    static QString address();
+
 private:
     explicit DiscoveryManager(QObject* parent = nullptr);
     ~DiscoveryManager() override;
-
-    static DiscoveryManager* instance();
 
 private slots:
     void start();
@@ -43,6 +46,8 @@ private:
     static QBasicTimer s_emulatorTimer;
     static QUdpSocket* s_broadcastSocket;
     static QWebSocket* s_webSocket;
+    static bool s_connected;
+    static QString s_address;
 };
 
 #endif // DISCOVERYMANAGER_H

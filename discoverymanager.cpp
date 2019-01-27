@@ -98,6 +98,8 @@ DiscoveryManager* DiscoveryManager::s_instance = nullptr;
 QBasicTimer DiscoveryManager::s_emulatorTimer;
 QUdpSocket* DiscoveryManager::s_broadcastSocket = nullptr;
 QWebSocket* DiscoveryManager::s_webSocket = nullptr;
+bool DiscoveryManager::s_connected = false;
+QString DiscoveryManager::s_address;
 
 DiscoveryManager::DiscoveryManager(QObject* parent) : QObject(parent)
 {
@@ -116,11 +118,15 @@ DiscoveryManager::DiscoveryManager(QObject* parent) : QObject(parent)
         qWarning() << "DiscoveryManager: Server error" << socketError;
     });
     connect(s_webSocket, &QWebSocket::disconnected, this, &DiscoveryManager::start);
-    connect(s_webSocket, &QWebSocket::disconnected, this, &DiscoveryManager::disconnected);
+    connect(s_webSocket, &QWebSocket::disconnected, this, [=] {
+        s_connected = false;
+        emit disconnected();
+    });
     connect(s_webSocket, &QWebSocket::connected, this, [=] {
         if (isAndroidEmulator())
             stop();
         s_webSocket->sendBinaryMessage(serialize(pushValues(deviceInfo()), "DeviceInfo"));
+        s_connected = true;
         emit connected();
     });
 
@@ -142,6 +148,16 @@ DiscoveryManager* DiscoveryManager::instance()
     return s_instance;
 }
 
+bool DiscoveryManager::isConnected()
+{
+    return s_connected;
+}
+
+QString DiscoveryManager::address()
+{
+    return s_address;
+}
+
 void DiscoveryManager::start()
 {
     if (isAndroidEmulator())
@@ -160,10 +176,12 @@ void DiscoveryManager::stop()
 
 void DiscoveryManager::timerEvent(QTimerEvent* event)
 {
-    if (event->timerId() == s_emulatorTimer.timerId())
-        s_webSocket->open(hostAddressToUrl(QHostAddress("10.0.2.2"), SERVER_PORT));
-    else
+    if (event->timerId() == s_emulatorTimer.timerId()) {
+        s_address = "10.0.2.2";
+        s_webSocket->open(hostAddressToUrl(QHostAddress(s_address), SERVER_PORT));
+    } else {
         QObject::timerEvent(event);
+    }
 }
 
 void DiscoveryManager::onBroadcastReadyRead()
@@ -176,6 +194,7 @@ void DiscoveryManager::onBroadcastReadyRead()
     }
     if (datagram == BROADCAST_MESSAGE) {
         stop();
-        s_webSocket->open(hostAddressToUrl(address, SERVER_PORT));
+        s_address = address.toString();
+        s_webSocket->open(hostAddressToUrl(QHostAddress(s_address), SERVER_PORT));
     }
 }

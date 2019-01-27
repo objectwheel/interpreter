@@ -13,5 +13,7 @@
         <file>fonts/Roboto-Regular.ttf</file>
         <file>fonts/Roboto-Thin.ttf</file>
         <file>fonts/Roboto-ThinItalic.ttf</file>
+        <file>images/connected.svg</file>
+        <file>images/disconnected.svg</file>
     </qresource>
 </RCC>

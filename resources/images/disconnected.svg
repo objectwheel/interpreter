@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!-- Generator: Adobe Illustrator 21.0.2, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Layer_1" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128;" xml:space="preserve" width="512px" height="512px">
+<circle style="fill:#FFFFFF;" cx="64" cy="64" r="48"/>
+<circle style="fill:#F48884;" cx="64" cy="64" r="39"/>
+<path style="fill:none;stroke:#FFFFFF;stroke-width:6;stroke-linecap:round;stroke-miterlimit:10;" d="M47.735,47  c4.169-3.885,9.952-6,16.01-6C76.588,41,86.07,50.6,87,65"/>
+<polyline style="fill:none;stroke:#FFFFFF;stroke-width:6;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;" points="  93,55 87,65 77,59 "/>
+<path style="fill:none;stroke:#FFFFFF;stroke-width:6;stroke-linecap:round;stroke-miterlimit:10;" d="M80,80.28  C75.897,84.623,69.936,87,63.674,87C51.152,87,41.907,77.4,41,63"/>
+<polyline style="fill:none;stroke:#FFFFFF;stroke-width:6;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;" points="  35,73 41,63 51,69 "/>
+<g>
+	<path style="fill:#454B54;" d="M105.882,110.125L8.875,13.118c-1.167-1.167-1.167-3.076,0-4.243l0,0   c1.167-1.167,3.076-1.167,4.243,0l97.007,97.007c1.167,1.167,1.167,3.076,0,4.243l0,0   C108.958,111.292,107.049,111.292,105.882,110.125z"/>
+	<path style="fill:#454B54;" d="M114.004,117.004L114.004,117.004c0,1.65,1.35,3,3,3h0c1.65,0,3-1.35,3-3v0c0-1.65-1.35-3-3-3h0   C115.354,114.004,114.004,115.354,114.004,117.004z"/>
+</g>
+<g>
+	<path style="fill:none;stroke:#444B54;stroke-width:6;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;" d="   M22.654,39.624C18.432,46.77,16,55.099,16,64c0,26.51,21.49,48,48,48c8.901,0,17.23-2.432,24.376-6.654"/>
+	<path style="fill:none;stroke:#444B54;stroke-width:6;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;" d="   M105.346,88.376C109.568,81.23,112,72.901,112,64c0-26.51-21.49-48-48-48c-8.901,0-17.23,2.432-24.376,6.654"/>
+</g>
+</svg>

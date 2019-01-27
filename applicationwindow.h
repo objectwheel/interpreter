@@ -5,6 +5,7 @@
 
 class View;
 class CentralWidget;
+class ConnectionStatusWidget;
 
 class ApplicationWindow : public QMainWindow
 {
@@ -22,6 +23,7 @@ protected:
 
 private:
     View* m_view;
+    ConnectionStatusWidget* m_connectionStatusWidget;
     CentralWidget* m_centralWidget;
 };
 

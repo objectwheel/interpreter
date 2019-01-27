@@ -15,8 +15,8 @@ public:
 
 private:
     QVBoxLayout* m_layout;
-    RadarWidget* m_searchingIcon;
-    QLabel* m_searchingText;
+    RadarWidget* m_radarWidget;
+    QLabel* m_searchingLabel;
 };
 
 #endif // CENTRALWIDGET_H
