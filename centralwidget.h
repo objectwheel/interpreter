@@ -3,9 +3,9 @@
 
 #include <QWidget>
 
-class QLabel;
 class QVBoxLayout;
-class RadarWidget;
+class ConnectivityWidget;
+class QLabel;
 
 class CentralWidget : public QWidget
 {
@@ -15,6 +15,7 @@ public:
 
 private:
     QVBoxLayout* m_layout;
+    ConnectivityWidget* m_connectivityWidget;
     QLabel* m_searchingLabel;
 };
 

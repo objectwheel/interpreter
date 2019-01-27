@@ -33,6 +33,8 @@ public slots:
 protected:
     QSize sizeHint() const override;
     QSize minimumSizeHint() const override;
+    void hideEvent(QHideEvent* event) override;
+    void showEvent(QShowEvent* event) override;
     void timerEvent(QTimerEvent* event) override;
     void paintEvent(QPaintEvent* event) override;
 

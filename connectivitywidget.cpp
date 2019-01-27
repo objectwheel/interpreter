@@ -4,8 +4,10 @@
 #include <QPainter>
 #include <QGraphicsOpacityEffect>
 
+namespace { ConnectivityWidget::State g_previousState; }
+
 ConnectivityWidget::ConnectivityWidget(QWidget* parent) : QWidget(parent)
-  , m_status(Searching)
+  , m_state(Searching)
   , m_radarWidget(new RadarWidget(this))
   , m_opacityEffect(new QGraphicsOpacityEffect(this))
 {
@@ -18,17 +20,45 @@ ConnectivityWidget::ConnectivityWidget(QWidget* parent) : QWidget(parent)
     palette.setColor(QPalette::ToolTipBase, "#ffffff");   // Needle color
     palette.setColor(QPalette::ToolTipText, "#85cfff");   // Scanning color
     m_radarWidget->setPalette(palette);
+
+//    m_opacityEffect->setOpacity(0.0);
+//    m_radarWidget->hide();
+//    m_radarWidget->setGraphicsEffect(m_opacityEffect);
+
+    m_opacityAnimation.setDuration(600);
+    m_opacityAnimation.setStartValue(0.0);
+    m_opacityAnimation.setEndValue(1.0);
+    m_opacityAnimation.setEasingCurve(QEasingCurve::OutQuart);
+
+    setState(m_state);
 }
 
-ConnectivityWidget::Status ConnectivityWidget::status() const
+ConnectivityWidget::State ConnectivityWidget::state() const
 {
-    return m_status;
+    return m_state;
 }
 
-void ConnectivityWidget::setStatus(ConnectivityWidget::Status status)
+void ConnectivityWidget::setState(ConnectivityWidget::State state)
 {
-    bool changed = m_status != status;
-    m_status = status;
+    g_previousState = m_state;
+    m_state = state;
+
+    if (state == Searching)
+        m_radarWidget->show();
+
+    m_opacityAnimation.start();
+}
+
+void ConnectivityWidget::onAnimationValueChange(const QVariant& value)
+{
+    qreal opacity = value.toReal();
+    if (m_state == Searching) {
+        m_opacityEffect->setOpacity(opacity);
+    } else if (g_previousState == Searching) {
+        m_opacityEffect->setOpacity(1 - opacity);
+        if (opacity == 1.0)
+            m_radarWidget->hide();
+    }
 }
 
 void ConnectivityWidget::resizeEvent(QResizeEvent* event)
@@ -42,7 +72,7 @@ void ConnectivityWidget::paintEvent(QPaintEvent*)
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
 
-    switch (m_status) {
+    switch (m_state) {
     case Connected: {
         static QPixmap icon(":/images/connected.svg");
         painter.drawPixmap(rect(), icon);
@@ -54,4 +84,9 @@ void ConnectivityWidget::paintEvent(QPaintEvent*)
     default:
         break;
     }
+}
+
+QSize ConnectivityWidget::sizeHint() const
+{
+    return {300, 300};
 }

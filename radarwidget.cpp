@@ -3,6 +3,12 @@
 #include <QPainter>
 #include <QTimerEvent>
 
+namespace {
+
+bool g_hidden = false;
+QAbstractAnimation::State g_previousState = QAbstractAnimation::Stopped;
+}
+
 RadarWidget::RadarWidget(QWidget* parent) : QWidget(parent)
   , m_scaleFactor(1.0)
 {
@@ -28,13 +34,13 @@ RadarWidget::RadarWidget(QWidget* parent) : QWidget(parent)
     m_needleAnimation.setEndValue(3.5 * M_PI);
     m_needleAnimation.setEasingCurve(QEasingCurve::Linear);
 
-    connect(&m_waveAnimation, &QVariantAnimation::stateChanged, this, &RadarWidget::stateChanged);
-
     start();
 }
 
 QAbstractAnimation::State RadarWidget::state() const
 {
+    if (g_hidden)
+        return g_previousState;
     return m_waveAnimation.state();
 }
 
@@ -43,34 +49,84 @@ int RadarWidget::period() const
     return m_waveAnimation.duration() / 2;
 }
 
+qreal RadarWidget::scaleFactor() const
+{
+    return m_scaleFactor;
+}
+
+void RadarWidget::setScaleFactor(qreal scaleFactor)
+{
+    m_scaleFactor = scaleFactor;
+    update();
+}
+
 void RadarWidget::start(int period)
 {
-    m_needleAnimation.setDuration(2 * period);
-    m_waveAnimation.setDuration(2 * period);
-    m_needleAnimation.start();
-    m_waveAnimation.start();
-    m_updateTimer.start(REFRESH_RATE, this);
+    QAbstractAnimation::State oldState = state();
+    if (!g_hidden) {
+        m_needleAnimation.setDuration(2 * period);
+        m_waveAnimation.setDuration(2 * period);
+        m_needleAnimation.start();
+        m_waveAnimation.start();
+        m_updateTimer.start(REFRESH_RATE, this);
+    }
+    g_previousState = state();
+    stateChanged(g_previousState, oldState);
 }
 
 void RadarWidget::stop()
 {
+    QAbstractAnimation::State oldState = state();
     m_updateTimer.stop();
     m_waveAnimation.stop();
     m_needleAnimation.stop();
+    g_previousState = state();
+    stateChanged(g_previousState, oldState);
 }
 
 void RadarWidget::pause()
 {
+    QAbstractAnimation::State oldState = state();
     m_updateTimer.stop();
     m_waveAnimation.pause();
     m_needleAnimation.pause();
+    g_previousState = state();
+    stateChanged(g_previousState, oldState);
 }
 
 void RadarWidget::resume()
 {
-    m_needleAnimation.resume();
-    m_waveAnimation.resume();
-    m_updateTimer.start(REFRESH_RATE, this);
+    QAbstractAnimation::State oldState = state();
+    if (!g_hidden) {
+        m_needleAnimation.resume();
+        m_waveAnimation.resume();
+        m_updateTimer.start(REFRESH_RATE, this);
+    }
+    g_previousState = state();
+    stateChanged(g_previousState, oldState);
+}
+
+void RadarWidget::hideEvent(QHideEvent* event)
+{
+    g_previousState = state();
+    g_hidden = true;
+    if (g_previousState == QAbstractAnimation::Running) {
+        m_updateTimer.stop();
+        m_waveAnimation.pause();
+        m_needleAnimation.pause();
+    }
+    QWidget::hideEvent(event);
+}
+
+void RadarWidget::showEvent(QShowEvent* event)
+{
+    if (g_previousState == QAbstractAnimation::Running && g_hidden) {
+        m_needleAnimation.resume();
+        m_waveAnimation.resume();
+        m_updateTimer.start(REFRESH_RATE, this);
+    }
+    g_hidden = false;
+    QWidget::showEvent(event);
 }
 
 void RadarWidget::timerEvent(QTimerEvent* event)
@@ -194,17 +250,6 @@ void RadarWidget::paintEvent(QPaintEvent*)
     painter.drawEllipse(center, FRAME_RADIUS * sf - 5 * sf, FRAME_RADIUS * sf - 5 * sf);
     painter.setPen(QPen(QColor("#05000000"), 1.5 * sf));
     painter.drawEllipse(center, FRAME_RADIUS * sf - 6 * sf, FRAME_RADIUS * sf - 6 * sf);
-}
-
-qreal RadarWidget::scaleFactor() const
-{
-    return m_scaleFactor;
-}
-
-void RadarWidget::setScaleFactor(qreal scaleFactor)
-{
-    m_scaleFactor = scaleFactor;
-    update();
 }
 
 QSize RadarWidget::sizeHint() const

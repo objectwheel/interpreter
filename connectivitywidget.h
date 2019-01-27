@@ -12,7 +12,7 @@ class ConnectivityWidget final : public QWidget
     Q_OBJECT
 
 public:
-    enum Status {
+    enum State {
         Connected,
         Searching,
         Disabled
@@ -21,15 +21,19 @@ public:
 public:
     explicit ConnectivityWidget(QWidget* parent = nullptr);
 
-    Status status() const;
-    void setStatus(Status status);
+    State state() const;
+    void setState(State state);
+
+private slots:
+    void onAnimationValueChange(const QVariant& value);
 
 protected:
+    QSize sizeHint() const override;
     void resizeEvent(QResizeEvent* event) override;
     void paintEvent(QPaintEvent* event) override;
 
 private:
-    Status m_status;
+    State m_state;
     RadarWidget* m_radarWidget;
     QGraphicsOpacityEffect* m_opacityEffect;
     QVariantAnimation m_opacityAnimation;
