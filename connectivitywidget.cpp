@@ -21,9 +21,10 @@ ConnectivityWidget::ConnectivityWidget(QWidget* parent) : QWidget(parent)
     palette.setColor(QPalette::ToolTipText, "#85cfff");   // Scanning color
     m_radarWidget->setPalette(palette);
 
-//    m_opacityEffect->setOpacity(0.0);
-//    m_radarWidget->hide();
-//    m_radarWidget->setGraphicsEffect(m_opacityEffect);
+    m_opacityEffect->setOpacity(0.0);
+    m_radarWidget->hide();
+    m_radarWidget->start();
+    m_radarWidget->setGraphicsEffect(m_opacityEffect);
 
     m_opacityAnimation.setDuration(600);
     m_opacityAnimation.setStartValue(0.0);

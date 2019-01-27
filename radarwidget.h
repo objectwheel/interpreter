@@ -30,22 +30,25 @@ public slots:
     void pause();
     void resume();
 
-protected:
-    QSize sizeHint() const override;
-    QSize minimumSizeHint() const override;
+protected:    
     void hideEvent(QHideEvent* event) override;
     void showEvent(QShowEvent* event) override;
     void timerEvent(QTimerEvent* event) override;
     void paintEvent(QPaintEvent* event) override;
 
+    QSize sizeHint() const override;
+    QSize minimumSizeHint() const override;
+
 signals:
     void stateChanged(QAbstractAnimation::State newState, QAbstractAnimation::State oldState);
 
 private:
+    bool m_hidden;
     qreal m_scaleFactor;
     QBasicTimer m_updateTimer;
     QVariantAnimation m_waveAnimation;
     QVariantAnimation m_needleAnimation;
+    QAbstractAnimation::State m_stateBeforeHiding;
 };
 
 #endif // RADARWIDGET_H

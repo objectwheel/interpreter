@@ -3,14 +3,10 @@
 #include <QPainter>
 #include <QTimerEvent>
 
-namespace {
-
-bool g_hidden = false;
-QAbstractAnimation::State g_previousState = QAbstractAnimation::Stopped;
-}
-
 RadarWidget::RadarWidget(QWidget* parent) : QWidget(parent)
+  , m_hidden(true)
   , m_scaleFactor(1.0)
+  , m_stateBeforeHiding(m_waveAnimation.state())
 {
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 
@@ -24,23 +20,23 @@ RadarWidget::RadarWidget(QWidget* parent) : QWidget(parent)
     palette.setColor(QPalette::ToolTipText, "#77ffd4");   // Scanning color
     setPalette(palette);
 
+    m_waveAnimation.setDuration(4000);
     m_waveAnimation.setLoopCount(-1);
     m_waveAnimation.setStartValue(0.0);
     m_waveAnimation.setEndValue(1.0);
     m_waveAnimation.setEasingCurve(QEasingCurve::OutQuart);
 
+    m_needleAnimation.setDuration(4000);
     m_needleAnimation.setLoopCount(-1);
     m_needleAnimation.setStartValue(-0.5 * M_PI);
     m_needleAnimation.setEndValue(3.5 * M_PI);
     m_needleAnimation.setEasingCurve(QEasingCurve::Linear);
-
-    start();
 }
 
 QAbstractAnimation::State RadarWidget::state() const
 {
-    if (g_hidden)
-        return g_previousState;
+    if (m_hidden)
+        return m_stateBeforeHiding;
     return m_waveAnimation.state();
 }
 
@@ -63,15 +59,15 @@ void RadarWidget::setScaleFactor(qreal scaleFactor)
 void RadarWidget::start(int period)
 {
     QAbstractAnimation::State oldState = state();
-    if (!g_hidden) {
-        m_needleAnimation.setDuration(2 * period);
-        m_waveAnimation.setDuration(2 * period);
+    m_needleAnimation.setDuration(2 * period);
+    m_waveAnimation.setDuration(2 * period);
+    if (!m_hidden) {
         m_needleAnimation.start();
         m_waveAnimation.start();
         m_updateTimer.start(REFRESH_RATE, this);
     }
-    g_previousState = state();
-    stateChanged(g_previousState, oldState);
+    m_stateBeforeHiding = QAbstractAnimation::Running;
+    stateChanged(m_stateBeforeHiding, oldState);
 }
 
 void RadarWidget::stop()
@@ -80,8 +76,8 @@ void RadarWidget::stop()
     m_updateTimer.stop();
     m_waveAnimation.stop();
     m_needleAnimation.stop();
-    g_previousState = state();
-    stateChanged(g_previousState, oldState);
+    m_stateBeforeHiding = state();
+    stateChanged(m_stateBeforeHiding, oldState);
 }
 
 void RadarWidget::pause()
@@ -90,27 +86,27 @@ void RadarWidget::pause()
     m_updateTimer.stop();
     m_waveAnimation.pause();
     m_needleAnimation.pause();
-    g_previousState = state();
-    stateChanged(g_previousState, oldState);
+    m_stateBeforeHiding = state();
+    stateChanged(m_stateBeforeHiding, oldState);
 }
 
 void RadarWidget::resume()
 {
     QAbstractAnimation::State oldState = state();
-    if (!g_hidden) {
+    if (!m_hidden) {
         m_needleAnimation.resume();
         m_waveAnimation.resume();
         m_updateTimer.start(REFRESH_RATE, this);
     }
-    g_previousState = state();
-    stateChanged(g_previousState, oldState);
+    m_stateBeforeHiding = QAbstractAnimation::Running;
+    stateChanged(m_stateBeforeHiding, oldState);
 }
 
 void RadarWidget::hideEvent(QHideEvent* event)
 {
-    g_previousState = state();
-    g_hidden = true;
-    if (g_previousState == QAbstractAnimation::Running) {
+    m_stateBeforeHiding = state();
+    m_hidden = true;
+    if (m_stateBeforeHiding == QAbstractAnimation::Running) {
         m_updateTimer.stop();
         m_waveAnimation.pause();
         m_needleAnimation.pause();
@@ -120,12 +116,17 @@ void RadarWidget::hideEvent(QHideEvent* event)
 
 void RadarWidget::showEvent(QShowEvent* event)
 {
-    if (g_previousState == QAbstractAnimation::Running && g_hidden) {
-        m_needleAnimation.resume();
-        m_waveAnimation.resume();
+    if (m_stateBeforeHiding == QAbstractAnimation::Running && m_hidden) {
+        if (m_waveAnimation.state() == QAbstractAnimation::Paused) {
+            m_needleAnimation.resume();
+            m_waveAnimation.resume();
+        } else {
+            m_needleAnimation.start();
+            m_waveAnimation.start();
+        }
         m_updateTimer.start(REFRESH_RATE, this);
     }
-    g_hidden = false;
+    m_hidden = false;
     QWidget::showEvent(event);
 }
 
