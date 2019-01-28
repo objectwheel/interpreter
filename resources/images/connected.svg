@@ -1,11 +1,14 @@
-<?xml version="1.0" encoding="iso-8859-1"?>
-<!-- Generator: Adobe Illustrator 21.0.2, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Layer_1" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128;" xml:space="preserve" width="512px" height="512px">
-<circle style="fill:#FFFFFF;" cx="64" cy="64" r="48"/>
-<circle style="fill:#8CCFB9;" cx="64" cy="64" r="39"/>
-<circle style="fill:none;stroke:#444B54;stroke-width:6;stroke-miterlimit:10;" cx="64" cy="64" r="48"/>
-<path style="fill:none;stroke:#FFFFFF;stroke-width:6;stroke-linecap:round;stroke-miterlimit:10;" d="M47,47.72  C51.208,43.377,57.322,41,63.744,41C76.588,41,86.07,50.6,87,65"/>
-<polyline style="fill:none;stroke:#FFFFFF;stroke-width:6;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;" points="  93,55 87,65 77,59 "/>
-<path style="fill:none;stroke:#FFFFFF;stroke-width:6;stroke-linecap:round;stroke-miterlimit:10;" d="M80,80.28  C75.897,84.623,69.936,87,63.674,87C51.152,87,41.907,77.4,41,63"/>
-<polyline style="fill:none;stroke:#FFFFFF;stroke-width:6;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;" points="  35,73 41,63 51,69 "/>
+<svg width="405px" height="405px" viewBox="0 0 405 405" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="SyncIcon">
+            <circle id="Oval" fill="#444B54" cx="202.5" cy="202.5" r="202.5"></circle>
+            <circle id="Oval" fill="#4BA086" cx="202" cy="202" r="156"></circle>
+            <g id="Arrows" stroke-linecap="round" transform="translate(107.000000, 107.000000)" stroke="#FFFFFF" stroke-width="5">
+                <polyline id="Path" points="180 6 180 51 135 51"></polyline>
+                <polyline id="Path" points="10 184 10 139 55 139.005"></polyline>
+                <path d="M190,95 C190,147.465 147.386438,190 94.8245365,190 C58.5827223,190 27.0746348,169.78 11,140.03" id="Path"></path>
+                <path d="M0,95 C0,42.535 42.6087917,0 95.1648105,0 C131.412586,0 162.927164,20.23 179,50" id="Path"></path>
+            </g>
+        </g>
+    </g>
 </svg>

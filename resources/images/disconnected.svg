@@ -1,18 +1,19 @@
-<?xml version="1.0" encoding="iso-8859-1"?>
-<!-- Generator: Adobe Illustrator 21.0.2, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Layer_1" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128;" xml:space="preserve" width="512px" height="512px">
-<circle style="fill:#FFFFFF;" cx="64" cy="64" r="48"/>
-<circle style="fill:#F48884;" cx="64" cy="64" r="39"/>
-<path style="fill:none;stroke:#FFFFFF;stroke-width:6;stroke-linecap:round;stroke-miterlimit:10;" d="M47.735,47  c4.169-3.885,9.952-6,16.01-6C76.588,41,86.07,50.6,87,65"/>
-<polyline style="fill:none;stroke:#FFFFFF;stroke-width:6;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;" points="  93,55 87,65 77,59 "/>
-<path style="fill:none;stroke:#FFFFFF;stroke-width:6;stroke-linecap:round;stroke-miterlimit:10;" d="M80,80.28  C75.897,84.623,69.936,87,63.674,87C51.152,87,41.907,77.4,41,63"/>
-<polyline style="fill:none;stroke:#FFFFFF;stroke-width:6;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;" points="  35,73 41,63 51,69 "/>
-<g>
-	<path style="fill:#454B54;" d="M105.882,110.125L8.875,13.118c-1.167-1.167-1.167-3.076,0-4.243l0,0   c1.167-1.167,3.076-1.167,4.243,0l97.007,97.007c1.167,1.167,1.167,3.076,0,4.243l0,0   C108.958,111.292,107.049,111.292,105.882,110.125z"/>
-	<path style="fill:#454B54;" d="M114.004,117.004L114.004,117.004c0,1.65,1.35,3,3,3h0c1.65,0,3-1.35,3-3v0c0-1.65-1.35-3-3-3h0   C115.354,114.004,114.004,115.354,114.004,117.004z"/>
-</g>
-<g>
-	<path style="fill:none;stroke:#444B54;stroke-width:6;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;" d="   M22.654,39.624C18.432,46.77,16,55.099,16,64c0,26.51,21.49,48,48,48c8.901,0,17.23-2.432,24.376-6.654"/>
-	<path style="fill:none;stroke:#444B54;stroke-width:6;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;" d="   M105.346,88.376C109.568,81.23,112,72.901,112,64c0-26.51-21.49-48-48-48c-8.901,0-17.23,2.432-24.376,6.654"/>
-</g>
+<svg width="399px" height="398px" viewBox="0 0 399 398" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="disconnected" transform="translate(-1.000000, -1.000000)">
+            <circle id="Oval" fill="#CF4945" cx="202.002481" cy="202.002481" r="140.694789"></circle>
+            <path d="M53.1107134,114.221663 C37.906799,139.955242 29.1488834,169.948942 29.1488834,202.002481 C29.1488834,297.468083 106.53688,374.856079 202.002481,374.856079 C234.05602,374.856079 264.049721,366.098164 289.7833,350.894249" id="Path" stroke="#444B54" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"></path>
+            <path d="M350.894249,289.7833 C366.098164,264.049721 374.856079,234.05602 374.856079,202.002481 C374.856079,106.53688 297.468083,29.1488834 202.002481,29.1488834 C169.948942,29.1488834 139.955242,37.906799 114.221663,53.1107134" id="Path" stroke="#444B54" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"></path>
+            <g id="Arrows" stroke-linecap="round" transform="translate(202.500000, 201.500000) rotate(29.000000) translate(-202.500000, -201.500000) translate(119.000000, 118.000000)" stroke="#FFFFFF" stroke-width="5">
+                <polyline id="Path" points="158.210526 5.27368421 158.210526 44.8263158 118.657895 44.8263158"></polyline>
+                <polyline id="Path" points="8.78947368 161.726316 8.78947368 122.173684 48.3421053 122.178079"></polyline>
+                <path d="M167,83.5 C167,129.613974 129.544922,167 83.3457768,167 C51.4911296,167 23.797179,149.227684 9.66842105,123.079" id="Path"></path>
+                <path d="M0,83.5 C0,37.3860263 37.4508853,0 83.6448598,0 C115.504747,0 143.204402,17.7811053 157.331579,43.9473684" id="Path"></path>
+            </g>
+            <g id="Stick" transform="translate(0.964466, 0.500000)" fill="#454B54">
+                <path d="M352.562003,362.844685 L3.15658831,13.4392707 C1.10672365,11.3894061 0.650995296,9.64399472 0.475048777,8.17073036 C0.396969885,7.51694732 0.564906655,6.87280748 0.742033988,6.22975984 C0.984233799,5.35047141 1.39813015,4.43915613 2.64197545,3.19531082 C3.5978624,2.23942387 4.23796221,1.84580764 4.89090036,1.50035029 C5.60967958,1.12005767 6.32632056,0.838092757 7.08927814,0.849289495 C8.68091992,0.872647537 10.7408916,1.46455896 12.9360958,3.6597632 L362.34151,353.065178 C364.360051,355.083719 365.361741,356.526806 365.659868,358.097055 C365.982554,359.796659 365.436818,361.620499 363.251991,363.805326 C361.003906,366.053411 358.704256,366.621678 356.967147,366.209436 C355.456287,365.850887 354.517286,364.799969 352.562003,362.844685 Z" id="Path"></path>
+                <path d="M381.816292,390.121865 C381.816292,394.68993 385.553799,398.427438 390.121865,398.427438 C394.68993,398.427438 398.427438,394.68993 398.427438,390.121865 C398.427438,385.553799 394.68993,381.816292 390.121865,381.816292 C385.553799,381.816292 381.816292,385.553799 381.816292,390.121865 Z" id="Path"></path>
+            </g>
+        </g>
+    </g>
 </svg>

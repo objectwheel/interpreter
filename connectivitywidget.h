@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QVariantAnimation>
 
+class QSvgWidget;
 class RadarWidget;
 class QGraphicsOpacityEffect;
 
@@ -13,9 +14,9 @@ class ConnectivityWidget final : public QWidget
 
 public:
     enum State {
+        Disabled,
         Connected,
         Searching,
-        Disabled
     };
 
 public:
@@ -30,11 +31,13 @@ private slots:
 protected:
     QSize sizeHint() const override;
     void resizeEvent(QResizeEvent* event) override;
-    void paintEvent(QPaintEvent* event) override;
 
 private:
     State m_state;
-    RadarWidget* m_radarWidget;
+    State m_oldState;
+    QSvgWidget* m_disabledWidget;
+    QSvgWidget* m_connectedWidget;
+    RadarWidget* m_searchingWidget;
     QGraphicsOpacityEffect* m_opacityEffect;
     QVariantAnimation m_opacityAnimation;
 
