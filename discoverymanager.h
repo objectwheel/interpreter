@@ -22,8 +22,12 @@ class DiscoveryManager : public QObject
 
 public:
     static DiscoveryManager* instance();
+
     static bool isConnected();
+
     static QString address();
+
+    static void setDisabled(bool disabled);
 
 private:
     explicit DiscoveryManager(QObject* parent = nullptr);

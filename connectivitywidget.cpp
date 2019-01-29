@@ -9,37 +9,38 @@
 #include <QLabel>
 
 ConnectivityWidget::ConnectivityWidget(QWidget* parent) : QWidget(parent)
-  , m_state(Stopped)
+  , m_state(Disabled)
   , m_oldState(m_state)
-  , m_stoppedWidget(new QSvgWidget(this))
+  , m_disabledWidget(new QSvgWidget(this))
   , m_connectedWidget(new QSvgWidget(this))
   , m_searchingWidget(new RadarWidget(this))
   , m_statusLabel(new QLabel(this))
 {
     QPalette palette(m_searchingWidget->palette());
-    palette.setColor(QPalette::Link, "#50ffffff");        // Wave color
+    palette.setColor(QPalette::Link, "#50e0e4e7");        // Wave color
     palette.setColor(QPalette::Base, "#3382B5");          // Base color
-    palette.setColor(QPalette::Button, "#ffffff");        // Frame color
+    palette.setColor(QPalette::Button, "#3C454C");        // Frame color
     palette.setColor(QPalette::ButtonText, "#242a2d");    // Frame border color
-    palette.setColor(QPalette::LinkVisited, "#50ffffff"); // Circle color
-    palette.setColor(QPalette::ToolTipBase, "#ffffff");   // Needle color
-    palette.setColor(QPalette::ToolTipText, "#85cfff");   // Scanning color
+    palette.setColor(QPalette::Highlight, "#e0e4e7");     // Bubble color
+    palette.setColor(QPalette::LinkVisited, "#50e0e4e7"); // Circle color
+    palette.setColor(QPalette::ToolTipBase, "#e0e4e7");   // Needle color
+    palette.setColor(QPalette::ToolTipText, "#49B9FF");   // Scanning color
     m_searchingWidget->setPalette(palette);
 
     QFont font;
     font.setPixelSize(13);
     font.setWeight(QFont::Light);
     m_statusLabel->setFont(font);
-    m_statusLabel->setText(tr("Stopped"));
+    m_statusLabel->setText(tr("Disabled"));
     m_statusLabel->setAlignment(Qt::AlignHCenter);
     m_statusLabel->resize(sizeHint().width(), 18);
 
-    auto stoppedOpacityEffect = new QGraphicsOpacityEffect(m_stoppedWidget);
-    stoppedOpacityEffect->setOpacity(1.0);
-    m_stoppedWidget->show();
-    m_stoppedWidget->resize(128, 128);
-    m_stoppedWidget->load(QStringLiteral(":/images/disconnected.svg"));
-    m_stoppedWidget->setGraphicsEffect(stoppedOpacityEffect);
+    auto disabledOpacityEffect = new QGraphicsOpacityEffect(m_disabledWidget);
+    disabledOpacityEffect->setOpacity(1.0);
+    m_disabledWidget->show();
+    m_disabledWidget->resize(128, 128);
+    m_disabledWidget->load(QStringLiteral(":/images/disconnected.svg"));
+    m_disabledWidget->setGraphicsEffect(disabledOpacityEffect);
 
     auto connectedOpacityEffect = new QGraphicsOpacityEffect(m_connectedWidget);
     connectedOpacityEffect->setOpacity(0.0);
@@ -75,8 +76,8 @@ void ConnectivityWidget::setState(ConnectivityWidget::State state)
     m_oldState = m_state;
     m_state = state;
 
-    if (m_state == Stopped)
-        m_statusLabel->setText(tr("Stopped"));
+    if (m_state == Disabled)
+        m_statusLabel->setText(tr("Disabled"));
     else if (m_state == Connected)
         m_statusLabel->setText(tr("Ready"));
     else if (m_state == Searching)
@@ -116,8 +117,8 @@ void ConnectivityWidget::onAnimationValueChange(const QVariant& value)
 
 QWidget* ConnectivityWidget::stateWidget(ConnectivityWidget::State state) const
 {
-    if (state == Stopped)
-        return m_stoppedWidget;
+    if (state == Disabled)
+        return m_disabledWidget;
     if (state == Connected)
         return m_connectedWidget;
     return m_searchingWidget;
@@ -130,9 +131,9 @@ void ConnectivityWidget::resizeEvent(QResizeEvent* event)
     QRect rect(0, 230, width(), m_statusLabel->height());
     m_statusLabel->move(rect.topLeft());
 
-    rect = m_stoppedWidget->rect();
+    rect = m_disabledWidget->rect();
     rect.moveCenter(this->rect().center());
-    m_stoppedWidget->move(rect.topLeft());
+    m_disabledWidget->move(rect.topLeft());
 
     rect = m_connectedWidget->rect();
     rect.moveCenter(this->rect().center());

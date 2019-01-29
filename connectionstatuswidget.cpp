@@ -66,7 +66,7 @@ void ConnectionStatusWidget::onConnect()
 void ConnectionStatusWidget::onDisconnect()
 {
     QPalette palette(this->palette());
-    palette.setColor(QPalette::Window, "#CF4945");
+    palette.setColor(QPalette::Window, "#C23B34");
     setPalette(palette);
 
     m_label->setText(tr("Disconnected from ") + DiscoveryManager::address());

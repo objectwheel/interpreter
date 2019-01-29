@@ -1,7 +1,13 @@
-<svg width="335px" height="446px" viewBox="0 0 335 446" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-        <g id="unlocked" fill="#FFFFFF" fill-rule="nonzero">
-            <path d="M274.622,185.348 L267.843,185.348 L83.6,185.348 L83.6,184.251 L83.6,114.053 L83.6,100.25 C83.6,53.933 121.284,16.257 167.593,16.257 C213.902,16.257 251.586,53.941 251.586,100.25 L251.586,114.052 L267.843,114.052 L267.843,100.25 C267.843,44.967 222.875,0 167.593,0 C112.311,0 67.343,44.975 67.343,100.258 L67.343,185.356 L0.957,185.356 L0.957,445.186 L334.229,445.186 L334.229,185.348 L274.622,185.348 Z M317.971,428.929 L17.214,428.929 L17.214,201.605 L317.971,201.605 L317.971,428.929 Z" id="Shape"></path>
-        </g>
-    </g>
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 22.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" baseProfile="tiny" id="katman_1"
+	 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 100 100"
+	 xml:space="preserve">
+<g id="Page-1">
+	<g id="unlocked">
+		<path id="Shape" fill="#FFFFFF" stroke="#FFFFFF" stroke-width="2" stroke-miterlimit="10" d="M74.5,42.3H73H33V42V26.8v-3
+			c0-10.1,8.2-18.3,18.3-18.3s18.3,8.2,18.3,18.3v3H73v-3C73,11.8,63.2,2,51.2,2s-21.8,9.8-21.8,21.8v18.5H15v56.5h72.4V42.3H74.5z
+			 M83.9,95.2H18.5V45.8h65.4V95.2z"/>
+	</g>
+</g>
 </svg>

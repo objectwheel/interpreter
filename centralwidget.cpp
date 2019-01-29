@@ -11,6 +11,10 @@ CentralWidget::CentralWidget(QWidget* parent) : QWidget(parent)
   , m_buttonLayout(new QVBoxLayout)
   , m_connectivityWidget(new ConnectivityWidget(this))
   , m_titleLabel(new QLabel(this))
+  , m_disableDiscoveryButton(new QPushButton(this))
+  , m_connectManuallyButton(new QPushButton(this))
+  , m_myProjectsButton(new QPushButton(this))
+  , m_settingsButton(new QPushButton(this))
 {
     m_layout->setContentsMargins(8, 8, 8, 8);
     m_layout->setSpacing(0);
@@ -23,7 +27,6 @@ CentralWidget::CentralWidget(QWidget* parent) : QWidget(parent)
     QFont font;
     font.setPixelSize(16);
     font.setWeight(QFont::Normal);
-    m_titleLabel->setStyleSheet("color: #4BA086");
     m_titleLabel->setFont(font);
     m_titleLabel->setText(tr("Objectwheel Interpreter"));
 
@@ -32,7 +35,9 @@ CentralWidget::CentralWidget(QWidget* parent) : QWidget(parent)
         m_connectivityWidget->setState(ConnectivityWidget::Connected);
     });
     connect(DiscoveryManager::instance(), &DiscoveryManager::disconnected, this, [=] {
-        m_connectivityWidget->setState(ConnectivityWidget::Searching);
+        const bool isDisabled = m_disableDiscoveryButton->isChecked();
+        if (!isDisabled)
+            m_connectivityWidget->setState(ConnectivityWidget::Searching);
     });
 
 
@@ -41,63 +46,77 @@ CentralWidget::CentralWidget(QWidget* parent) : QWidget(parent)
 
     static const QLatin1String styleSheet(
                 "QPushButton {"
-                "    border-bottom: 1px solid #30000000;"
-                "    border-radius: 4px;"
+                "    border-bottom: 1px solid #40000000;"
+                "    border-radius: 3px;"
                 "    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,"
-                "                                      stop: 0 #c03076A5, stop: 1 #a03076A5);"
+                "                                      stop: 0 #3E474F, stop: 1 #3C454C);"
                 "}"
-
                 "QPushButton:pressed {"
                 "    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,"
-                "                                      stop: 0 #a03076A5, stop: 1 #c03076A5);"
+                "                                      stop: 0 #38434C, stop: 1 #364149);"
                 "}"
                 );
 
-    auto btnNext = new QPushButton(this);
-    btnNext->setStyleSheet(styleSheet);
-    btnNext->setFont(font);
-    btnNext->setCursor(Qt::PointingHandCursor);
-    btnNext->setFixedSize(260, 32);
-    btnNext->setIconSize(QSize(16, 16));
-    btnNext->setIcon(QIcon(":/images/locked.svg"));
-    btnNext->setText("Disable Discoverability");
-//    connect(btnNext, &FlatButton::clicked, this, &ModuleSelectionWidget::handleBtnNextClicked);
+    m_disableDiscoveryButton->setStyleSheet(styleSheet);
+    m_disableDiscoveryButton->setFont(font);
+    m_disableDiscoveryButton->setCursor(Qt::PointingHandCursor);
+    m_disableDiscoveryButton->setFixedSize(260, 32);
+    m_disableDiscoveryButton->setIconSize(QSize(16, 16));
+    m_disableDiscoveryButton->setIcon(QIcon(":/images/locked.svg"));
+    m_disableDiscoveryButton->setText(tr("Disable Discovery"));
+    m_disableDiscoveryButton->setCheckable(true);
+    connect(m_disableDiscoveryButton, &QPushButton::clicked, this,
+            &CentralWidget::onDisableDiscoveryButtonClicked);
 
-    auto btnNext2 = new QPushButton(this);
-    btnNext2->setStyleSheet(styleSheet);
-    btnNext2->setFont(font);
-    btnNext2->setCursor(Qt::PointingHandCursor);
-    btnNext2->setFixedSize(260, 32);
-    btnNext2->setIconSize(QSize(16, 16));
-    btnNext2->setIcon(QIcon(":/images/projects.svg"));
-    btnNext2->setText("Previous Projects");
-//    connect(btnNext2, &FlatButton::clicked, this, &ModuleSelectionWidget::handlebtnNext2Clicked);
+    m_connectManuallyButton->setStyleSheet(styleSheet);
+    m_connectManuallyButton->setFont(font);
+    m_connectManuallyButton->setCursor(Qt::PointingHandCursor);
+    m_connectManuallyButton->setFixedSize(260, 32);
+    m_connectManuallyButton->setIconSize(QSize(16, 16));
+    m_connectManuallyButton->setIcon(QIcon(":/images/edit.svg"));
+    m_connectManuallyButton->setText(tr("Connect Manually"));
+//    connect(m_connectManuallyButton, &FlatButton::clicked, this, &ModuleSelectionWidget::handlebtnNext3Clicked);
 
-    auto btnNext3 = new QPushButton(this);
-    btnNext3->setStyleSheet(styleSheet);
-    btnNext3->setFont(font);
-    btnNext3->setCursor(Qt::PointingHandCursor);
-    btnNext3->setFixedSize(260, 32);
-    btnNext3->setIconSize(QSize(16, 16));
-    btnNext3->setIcon(QIcon(":/images/edit.svg"));
-    btnNext3->setText("Connect Manually");
-//    connect(btnNext3, &FlatButton::clicked, this, &ModuleSelectionWidget::handlebtnNext3Clicked);
+    m_myProjectsButton->setStyleSheet(styleSheet);
+    m_myProjectsButton->setFont(font);
+    m_myProjectsButton->setCursor(Qt::PointingHandCursor);
+    m_myProjectsButton->setFixedSize(260, 32);
+    m_myProjectsButton->setIconSize(QSize(16, 16));
+    m_myProjectsButton->setIcon(QIcon(":/images/projects.svg"));
+    m_myProjectsButton->setText(tr("My Projects"));
+//    connect(m_myProjectsButton, &FlatButton::clicked, this, &ModuleSelectionWidget::handlebtnNext2Clicked);
 
-    auto btnNext4 = new QPushButton(this);
-    btnNext4->setStyleSheet(styleSheet);
-    btnNext4->setFont(font);
-    btnNext4->setCursor(Qt::PointingHandCursor);
-    btnNext4->setFixedSize(260, 32);
-    btnNext4->setIconSize(QSize(16, 16));
-    btnNext4->setText("Settings");
-    btnNext4->setIcon(QIcon(":/images/settings.svg"));
-//    connect(btnNext3, &FlatButton::clicked, this, &ModuleSelectionWidget::handlebtnNext3Clicked);
+    m_settingsButton->setStyleSheet(styleSheet);
+    m_settingsButton->setFont(font);
+    m_settingsButton->setCursor(Qt::PointingHandCursor);
+    m_settingsButton->setFixedSize(260, 32);
+    m_settingsButton->setIconSize(QSize(16, 16));
+    m_settingsButton->setText(tr("Settings"));
+    m_settingsButton->setIcon(QIcon(":/images/settings.svg"));
+//    connect(m_connectManuallyButton, &FlatButton::clicked, this, &ModuleSelectionWidget::handlebtnNext3Clicked);
 
     m_layout->setContentsMargins(0, 0, 0, 0);
     m_layout->setSpacing(18);
-    m_buttonLayout->addWidget(btnNext, 0, Qt::AlignHCenter);
-    m_buttonLayout->addWidget(btnNext3, 0, Qt::AlignHCenter);
-    m_buttonLayout->addWidget(btnNext2, 0, Qt::AlignHCenter);
-    m_buttonLayout->addWidget(btnNext4, 0, Qt::AlignHCenter);
+    m_buttonLayout->addWidget(m_disableDiscoveryButton, 0, Qt::AlignHCenter);
+    m_buttonLayout->addWidget(m_connectManuallyButton, 0, Qt::AlignHCenter);
+    m_buttonLayout->addWidget(m_myProjectsButton, 0, Qt::AlignHCenter);
+    m_buttonLayout->addWidget(m_settingsButton, 0, Qt::AlignHCenter);
 
+}
+
+void CentralWidget::onDisableDiscoveryButtonClicked()
+{
+    const bool isDisabled = m_disableDiscoveryButton->isChecked();
+
+    DiscoveryManager::setDisabled(isDisabled);
+
+    if (isDisabled) {
+        m_connectivityWidget->setState(ConnectivityWidget::Disabled);
+        m_disableDiscoveryButton->setIcon(QIcon(":/images/unlocked.svg"));
+        m_disableDiscoveryButton->setText(tr("Enable Discovery"));
+    } else {
+        m_connectivityWidget->setState(ConnectivityWidget::Searching);
+        m_disableDiscoveryButton->setIcon(QIcon(":/images/locked.svg"));
+        m_disableDiscoveryButton->setText(tr("Disable Discovery"));
+    }
 }

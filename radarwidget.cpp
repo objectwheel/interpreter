@@ -15,6 +15,7 @@ RadarWidget::RadarWidget(QWidget* parent) : QWidget(parent)
     palette.setColor(QPalette::Base, "#4ba086");          // Base color
     palette.setColor(QPalette::Button, "#ffffff");        // Frame color
     palette.setColor(QPalette::ButtonText, "#242a2d");    // Frame border color
+    palette.setColor(QPalette::Highlight, "#ffffff");     // Bubble color
     palette.setColor(QPalette::LinkVisited, "#50ffffff"); // Circle color
     palette.setColor(QPalette::ToolTipBase, "#ffffff");   // Needle color
     palette.setColor(QPalette::ToolTipText, "#77ffd4");   // Scanning color
@@ -205,7 +206,9 @@ void RadarWidget::paintEvent(QPaintEvent*)
         static const qreal DIFF = 1.25 * M_PI;
         if (needleFactor > begins[i] && needleFactor < begins[i] + DIFF) {
             const qreal factor = (needleFactor - begins[i]) / DIFF;
-            painter.setPen(QColor(255, 255, 255, 255 * (1 - factor)));
+            QColor bubbleColor(palette().highlight().color());
+            bubbleColor.setAlphaF(bubbleColor.alphaF() * (1 - factor));
+            painter.setPen(bubbleColor);
             painter.drawEllipse(points[i], factor * 6 * sf, factor * 6 * sf);
         }
     }

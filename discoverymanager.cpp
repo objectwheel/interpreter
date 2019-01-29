@@ -158,6 +158,20 @@ QString DiscoveryManager::address()
     return s_address;
 }
 
+void DiscoveryManager::setDisabled(bool disabled)
+{
+    if (!instance())
+        return;
+
+    if (disabled) {
+        if (s_webSocket->state() != QAbstractSocket::UnconnectedState)
+            s_webSocket->abort();
+        instance()->stop();
+    } else {
+        instance()->start();
+    }
+}
+
 void DiscoveryManager::start()
 {
     if (isAndroidEmulator())
@@ -171,7 +185,7 @@ void DiscoveryManager::stop()
     if (isAndroidEmulator())
         s_emulatorTimer.stop();
     else
-        s_broadcastSocket->close();
+        s_broadcastSocket->abort();
 }
 
 void DiscoveryManager::timerEvent(QTimerEvent* event)

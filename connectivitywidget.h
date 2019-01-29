@@ -15,7 +15,7 @@ class ConnectivityWidget final : public QWidget
 
 public:
     enum State {
-        Stopped,
+        Disabled,
         Connected,
         Searching,
     };
@@ -40,7 +40,7 @@ private:
     State m_state;
     State m_oldState;
     QVariantAnimation m_opacityAnimation;
-    QSvgWidget* m_stoppedWidget;
+    QSvgWidget* m_disabledWidget;
     QSvgWidget* m_connectedWidget;
     RadarWidget* m_searchingWidget;
     QLabel* m_statusLabel;
