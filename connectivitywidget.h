@@ -7,6 +7,7 @@
 class QSvgWidget;
 class RadarWidget;
 class QGraphicsOpacityEffect;
+class QLabel;
 
 class ConnectivityWidget final : public QWidget
 {
@@ -14,7 +15,7 @@ class ConnectivityWidget final : public QWidget
 
 public:
     enum State {
-        Disabled,
+        Stopped,
         Connected,
         Searching,
     };
@@ -28,6 +29,9 @@ public:
 private slots:
     void onAnimationValueChange(const QVariant& value);
 
+private:
+    QWidget* stateWidget(State state) const;
+
 protected:
     QSize sizeHint() const override;
     void resizeEvent(QResizeEvent* event) override;
@@ -35,11 +39,11 @@ protected:
 private:
     State m_state;
     State m_oldState;
-    QSvgWidget* m_disabledWidget;
+    QVariantAnimation m_opacityAnimation;
+    QSvgWidget* m_stoppedWidget;
     QSvgWidget* m_connectedWidget;
     RadarWidget* m_searchingWidget;
-    QGraphicsOpacityEffect* m_opacityEffect;
-    QVariantAnimation m_opacityAnimation;
+    QLabel* m_statusLabel;
 
 };
 

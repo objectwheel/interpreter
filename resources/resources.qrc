@@ -15,5 +15,11 @@
         <file>fonts/Roboto-ThinItalic.ttf</file>
         <file>images/connected.svg</file>
         <file>images/disconnected.svg</file>
+        <file>images/info.svg</file>
+        <file>images/settings.svg</file>
+        <file>images/edit.svg</file>
+        <file>images/locked.svg</file>
+        <file>images/projects.svg</file>
+        <file>images/unlocked.svg</file>
     </qresource>
 </RCC>

@@ -39,7 +39,7 @@ void View::show(int id, SwipeDirection direction)
     if ((w2 = m_widgets.value(id)) == 0)
         return;
 
-    //setMinimumSize(w2->minimumSizeHint());
+    setMinimumSize(w2->minimumSizeHint());
     w2->setGeometry(rect());
     w2->show();
 

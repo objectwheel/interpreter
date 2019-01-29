@@ -36,14 +36,14 @@ ApplicationCore::ApplicationCore() : m_globalResources(&CommandlineParser::proje
     QApplication::setFont(font);
 
     QPalette palette(QApplication::palette());
-    palette.setColor(QPalette::Active, QPalette::Text, "#e5e5e5");
-    palette.setColor(QPalette::Inactive, QPalette::Text, "#e5e5e5");
-    palette.setColor(QPalette::Disabled, QPalette::Text, "#e5e5e5");
-    palette.setColor(QPalette::Active, QPalette::WindowText, "#e5e5e5");
-    palette.setColor(QPalette::Inactive, QPalette::WindowText, "#e5e5e5");
+    palette.setColor(QPalette::Active, QPalette::Text, "#ffffff");
+    palette.setColor(QPalette::Inactive, QPalette::Text, "#ffffff");
+    palette.setColor(QPalette::Disabled, QPalette::Text, "#ffffff");
+    palette.setColor(QPalette::Active, QPalette::WindowText, "#ffffff");
+    palette.setColor(QPalette::Inactive, QPalette::WindowText, "#ffffff");
     palette.setColor(QPalette::Disabled, QPalette::WindowText, "#b0b0b0");
-    palette.setColor(QPalette::Active, QPalette::ButtonText, "#e5e5e5");
-    palette.setColor(QPalette::Inactive, QPalette::ButtonText, "#e5e5e5");
+    palette.setColor(QPalette::Active, QPalette::ButtonText, "#ffffff");
+    palette.setColor(QPalette::Inactive, QPalette::ButtonText, "#ffffff");
     palette.setColor(QPalette::Disabled, QPalette::ButtonText, "#b0b0b0");
     palette.setColor(QPalette::Window, "#2F363C");
 

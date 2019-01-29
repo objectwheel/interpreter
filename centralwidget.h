@@ -15,8 +15,9 @@ public:
 
 private:
     QVBoxLayout* m_layout;
+    QVBoxLayout* m_buttonLayout;
     ConnectivityWidget* m_connectivityWidget;
-    QLabel* m_searchingLabel;
+    QLabel* m_titleLabel;
 };
 
 #endif // CENTRALWIDGET_H
