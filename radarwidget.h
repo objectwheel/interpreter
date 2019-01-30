@@ -36,6 +36,7 @@ protected:
     void timerEvent(QTimerEvent* event) override;
     void paintEvent(QPaintEvent* event) override;
 
+public:
     QSize sizeHint() const override;
     QSize minimumSizeHint() const override;
 

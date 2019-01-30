@@ -34,8 +34,11 @@ private:
     QGraphicsOpacityEffect* opacityEffect(const QWidget* widget) const;
 
 protected:
-    QSize sizeHint() const override;
     void resizeEvent(QResizeEvent* event) override;
+
+public:
+    QSize sizeHint() const override;
+    QSize minimumSizeHint() const override;
 
 private:
     State m_state;

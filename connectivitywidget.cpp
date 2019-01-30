@@ -38,14 +38,14 @@ ConnectivityWidget::ConnectivityWidget(QWidget* parent) : QWidget(parent)
     auto disabledOpacityEffect = new QGraphicsOpacityEffect(m_disabledWidget);
     disabledOpacityEffect->setOpacity(1.0);
     m_disabledWidget->show();
-    m_disabledWidget->resize(128, 128);
+    m_disabledWidget->resize(m_searchingWidget->minimumSizeHint());
     m_disabledWidget->load(QStringLiteral(":/images/disconnected.svg"));
     m_disabledWidget->setGraphicsEffect(disabledOpacityEffect);
 
     auto connectedOpacityEffect = new QGraphicsOpacityEffect(m_connectedWidget);
     connectedOpacityEffect->setOpacity(0.0);
     m_connectedWidget->hide();
-    m_connectedWidget->resize(128, 128);
+    m_connectedWidget->resize(m_searchingWidget->minimumSizeHint());
     m_connectedWidget->load(QStringLiteral(":/images/connected.svg"));
     m_connectedWidget->setGraphicsEffect(connectedOpacityEffect);
     m_connectedWidget->renderer()->setFramesPerSecond(30);
@@ -53,8 +53,8 @@ ConnectivityWidget::ConnectivityWidget(QWidget* parent) : QWidget(parent)
     auto searchingOpacityEffect = new QGraphicsOpacityEffect(m_searchingWidget);
     searchingOpacityEffect->setOpacity(0.0);
     m_searchingWidget->hide();
-    m_searchingWidget->start();
-    m_searchingWidget->resize(300, 300);
+    m_searchingWidget->start(1500);
+    m_searchingWidget->resize(m_searchingWidget->sizeHint());
     m_searchingWidget->setGraphicsEffect(searchingOpacityEffect);
 
     m_opacityAnimation.setDuration(500);
@@ -134,9 +134,12 @@ void ConnectivityWidget::resizeEvent(QResizeEvent* event)
 {
     QWidget::resizeEvent(event);
 
-    QRect rect(0, 230, width(), m_statusLabel->height());
-    m_statusLabel->move(rect.topLeft());
+    m_searchingWidget->setGeometry(this->rect());
+    m_statusLabel->resize(width(), m_statusLabel->height());
+    m_statusLabel->move(0, height() / 2 + m_searchingWidget->minimumSizeHint().height() / 2 +
+                        m_statusLabel->height() / 2);
 
+    QRect rect;
     rect = m_disabledWidget->rect();
     rect.moveCenter(this->rect().center());
     m_disabledWidget->move(rect.topLeft());
@@ -144,13 +147,14 @@ void ConnectivityWidget::resizeEvent(QResizeEvent* event)
     rect = m_connectedWidget->rect();
     rect.moveCenter(this->rect().center());
     m_connectedWidget->move(rect.topLeft());
-
-    rect = m_searchingWidget->rect();
-    rect.moveCenter(this->rect().center());
-    m_searchingWidget->move(rect.topLeft());
 }
 
 QSize ConnectivityWidget::sizeHint() const
 {
-    return {300, 300};
+    return m_searchingWidget->sizeHint();
+}
+
+QSize ConnectivityWidget::minimumSizeHint() const
+{
+    return m_searchingWidget->minimumSizeHint() + QSize(0, m_statusLabel->height() * 3);
 }
