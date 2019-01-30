@@ -31,6 +31,7 @@ private slots:
 
 private:
     QWidget* stateWidget(State state) const;
+    QGraphicsOpacityEffect* opacityEffect(const QWidget* widget) const;
 
 protected:
     QSize sizeHint() const override;

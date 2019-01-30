@@ -89,11 +89,12 @@ void ConnectivityWidget::setState(ConnectivityWidget::State state)
     stateWidget(m_state)->show();
 
     if (m_opacityAnimation.state() == QAbstractAnimation::Running) {
-        QWidget* tooOldWidget = stateWidget(tooOldState);
-        auto tooOldGraphicsEffect = qobject_cast<QGraphicsOpacityEffect*>(tooOldWidget->graphicsEffect());
-
-        tooOldWidget->hide();
-        tooOldGraphicsEffect->setOpacity(0.0);
+        if (m_state != tooOldState) {
+            QWidget* tooOldWidget = stateWidget(tooOldState);
+            auto tooOldGraphicsEffect = opacityEffect(tooOldWidget);
+            tooOldWidget->hide();
+            tooOldGraphicsEffect->setOpacity(0.0);
+        }
     } else {
         m_opacityAnimation.start();
     }
@@ -104,8 +105,8 @@ void ConnectivityWidget::onAnimationValueChange(const QVariant& value)
     QWidget* newWidget = stateWidget(m_state);
     QWidget* oldWidget = stateWidget(m_oldState);
 
-    auto newGraphicsEffect = qobject_cast<QGraphicsOpacityEffect*>(newWidget->graphicsEffect());
-    auto oldGraphicsEffect = qobject_cast<QGraphicsOpacityEffect*>(oldWidget->graphicsEffect());
+    auto newGraphicsEffect = opacityEffect(newWidget);
+    auto oldGraphicsEffect = opacityEffect(oldWidget);
 
     qreal opacity = value.toReal();
     newGraphicsEffect->setOpacity(opacity);
@@ -122,6 +123,11 @@ QWidget* ConnectivityWidget::stateWidget(ConnectivityWidget::State state) const
     if (state == Connected)
         return m_connectedWidget;
     return m_searchingWidget;
+}
+
+QGraphicsOpacityEffect* ConnectivityWidget::opacityEffect(const QWidget* widget) const
+{
+    return qobject_cast<QGraphicsOpacityEffect*>(widget->graphicsEffect());
 }
 
 void ConnectivityWidget::resizeEvent(QResizeEvent* event)
