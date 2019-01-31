@@ -47,7 +47,7 @@ QSize ConnectionStatusWidget::sizeHint() const
 void ConnectionStatusWidget::onConnect()
 {
     QPalette palette(this->palette());
-    palette.setColor(QPalette::Window, "#4ba086");
+    palette.setColor(QPalette::Window, "#16a085");
     setPalette(palette);
 
     m_label->setText(tr("Connected to ") + DiscoveryManager::address());
@@ -66,7 +66,7 @@ void ConnectionStatusWidget::onConnect()
 void ConnectionStatusWidget::onDisconnect()
 {
     QPalette palette(this->palette());
-    palette.setColor(QPalette::Window, "#D84843");
+    palette.setColor(QPalette::Window, "#c0392b");
     setPalette(palette);
 
     m_label->setText(tr("Disconnected from ") + DiscoveryManager::address());

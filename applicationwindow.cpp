@@ -2,6 +2,8 @@
 #include <view.h>
 #include <centralwidget.h>
 #include <connectionstatuswidget.h>
+#include <discoverymanager.h>
+#include <QCoreApplication>
 
 ApplicationWindow::ApplicationWindow(QWidget* parent) : QMainWindow(parent)
   , m_view(new View(this))
@@ -12,6 +14,11 @@ ApplicationWindow::ApplicationWindow(QWidget* parent) : QMainWindow(parent)
     setCentralWidget(m_view);
     m_view->add(Central, m_centralWidget);
     m_view->show(Central);
+
+    connect(m_centralWidget, &CentralWidget::disableDiscoveryButtonClicked,
+            DiscoveryManager::instance(), &DiscoveryManager::setDisabled);
+    connect(m_centralWidget, &CentralWidget::quitButtonClicked,
+            QCoreApplication::instance(), &QCoreApplication::quit);
 }
 
 QSize ApplicationWindow::sizeHint() const

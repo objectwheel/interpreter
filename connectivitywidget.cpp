@@ -18,13 +18,13 @@ ConnectivityWidget::ConnectivityWidget(QWidget* parent) : QWidget(parent)
 {
     QPalette palette(m_searchingWidget->palette());
     palette.setColor(QPalette::Link, "#50e0e4e7");        // Wave color
-    palette.setColor(QPalette::Base, "#3382B5");          // Base color
+    palette.setColor(QPalette::Base, "#2980b9");          // Base color
     palette.setColor(QPalette::Button, "#3C454C");        // Frame color
     palette.setColor(QPalette::ButtonText, "#242a2d");    // Frame border color
     palette.setColor(QPalette::Highlight, "#e0e4e7");     // Bubble color
     palette.setColor(QPalette::LinkVisited, "#50e0e4e7"); // Circle color
     palette.setColor(QPalette::ToolTipBase, "#e0e4e7");   // Needle color
-    palette.setColor(QPalette::ToolTipText, "#49B9FF");   // Scanning color
+    palette.setColor(QPalette::ToolTipText, "#38afff");   // Scanning color
     m_searchingWidget->setPalette(palette);
 
     QFont font;

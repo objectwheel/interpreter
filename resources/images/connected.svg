@@ -6,7 +6,7 @@
 <g id="Page-1">
 	<g id="connected">
 		<circle id="Oval" fill="#444B54" cx="203" cy="203" r="203"/>
-		<circle id="Oval_1_" fill="#4BA086" cx="203" cy="203" r="156"/>
+		<circle id="Oval_1_" fill="#16A085" cx="203" cy="203" r="156"/>
 		<g id="Arrows" transform="translate(108.000000, 108.000000)">
 			<polyline id="Path" fill="none" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round" points="180,6 180,51 135,51 			"/>
 			<polyline id="Path_1_" fill="none" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round" points="10,184 10,139 55,139 			
@@ -14,7 +14,7 @@
 			<path id="Path_2_" fill="none" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round" d="M190,95c0,52.5-42.6,95-95.2,95
 				c-36.2,0-67.7-20.2-83.8-50"/>
 			<path id="Path_3_" fill="none" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round" d="M0,95C0,42.5,42.6,0,95.2,0
-				c36.2,0,67.8,20.2,83.8,50"/>
+				C131.4,0,163,20.2,179,50"/>
 		</g>
 	</g>
 	

@@ -21,5 +21,6 @@
         <file>images/unlocked.svg</file>
         <file>images/stack.svg</file>
         <file>images/wrench.svg</file>
+        <file>images/quit.svg</file>
     </qresource>
 </RCC>

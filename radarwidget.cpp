@@ -258,7 +258,7 @@ void RadarWidget::paintEvent(QPaintEvent*)
 
 QSize RadarWidget::sizeHint() const
 {
-    return {300, 300};
+    return {260, 260};
 }
 
 QSize RadarWidget::minimumSizeHint() const
