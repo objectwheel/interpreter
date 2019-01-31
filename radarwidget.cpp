@@ -215,7 +215,7 @@ void RadarWidget::paintEvent(QPaintEvent*)
 
     // Scanning effect
     QColor scanningColor = palette().toolTipText().color();
-    QConicalGradient scanningEffect(center, - needleFactor * 180 / M_PI);
+    QConicalGradient scanningEffect(center, - qRadiansToDegrees(needleFactor));
     scanningColor.setAlpha(140);
     scanningEffect.setColorAt(0.0, scanningColor);
     scanningColor.setAlpha(100);

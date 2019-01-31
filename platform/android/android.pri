@@ -4,7 +4,7 @@ android {
         ANDROID_PACKAGE_SOURCE_DIR = $$PWD
         DISTFILES += $$PWD/AndroidManifest.xml \
                      $$PWD/res/values/libs.xml \
-                     $$PWD/src/com/objectwheel/testemulator/TestEmulator.java \
+                     $$PWD/src/com/objectwheel/deviceinfo/DeviceInfo.java \
 
         LIB_SUBDIR = arm
         contains(ANDROID_TARGET_ARCH, x86):LIB_SUBDIR = x86

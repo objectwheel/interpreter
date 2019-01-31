@@ -1,16 +1,11 @@
 #include <discoverymanager.h>
-#include <hashfactory.h>
+#include <crossplatform.h>
+#include <applicationcore.h>
 
 #include <QUdpSocket>
 #include <QWebSocket>
 #include <QTimerEvent>
-#include <QJsonObject>
-#include <QJsonDocument>
 #include <QDataStream>
-
-#if defined(Q_OS_ANDROID)
-#include <QAndroidJniObject>
-#endif
 
 namespace {
 
@@ -46,40 +41,12 @@ void pullValues(const QByteArray& data, Args&... args) {
     pullValuesHelper(stream, args...);
 }
 
-bool isAndroidEmulator()
-{
-#if defined(Q_OS_ANDROID)
-    static bool emulator = QAndroidJniObject::callStaticMethod<jboolean>(
-                "com/objectwheel/testemulator/TestEmulator", "isEmulator");
-#else
-    static bool emulator = false;
-#endif
-    return emulator;
-}
-
 QUrl hostAddressToUrl(const QHostAddress& address, int port)
 {
     if (address.protocol() == QAbstractSocket::IPv6Protocol)
         return QString("ws://[%1]:%2").arg(address.toString()).arg(port);
     else
         return QString("ws://%1:%2").arg(address.toString()).arg(port);
-}
-
-QVariantMap deviceInfo()
-{
-    static const QJsonObject info = {
-        {"deviceUid", HashFactory::generate()},
-        {"buildCpuArchitecture", QSysInfo::buildCpuArchitecture()},
-        {"currentCpuArchitecture", QSysInfo::currentCpuArchitecture()},
-        {"buildAbi", QSysInfo::buildAbi()},
-        {"kernelType", QSysInfo::kernelType()},
-        {"kernelVersion", QSysInfo::kernelVersion()},
-        {"productType", QSysInfo::productType()},
-        {"productVersion", QSysInfo::productVersion()},
-        {"prettyProductName", QSysInfo::prettyProductName()},
-        {"machineHostName", QSysInfo::machineHostName()}
-    };
-    return info.toVariantMap();
 }
 
 QByteArray serialize(const QByteArray& data, const QString& command)
@@ -123,9 +90,9 @@ DiscoveryManager::DiscoveryManager(QObject* parent) : QObject(parent)
         emit disconnected();
     });
     connect(s_webSocket, &QWebSocket::connected, this, [=] {
-        if (isAndroidEmulator())
+        if (CrossPlatform::isAndroidEmulator())
             stop();
-        s_webSocket->sendBinaryMessage(serialize(pushValues(deviceInfo()), "DeviceInfo"));
+        s_webSocket->sendBinaryMessage(serialize(pushValues(ApplicationCore::deviceInfo()), "DeviceInfo"));
         s_connected = true;
         emit connected();
     });
@@ -174,7 +141,7 @@ void DiscoveryManager::setDisabled(bool disabled)
 
 void DiscoveryManager::start()
 {
-    if (isAndroidEmulator())
+    if (CrossPlatform::isAndroidEmulator())
         s_emulatorTimer.start(1000, this);
     else
         s_broadcastSocket->bind(BROADCAST_PORT, QUdpSocket::ShareAddress);
@@ -182,7 +149,7 @@ void DiscoveryManager::start()
 
 void DiscoveryManager::stop()
 {
-    if (isAndroidEmulator())
+    if (CrossPlatform::isAndroidEmulator())
         s_emulatorTimer.stop();
     else
         s_broadcastSocket->abort();

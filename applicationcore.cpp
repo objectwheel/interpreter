@@ -6,14 +6,21 @@
 #include <qtwebviewfunctions.h>
 #include <filemanager.h>
 #include <applicationwindow.h>
+#include <crossplatform.h>
+#include <hashfactory.h>
 
 #include <QApplication>
 #include <QDebug>
 #include <QTimer>
 #include <QFontDatabase>
+#include <QJsonObject>
+
+ApplicationCore* ApplicationCore::s_instance = nullptr;
 
 ApplicationCore::ApplicationCore() : m_globalResources(&CommandlineParser::projectDirectory)
 {
+    s_instance = this;
+
     // Initialize application
     QApplication::setOrganizationName("Objectwheel");
     QApplication::setOrganizationDomain("objectwheel.com");
@@ -74,6 +81,7 @@ ApplicationCore::ApplicationCore() : m_globalResources(&CommandlineParser::proje
 ApplicationCore::~ApplicationCore()
 {
     delete m_applicationWindow;
+    s_instance = nullptr;
 }
 
 void ApplicationCore::prepare()
@@ -81,4 +89,52 @@ void ApplicationCore::prepare()
     QuickTheme::setTheme(CommandlineParser::projectDirectory());
     QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
+}
+
+QSettings* ApplicationCore::settings()
+{
+    if (s_instance)
+        return &s_instance->m_settings;
+    return nullptr;
+}
+
+QString ApplicationCore::deviceUid()
+{
+    if (!s_instance)
+        return {};
+
+    static QString uidKey(QStringLiteral("DeviceInfo/DeviceUid"));
+    static QString uid(s_instance->m_settings.value(uidKey).toString());
+    if (uid.isEmpty()) {
+        uid = HashFactory::generate();
+        s_instance->m_settings.setValue(uidKey, uid);
+    }
+    return uid;
+}
+
+QVariantMap ApplicationCore::deviceInfo()
+{
+    if (!s_instance)
+        return QVariantMap();
+
+    static const QJsonObject info = {
+        {"buildCpuArchitecture", QSysInfo::buildCpuArchitecture()},
+        {"currentCpuArchitecture", QSysInfo::currentCpuArchitecture()},
+        {"buildAbi", QSysInfo::buildAbi()},
+        {"kernelType", QSysInfo::kernelType()},
+        {"kernelVersion", QSysInfo::kernelVersion()},
+        {"productType", QSysInfo::productType()},
+        {"productVersion", QSysInfo::productVersion()},
+        {"prettyProductName", QSysInfo::prettyProductName()},
+        {"machineHostName", QSysInfo::machineHostName()},
+        {"isEmulator", CrossPlatform::isEmulator()},
+        {"deviceName", CrossPlatform::deviceName()},
+        {"deviceUid", deviceUid()}
+    };
+    return info.toVariantMap();
+}
+
+ApplicationCore* ApplicationCore::instance()
+{
+    return s_instance;
 }

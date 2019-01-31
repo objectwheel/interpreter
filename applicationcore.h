@@ -4,6 +4,7 @@
 #include <globalresources.h>
 #include <discoverymanager.h>
 #include <qmlapplication.h>
+#include <QSettings>
 
 class ApplicationWindow;
 
@@ -14,8 +15,14 @@ public:
     ~ApplicationCore();
 
     static void prepare();
+    static QSettings* settings();
+    static QString deviceUid();
+    static QVariantMap deviceInfo();
+    static ApplicationCore* instance();
 
 private:
+    static ApplicationCore* s_instance;
+    QSettings m_settings;
     GlobalResources m_globalResources;
     DiscoveryManager m_discoveryManager;
     QmlApplication m_qmlApplication;
