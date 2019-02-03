@@ -9,7 +9,6 @@ class ConnectivityWidget;
 class QLabel;
 class QPushButton;
 class QScrollArea;
-class QFrame;
 
 class CentralWidget : public QWidget
 {
@@ -28,7 +27,6 @@ signals:
 private:
     QVBoxLayout* m_layout;
     ConnectivityWidget* m_connectivityWidget;
-    QFrame* m_line;
     QLabel* m_titleLabel;
     QLabel* m_versionLabel;
     QHBoxLayout* m_scrollAreaLayout;

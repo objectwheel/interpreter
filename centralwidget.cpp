@@ -8,7 +8,6 @@
 #include <QPushButton>
 #include <QScrollArea>
 #include <QScrollBar>
-#include <QFrame>
 #include <QScroller>
 
 namespace {
@@ -49,21 +48,11 @@ const QLatin1String g_scrollAreaStyleSheet(
         "    background: transparent;"
         "}"
         );
-
-const QLatin1String g_lineStyleSheet(
-        "QFrame {"
-        "    border-top: 1px solid #15ffffff;"
-        "    border-bottom: 1px solid #30000000;"
-        "    margin-right: 20px;"
-        "    margin-left: 20px;"
-        "}"
-        );
 }
 
 CentralWidget::CentralWidget(QWidget* parent) : QWidget(parent)
   , m_layout(new QVBoxLayout(this))
   , m_connectivityWidget(new ConnectivityWidget(this))
-  , m_line(new QFrame(this))
   , m_titleLabel(new QLabel(this))
   , m_versionLabel(new QLabel(this))
   , m_scrollAreaLayout(new QHBoxLayout)
@@ -82,7 +71,6 @@ CentralWidget::CentralWidget(QWidget* parent) : QWidget(parent)
     m_layout->addWidget(m_titleLabel, 0, Qt::AlignHCenter);
     m_layout->addWidget(m_versionLabel, 0, Qt::AlignHCenter);
     m_layout->addStretch();
-    m_layout->addWidget(m_line);
     m_layout->addLayout(m_scrollAreaLayout);
     m_layout->addStretch();
     m_layout->addWidget(m_infoButton, 0, Qt::AlignHCenter);
@@ -110,11 +98,6 @@ CentralWidget::CentralWidget(QWidget* parent) : QWidget(parent)
     m_buttonsScrollArea->verticalScrollBar()->setFixedWidth(4);
     m_buttonsScrollArea->setWidgetResizable(true);
     m_buttonsScrollArea->setStyleSheet(g_scrollAreaStyleSheet);
-
-    m_line->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-    m_line->setFixedHeight(2);
-    m_line->setFixedHeight(2);
-    m_line->setStyleSheet(g_lineStyleSheet);
 
     QFont font;
     font.setPixelSize(16);
