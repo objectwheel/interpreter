@@ -16,16 +16,21 @@ public:
 
     static void prepare();
     static QSettings* settings();
+    static QString dataPath();
     static QString deviceUid();
     static QVariantMap deviceInfo();
     static ApplicationCore* instance();
+
+private:
+    void startQmlApplication(const QString& projectDirectory);
+    void terminateQmlApplication();
 
 private:
     static ApplicationCore* s_instance;
     QSettings m_settings;
     GlobalResources m_globalResources;
     DiscoveryManager m_discoveryManager;
-    QmlApplication m_qmlApplication;
+    QmlApplication* m_qmlApplication;
     ApplicationWindow* m_applicationWindow;
 
 public:

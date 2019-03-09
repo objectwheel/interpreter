@@ -1,12 +1,10 @@
 #include <applicationcore.h>
-#include <commandlineparser.h>
 #include <QApplication>
+
+// TODO: Handle multiple Objectwheel IDE connection attempts
 
 int main(int argc, char* argv[])
 {
-    // Parse commandline arguments
-    CommandlineParser::init(argc, argv);
-
     // Prepare core
     ApplicationCore::prepare();
 

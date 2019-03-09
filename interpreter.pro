@@ -15,7 +15,6 @@ DEPENDPATH  += $$PWD
 SOURCES += $$PWD/main.cpp \
            $$PWD/qmlapplication.cpp \
            $$PWD/applicationcore.cpp \
-           $$PWD/commandlineparser.cpp \
            $$PWD/qmlcomponent.cpp \
            $$PWD/saveutils.cpp \
            $$PWD/hashfactory.cpp \
@@ -30,7 +29,6 @@ SOURCES += $$PWD/main.cpp \
 
 HEADERS += $$PWD/qmlapplication.h \
            $$PWD/applicationcore.h \
-           $$PWD/commandlineparser.h \
            $$PWD/qmlcomponent.h \
            $$PWD/saveutils.h \
            $$PWD/hashfactory.h \
