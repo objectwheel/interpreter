@@ -23,7 +23,7 @@ public:
 
 public:
     void startQmlApplication(const QString& projectDirectory);
-    void terminateQmlApplication();
+    void terminateQmlApplication(int retCode = 0);
 
 private:
     static void messageHandler(QtMsgType type, const QMessageLogContext& context, const QString& msg);

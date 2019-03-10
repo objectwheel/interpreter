@@ -66,17 +66,15 @@ void QmlApplication::run()
     // Create instances, handle parent-child relationship, set ids, save form instances
     for (const QString& formPath : SaveUtils::formPaths(m_projectDirectory)) {
         const ControlInstance& formInstance = createInstance(formPath, ControlInstance());
-
         if (!formInstance.object)
-            return;
-
+            continue;
         m_instanceTree.insert(formPath, formInstance);
 
         for (const QString& childPath : SaveUtils::childrenPaths(formPath)) {
             const ControlInstance& parentInstance = m_instanceTree.value(SaveUtils::toParentDir(childPath));
             const ControlInstance& childInstance = createInstance(childPath, parentInstance);
             if (!childInstance.object)
-                return;
+                continue;
             m_instanceTree.insert(childPath, childInstance);
         }
     }
@@ -115,7 +113,8 @@ QmlApplication::ControlInstance QmlApplication::createInstance(const QString& di
     if (component->isError()) {
         for (auto error : component->errors())
             qWarning().noquote() << error.toString();
-        component->completeCreate();
+        if (component->isCompletePending())
+            component->completeCreate();
         if (object)
             delete object;
         if (SaveUtils::isForm(dir))

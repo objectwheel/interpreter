@@ -7,6 +7,7 @@
 #include <applicationwindow.h>
 #include <crossplatform.h>
 #include <hashfactory.h>
+#include <iostream>
 
 #include <QApplication>
 #include <QDebug>
@@ -147,43 +148,28 @@ void ApplicationCore::startQmlApplication(const QString& projectDirectory)
     if (m_qmlApplication)
         return;
 
-    m_qmlApplication = new QmlApplication(projectDirectory);
-
-    QObject::connect(m_qmlApplication, &QmlApplication::quit,
-            QApplication::instance(), &QApplication::quit);
-    QObject::connect(m_qmlApplication, &QmlApplication::exit,
-            QApplication::instance(), &QApplication::exit);
-
     qInstallMessageHandler(messageHandler);
 
+    m_qmlApplication = new QmlApplication(projectDirectory);
+    QObject::connect(m_qmlApplication, &QmlApplication::quit,
+                     [this] { terminateQmlApplication(); });
+    QObject::connect(m_qmlApplication, &QmlApplication::exit,
+                     [this] (int retCode) { terminateQmlApplication(retCode); });
     m_qmlApplication->run();
 }
 
-void ApplicationCore::terminateQmlApplication()
+void ApplicationCore::terminateQmlApplication(int retCode)
 {
+    if (!m_qmlApplication)
+        return;
+
     qInstallMessageHandler(nullptr);
+
+    delete m_qmlApplication;
+    m_qmlApplication = nullptr;
 }
 
-void ApplicationCore::messageHandler(QtMsgType type, const QMessageLogContext& context, const QString& msg)
+void ApplicationCore::messageHandler(QtMsgType, const QMessageLogContext&, const QString& msg)
 {
-    QByteArray localMsg = msg.toLocal8Bit();
-    const char *file = context.file ? context.file : "";
-    const char *function = context.function ? context.function : "";
-    switch (type) {
-    case QtDebugMsg:
-        fprintf(stderr, "Debug: %s (%s:%u, %s)\n", localMsg.constData(), file, context.line, function);
-        break;
-    case QtInfoMsg:
-        fprintf(stderr, "Info: %s (%s:%u, %s)\n", localMsg.constData(), file, context.line, function);
-        break;
-    case QtWarningMsg:
-        fprintf(stderr, "Warning: %s (%s:%u, %s)\n", localMsg.constData(), file, context.line, function);
-        break;
-    case QtCriticalMsg:
-        fprintf(stderr, "Critical: %s (%s:%u, %s)\n", localMsg.constData(), file, context.line, function);
-        break;
-    case QtFatalMsg:
-        fprintf(stderr, "Fatal: %s (%s:%u, %s)\n", localMsg.constData(), file, context.line, function);
-        break;
-    }
+    std::cerr << msg.toStdString();
 }

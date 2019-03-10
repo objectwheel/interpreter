@@ -14,6 +14,7 @@ class QmlComponent final : public QQmlComponent
 public:
     using QQmlComponent::QQmlComponent;
     QObject* beginCreate(QQmlContext* publicContext) override;
+    bool isCompletePending() const;
 };
 
 #endif // QMLCOMPONENT_H

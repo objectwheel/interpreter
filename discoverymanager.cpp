@@ -49,6 +49,14 @@ QUrl hostAddressToUrl(const QHostAddress& address, int port)
         return QString("ws://%1:%2").arg(address.toString()).arg(port);
 }
 
+void dispatch(const QByteArray& incomingData, QByteArray& data, QString& command)
+{
+    QDataStream incoming(incomingData);
+    incoming.setVersion(QDataStream::Qt_5_12);
+    incoming >> command;
+    incoming >> data;
+}
+
 QByteArray serialize(const QByteArray& data, const QString& command)
 {
     QByteArray outgoingData;
@@ -96,11 +104,8 @@ DiscoveryManager::DiscoveryManager(QObject* parent) : QObject(parent)
         s_connected = true;
         emit connected();
     });
-
-    //    void binaryFrameReceived(const QByteArray &frame, bool isLastFrame)
-    //    void binaryMessageReceived(const QByteArray &message)
-    //    void textFrameReceived(const QString &frame, bool isLastFrame)
-    //    void textMessageReceived(const QString &message)
+    connect(s_webSocket, &QWebSocket::binaryMessageReceived,
+            this, &DiscoveryManager::onBinaryMessageReceived);
 
     start();
 }
@@ -177,5 +182,23 @@ void DiscoveryManager::onBroadcastReadyRead()
         stop();
         s_address = address.toString();
         s_webSocket->open(hostAddressToUrl(QHostAddress(s_address), SERVER_PORT));
+    }
+}
+
+void DiscoveryManager::onBinaryMessageReceived(const QByteArray& incomingData)
+{
+    QWebSocket* client = static_cast<QWebSocket*>(sender());
+    QByteArray data;
+    QString command;
+    dispatch(incomingData, data, command);
+
+    if (command == "DeviceInfo") {
+//        QVariantMap info;
+//        pullValues(data, info);
+//        s_deviceInfoList.append(info);
+//        client->setProperty(UID_PROPERTY, info.value("deviceUid").toString());
+//        emit connected(info);
+    } else {
+
     }
 }

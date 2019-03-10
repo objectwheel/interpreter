@@ -37,6 +37,7 @@ private slots:
     void start();
     void stop();
     void onBroadcastReadyRead();
+    void onBinaryMessageReceived(const QByteArray& incomingData);
 
 protected:
     void timerEvent(QTimerEvent* event) override;
