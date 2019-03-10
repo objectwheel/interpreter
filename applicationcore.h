@@ -21,9 +21,12 @@ public:
     static QVariantMap deviceInfo();
     static ApplicationCore* instance();
 
-private:
+public:
     void startQmlApplication(const QString& projectDirectory);
     void terminateQmlApplication();
+
+private:
+    static void messageHandler(QtMsgType type, const QMessageLogContext& context, const QString& msg);
 
 private:
     static ApplicationCore* s_instance;

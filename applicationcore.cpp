@@ -14,27 +14,10 @@
 #include <QFontDatabase>
 #include <QJsonObject>
 
-
-//static void messageHandler(QtMsgType msgType, const QMessageLogContext &logContext, const QString &text)
-//{
-//    if (!messageLogWidget.isNull())
-//        messageLogWidget->appendPlainText(text);
-//    if (oldMessageHandler)
-//        oldMessageHandler(msgType, logContext, text);
-//}
-//int main(int argc, char *argv[])
-//{
-//    QApplication app(argc, argv);
-//    messageLogWidget = new QPlainTextEdit(QLatin1String(QLibraryInfo::build()) + QLatin1Char('\n'));
-//    messageLogWidget->setReadOnly(true);
-//    oldMessageHandler = qInstallMessageHandler(messageHandler);
-
-//}
-
 ApplicationCore* ApplicationCore::s_instance = nullptr;
 
 ApplicationCore::ApplicationCore()
-    : m_globalResources(&CommandlineParser::projectDirectory)
+    : m_globalResources(/*&CommandlineParser::projectDirectory*/[]() -> QString {} )
     , m_qmlApplication(nullptr)
 {
     s_instance = this;
@@ -94,7 +77,7 @@ ApplicationCore::~ApplicationCore()
 
 void ApplicationCore::prepare()
 {
-    QuickTheme::setTheme(CommandlineParser::projectDirectory());
+//    QuickTheme::setTheme(CommandlineParser::projectDirectory());
     QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
 }
@@ -108,12 +91,14 @@ QSettings* ApplicationCore::settings()
 
 QString ApplicationCore::dataPath()
 {
-    #if defined(Q_OS_ANDROID)
-        Q_UNUSED(argv)
-        s_projectDirectory = "assets:/owprj";
-    #else
-        s_projectDirectory = dname(argv[0]) + "/owprj";
-    #endif
+    static QString path(
+        #if defined(Q_OS_ANDROID)
+            "assets:/owprj"
+        #else
+            qApp->arguments().first() + "/owprj"
+        #endif
+    );
+    return path;
 }
 
 QString ApplicationCore::deviceUid()
@@ -162,22 +147,43 @@ void ApplicationCore::startQmlApplication(const QString& projectDirectory)
     if (m_qmlApplication)
         return;
 
-    m_qmlApplication = new QmlApplication;
+    m_qmlApplication = new QmlApplication(projectDirectory);
 
     QObject::connect(m_qmlApplication, &QmlApplication::quit,
             QApplication::instance(), &QApplication::quit);
     QObject::connect(m_qmlApplication, &QmlApplication::exit,
             QApplication::instance(), &QApplication::exit);
-    QObject::connect(m_qmlApplication, &QmlApplication::error, [=] (const QString& errorString) {
-        qWarning().noquote() << errorString.trimmed();
-        qInstallMessageHandler([] (QtMsgType, const QMessageLogContext&, const QString&) {});
-        QTimer::singleShot(0, std::bind(&QApplication::exit, EXIT_FAILURE));
-    });
 
-    m_qmlApplication->run(projectDirectory);
+    qInstallMessageHandler(messageHandler);
+
+    m_qmlApplication->run();
 }
 
 void ApplicationCore::terminateQmlApplication()
 {
+    qInstallMessageHandler(nullptr);
+}
 
+void ApplicationCore::messageHandler(QtMsgType type, const QMessageLogContext& context, const QString& msg)
+{
+    QByteArray localMsg = msg.toLocal8Bit();
+    const char *file = context.file ? context.file : "";
+    const char *function = context.function ? context.function : "";
+    switch (type) {
+    case QtDebugMsg:
+        fprintf(stderr, "Debug: %s (%s:%u, %s)\n", localMsg.constData(), file, context.line, function);
+        break;
+    case QtInfoMsg:
+        fprintf(stderr, "Info: %s (%s:%u, %s)\n", localMsg.constData(), file, context.line, function);
+        break;
+    case QtWarningMsg:
+        fprintf(stderr, "Warning: %s (%s:%u, %s)\n", localMsg.constData(), file, context.line, function);
+        break;
+    case QtCriticalMsg:
+        fprintf(stderr, "Critical: %s (%s:%u, %s)\n", localMsg.constData(), file, context.line, function);
+        break;
+    case QtFatalMsg:
+        fprintf(stderr, "Fatal: %s (%s:%u, %s)\n", localMsg.constData(), file, context.line, function);
+        break;
+    }
 }

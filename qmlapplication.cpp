@@ -7,59 +7,76 @@
 #include <QQmlContext>
 #include <QQmlProperty>
 #include <QCoreApplication>
+#include <QFileInfo>
+#include <QDebug>
 
-namespace {
-
-void setId(QQmlContext* context, QObject* object, const QString& id)
+QmlApplication::QmlApplication(const QString& projectDirectory, QObject* parent) : QQmlEngine(parent)
+  , m_rootObject(new QObject)
 {
-    Q_ASSERT(!id.isEmpty() && context);
-    context->setContextProperty(id, object);
-}
-}
-
-QmlApplication::QmlApplication(QObject* parent) : QObject(parent)
-{
-    connect(&m_engine, &QQmlEngine::quit, this, &QmlApplication::quit);
-    connect(&m_engine, &QQmlEngine::exit, this, &QmlApplication::exit);
-
+    setProjectDirectory(projectDirectory);
     QCoreApplication::instance()->setProperty("__qml_using_qqmlapplicationengine", QVariant(true));
-    QJSEnginePrivate::addToDebugServer(&m_engine);
+    QJSEnginePrivate::addToDebugServer(this);
+}
+
+QmlApplication::QmlApplication(QObject* parent) : QmlApplication(QString(), parent)
+{
 }
 
 QmlApplication::~QmlApplication()
 {
-    QJSEnginePrivate::removeFromDebugServer(&m_engine);
-
+    QJSEnginePrivate::removeFromDebugServer(this);
     for (auto instance : m_instanceTree)
-        instance.object->disconnect(&m_engine);
+        instance.object->disconnect(this);
+    delete m_rootObject;
 }
 
-void QmlApplication::run(const QString& projectDirectory)
+const QString& QmlApplication::projectDirectory() const
 {
-    m_engine.addImportPath(SaveUtils::toImportsDir(projectDirectory));
-    m_engine.addImportPath(SaveUtils::toGlobalDir(projectDirectory));
+    return m_projectDirectory;
+}
 
-    /* Create instances, handle parent-child relationship, set ids, save form instances */
-    for (const QString& formPath : SaveUtils::formPaths(projectDirectory)) {
+void QmlApplication::setProjectDirectory(const QString& projectDirectory)
+{
+    m_projectDirectory = projectDirectory;
+    if (!projectDirectory.isEmpty()) {
+        addImportPath(SaveUtils::toImportsDir(m_projectDirectory));
+        addImportPath(SaveUtils::toGlobalDir(m_projectDirectory));
+    }
+}
+
+void QmlApplication::run()
+{
+    if (m_projectDirectory.isEmpty()) {
+        qWarning("WARNING: Project directory cannot be empty");
+        return;
+    }
+
+    if (!QFileInfo::exists(m_projectDirectory)) {
+        qWarning("WARNING: Project directory doesn't exist");
+        return;
+    }
+
+    if (QFileInfo(m_projectDirectory).isFile()) {
+        qWarning("WARNING: Project directory cannot point out to a file");
+        return;
+    }
+
+    // TODO: Apply other Ow™ kinda checks for project consistency
+
+    // Create instances, handle parent-child relationship, set ids, save form instances
+    for (const QString& formPath : SaveUtils::formPaths(m_projectDirectory)) {
         const ControlInstance& formInstance = createInstance(formPath, ControlInstance());
 
-        if (!formInstance.object) {
-            emit error(formInstance.errorString);
+        if (!formInstance.object)
             return;
-        }
 
         m_instanceTree.insert(formPath, formInstance);
 
-        // TODO: What if a child is a master-control?
         for (const QString& childPath : SaveUtils::childrenPaths(formPath)) {
             const ControlInstance& parentInstance = m_instanceTree.value(SaveUtils::toParentDir(childPath));
             const ControlInstance& childInstance = createInstance(childPath, parentInstance);
-
-            if (!childInstance.object) {
-                emit error(childInstance.errorString);
+            if (!childInstance.object)
                 return;
-            }
-
             m_instanceTree.insert(childPath, childInstance);
         }
     }
@@ -83,20 +100,22 @@ QmlApplication::ControlInstance QmlApplication::createInstance(const QString& di
 
     ControlInstance instance;
 #if defined(Q_OS_ANDROID)
-    auto component = new QmlComponent(&m_engine, QUrl(url), &m_rootObject);
+    auto component = new QmlComponent(this, QUrl(url), m_rootObject);
 #else
-    auto component = new QmlComponent(&m_engine, QUrl::fromUserInput(url), &m_rootObject);
+    auto component = new QmlComponent(this, QUrl::fromUserInput(url), m_rootObject);
 #endif
 
     if (SaveUtils::isForm(dir))
-        instance.context = new QQmlContext(&m_engine, &m_rootObject);
+        instance.context = new QQmlContext(this, m_rootObject);
     else
         instance.context = parentInstance.context;
 
     QObject* object = component->beginCreate(instance.context);
 
     if (component->isError()) {
-        instance.errorString = component->errorString();
+        for (auto error : component->errors())
+            qWarning().noquote() << error.toString();
+        component->completeCreate();
         if (object)
             delete object;
         if (SaveUtils::isForm(dir))
@@ -111,9 +130,8 @@ QmlApplication::ControlInstance QmlApplication::createInstance(const QString& di
     Q_ASSERT(object);
 
     if (SaveUtils::isForm(dir))
-        setId(m_engine.rootContext(), object, id);
-    setId(instance.context, object, id);
-
+        rootContext()->setContextProperty(id, object);
+    instance.context->setContextProperty(id, object);
     instance.object = object;
     instance.component = component;
 
@@ -124,7 +142,7 @@ QmlApplication::ControlInstance QmlApplication::createInstance(const QString& di
         QQmlListReference childList = defaultProperty.read().value<QQmlListReference>();
         childList.append(instance.object);
     } else {
-        instance.object->setParent(&m_rootObject);
+        instance.object->setParent(m_rootObject);
     }
 
     return instance;
