@@ -6,6 +6,7 @@
 
 class QUdpSocket;
 class QWebSocket;
+class QHostAddress;
 
 class DiscoveryManager : public QObject
 {
@@ -18,7 +19,6 @@ class DiscoveryManager : public QObject
         BROADCAST_PORT = 15425,
         SERVER_PORT = 15426,
     };
-    static const QByteArray BROADCAST_MESSAGE;
 
 public:
     static DiscoveryManager* instance();
@@ -39,6 +39,9 @@ private slots:
     void onBroadcastReadyRead();
     void onBinaryMessageReceived(const QByteArray& incomingData);
 
+private:
+    QUrl hostAddressToUrl(const QHostAddress& address, int port);
+
 protected:
     void timerEvent(QTimerEvent* event) override;
 
@@ -51,8 +54,8 @@ private:
     static QBasicTimer s_emulatorTimer;
     static QUdpSocket* s_broadcastSocket;
     static QWebSocket* s_webSocket;
-    static bool s_connected;
     static QString s_address;
+    static bool s_connected;
 };
 
 #endif // DISCOVERYMANAGER_H
