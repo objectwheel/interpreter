@@ -25,7 +25,8 @@ SOURCES += $$PWD/main.cpp \
            $$PWD/centralwidget.cpp \
            $$PWD/radarwidget.cpp \
            $$PWD/connectionstatuswidget.cpp \
-           $$PWD/connectivitywidget.cpp
+           $$PWD/connectivitywidget.cpp \
+           $$PWD/utilityfunctions.cpp
 
 HEADERS += $$PWD/qmlapplication.h \
            $$PWD/applicationcore.h \
@@ -39,7 +40,8 @@ HEADERS += $$PWD/qmlapplication.h \
            $$PWD/centralwidget.h \
            $$PWD/radarwidget.h \
            $$PWD/connectionstatuswidget.h \
-           $$PWD/connectivitywidget.h
+           $$PWD/connectivitywidget.h \
+           $$PWD/utilityfunctions.h
 
 ### Includes
 include($$PWD/resources/resources.pri)

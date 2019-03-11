@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QBasicTimer>
+#include <QDataStream>
 
 class QUdpSocket;
 class QWebSocket;
@@ -18,6 +19,17 @@ class DiscoveryManager : public QObject
     enum {
         BROADCAST_PORT = 15425,
         SERVER_PORT = 15426,
+    };
+
+public:
+    enum DiscoveryCommands {
+        Broadcast = 0x1100,
+        Execute,
+        Terminate,
+        InfoReport,
+        StartReport,
+        OutputReport,
+        ExitReport
     };
 
 public:
@@ -57,5 +69,13 @@ private:
     static QString s_address;
     static bool s_connected;
 };
+
+Q_DECLARE_METATYPE(DiscoveryManager::DiscoveryCommands)
+
+inline QDataStream& operator>>(QDataStream& in, DiscoveryManager::DiscoveryCommands& e)
+{ return in >> (int&) e; }
+
+inline QDataStream& operator<<(QDataStream& out, const DiscoveryManager::DiscoveryCommands& e)
+{ return out << int(e); }
 
 #endif // DISCOVERYMANAGER_H

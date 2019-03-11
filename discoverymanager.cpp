@@ -1,11 +1,13 @@
 #include <discoverymanager.h>
 #include <crossplatform.h>
 #include <applicationcore.h>
+#include <utilityfunctions.h>
 
 #include <QUdpSocket>
 #include <QWebSocket>
 #include <QTimerEvent>
-#include <QDataStream>
+
+using namespace UtilityFunctions;
 
 DiscoveryManager* DiscoveryManager::s_instance = nullptr;
 QBasicTimer DiscoveryManager::s_emulatorTimer;
@@ -38,7 +40,7 @@ DiscoveryManager::DiscoveryManager(QObject* parent) : QObject(parent)
     connect(s_webSocket, &QWebSocket::connected, this, [=] {
         if (CrossPlatform::isAndroidEmulator())
             stop();
-        s_webSocket->sendBinaryMessage(serialize(push(ApplicationCore::deviceInfo()), "DeviceInfo"));
+        s_webSocket->sendBinaryMessage(push(InfoReport, push(ApplicationCore::deviceInfo())));
         s_connected = true;
         emit connected();
     });
@@ -51,6 +53,14 @@ DiscoveryManager::DiscoveryManager(QObject* parent) : QObject(parent)
 DiscoveryManager::~DiscoveryManager()
 {
     s_instance = nullptr;
+}
+
+QUrl DiscoveryManager::hostAddressToUrl(const QHostAddress& address, int port)
+{
+    if (address.protocol() == QAbstractSocket::IPv6Protocol)
+        return QString("ws://[%1]:%2").arg(address.toString()).arg(port);
+    else
+        return QString("ws://%1:%2").arg(address.toString()).arg(port);
 }
 
 DiscoveryManager* DiscoveryManager::instance()
@@ -98,14 +108,6 @@ void DiscoveryManager::stop()
         s_broadcastSocket->abort();
 }
 
-QUrl DiscoveryManager::hostAddressToUrl(const QHostAddress& address, int port)
-{
-    if (address.protocol() == QAbstractSocket::IPv6Protocol)
-        return QString("ws://[%1]:%2").arg(address.toString()).arg(port);
-    else
-        return QString("ws://%1:%2").arg(address.toString()).arg(port);
-}
-
 void DiscoveryManager::timerEvent(QTimerEvent* event)
 {
     if (event->timerId() == s_emulatorTimer.timerId()) {
@@ -120,11 +122,13 @@ void DiscoveryManager::onBroadcastReadyRead()
 {
     QByteArray datagram;
     QHostAddress address;
+    DiscoveryCommands command;
     while (s_broadcastSocket->hasPendingDatagrams()) {
         datagram.resize(int(s_broadcastSocket->pendingDatagramSize()));
         s_broadcastSocket->readDatagram(datagram.data(), datagram.size(), &address);
     }
-    if (datagram == BROADCAST_MESSAGE) {
+    pull(datagram, command);
+    if (command == Broadcast) {
         stop();
         s_address = address.toString();
         s_webSocket->open(hostAddressToUrl(QHostAddress(s_address), SERVER_PORT));
@@ -134,10 +138,10 @@ void DiscoveryManager::onBroadcastReadyRead()
 void DiscoveryManager::onBinaryMessageReceived(const QByteArray& incomingData)
 {
     QByteArray data;
-    QString command;
-    dispatch(incomingData, data, command);
+    DiscoveryCommands command;
+    pull(incomingData, command, data);
 
-    if (command == "DeviceInfo") {
+    if (command == InfoReport) {
 //        QVariantMap info;
 //        pull(data, info);
 //        s_deviceInfoList.append(info);
