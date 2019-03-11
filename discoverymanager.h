@@ -4,6 +4,8 @@
 #include <QObject>
 #include <QBasicTimer>
 #include <QDataStream>
+#include <QWebSocket>
+#include <utilityfunctions.h>
 
 class QUdpSocket;
 class QWebSocket;
@@ -41,6 +43,17 @@ public:
 
     static void setDisabled(bool disabled);
 
+    template<typename... Args>
+    static void send(DiscoveryCommands command, Args&&... args)
+    {
+        using namespace UtilityFunctions;
+        if (!isConnected()) {
+            qWarning("WARNING: Cannot send any data since there is no active connection");
+            return;
+        }
+        s_webSocket->sendBinaryMessage(push(command, push(std::forward<Args>(args)...)));
+    }
+
 private:
     explicit DiscoveryManager(QObject* parent = nullptr);
     ~DiscoveryManager() override;
@@ -60,6 +73,7 @@ protected:
 signals:
     void connected();
     void disconnected();
+    void terminate();
 
 private:
     static DiscoveryManager* s_instance;

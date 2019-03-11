@@ -64,6 +64,9 @@ ApplicationCore::ApplicationCore()
     // Initialize Components
     Components::init();
 
+    QObject::connect(&m_discoveryManager, &DiscoveryManager::terminate,
+                     [this] { terminateQmlApplication(); });
+
     m_applicationWindow = new ApplicationWindow;
     m_applicationWindow->show();
 }
@@ -156,6 +159,7 @@ void ApplicationCore::startQmlApplication(const QString& projectDirectory)
     QObject::connect(m_qmlApplication, &QmlApplication::exit,
                      [this] (int retCode) { terminateQmlApplication(retCode); });
     m_qmlApplication->run();
+    DiscoveryManager::send(DiscoveryManager::StartReport);
 }
 
 void ApplicationCore::terminateQmlApplication(int retCode)
@@ -167,9 +171,11 @@ void ApplicationCore::terminateQmlApplication(int retCode)
 
     delete m_qmlApplication;
     m_qmlApplication = nullptr;
+    DiscoveryManager::send(DiscoveryManager::ExitReport, retCode);
 }
 
 void ApplicationCore::messageHandler(QtMsgType, const QMessageLogContext&, const QString& msg)
 {
+    DiscoveryManager::send(DiscoveryManager::OutputReport, msg);
     std::cerr << msg.toStdString();
 }

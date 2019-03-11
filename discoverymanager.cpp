@@ -1,10 +1,8 @@
 #include <discoverymanager.h>
 #include <crossplatform.h>
 #include <applicationcore.h>
-#include <utilityfunctions.h>
 
 #include <QUdpSocket>
-#include <QWebSocket>
 #include <QTimerEvent>
 
 using namespace UtilityFunctions;
@@ -40,8 +38,8 @@ DiscoveryManager::DiscoveryManager(QObject* parent) : QObject(parent)
     connect(s_webSocket, &QWebSocket::connected, this, [=] {
         if (CrossPlatform::isAndroidEmulator())
             stop();
-        s_webSocket->sendBinaryMessage(push(InfoReport, push(ApplicationCore::deviceInfo())));
         s_connected = true;
+        send(InfoReport, ApplicationCore::deviceInfo());
         emit connected();
     });
     connect(s_webSocket, &QWebSocket::binaryMessageReceived,
@@ -141,13 +139,20 @@ void DiscoveryManager::onBinaryMessageReceived(const QByteArray& incomingData)
     DiscoveryCommands command;
     pull(incomingData, command, data);
 
-    if (command == InfoReport) {
-//        QVariantMap info;
-//        pull(data, info);
-//        s_deviceInfoList.append(info);
-//        client->setProperty(UID_PROPERTY, info.value("deviceUid").toString());
-//        emit connected(info);
-    } else {
+    switch (command) {
+    case Execute: {
+//        int progress;
+//        pull(data, progress);
+//        emit execute(???/*projectDirectory*/);
+        break;
+    }
 
+    case Terminate: {
+        emit terminate();
+        break;
+    }
+
+    default:
+        break;
     }
 }

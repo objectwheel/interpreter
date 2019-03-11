@@ -13,7 +13,7 @@ int main(int argc, char* argv[])
 
     // Run core
     ApplicationCore core;
-    core.startQmlApplication("/users/omergoktas/desktop/cloudy");
+    // core.startQmlApplication("/users/omergoktas/desktop/cloudy");
     // Start main event loop
     return app.exec();
 }
