@@ -12,6 +12,7 @@ class ProjectManager final : public QObject
 
 public:
     static ProjectManager* instance();
+    static importProject(const QString& uid, const QString& sourceZipPath);
     static QString projectPath(const QString& uid);
 
 private:
@@ -19,7 +20,7 @@ private:
     ~ProjectManager() override;
 
 private:
-    static ApplicationCore* s_instance;
+    static ProjectManager* s_instance;
 };
 
 

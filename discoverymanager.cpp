@@ -141,6 +141,7 @@ void DiscoveryManager::onBinaryMessageReceived(const QByteArray& incomingData)
 
     switch (command) {
     case Execute: {
+        QString projectUid;
 //        int progress;
 //        pull(data, progress);
 //        emit execute(???/*projectDirectory*/);

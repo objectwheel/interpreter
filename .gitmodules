@@ -1,1 +1,4 @@
 
+[submodule "zipasync"]
+	path = zipasync
+	url = https://github.com/omergoktas/zipasync

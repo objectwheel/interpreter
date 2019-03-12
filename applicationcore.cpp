@@ -14,7 +14,6 @@
 #include <QTimer>
 #include <QFontDatabase>
 #include <QJsonObject>
-#include <QStandardPaths>
 
 ApplicationCore* ApplicationCore::s_instance = nullptr;
 

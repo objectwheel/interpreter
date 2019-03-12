@@ -26,7 +26,7 @@ class DiscoveryManager : public QObject
 public:
     enum DiscoveryCommands {
         Broadcast = 0x1100,
-        Execute,
+        ProjectFrame,
         Terminate,
         InfoReport,
         StartReport,
