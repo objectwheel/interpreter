@@ -31,7 +31,7 @@ public:
         InfoReport,
         StartReport,
         OutputReport,
-        ExitReport
+        FinishReport
     };
 
 public:

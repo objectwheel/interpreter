@@ -14,6 +14,7 @@
 #include <QTimer>
 #include <QFontDatabase>
 #include <QJsonObject>
+#include <QStandardPaths>
 
 ApplicationCore* ApplicationCore::s_instance = nullptr;
 
@@ -93,18 +94,6 @@ QSettings* ApplicationCore::settings()
     return nullptr;
 }
 
-QString ApplicationCore::dataPath()
-{
-    static QString path(
-        #if defined(Q_OS_ANDROID)
-            "assets:/owprj"
-        #else
-            qApp->arguments().first() + "/owprj"
-        #endif
-    );
-    return path;
-}
-
 QString ApplicationCore::deviceUid()
 {
     if (!s_instance)
@@ -171,7 +160,7 @@ void ApplicationCore::terminateQmlApplication(int retCode)
 
     delete m_qmlApplication;
     m_qmlApplication = nullptr;
-    DiscoveryManager::send(DiscoveryManager::ExitReport, retCode);
+    DiscoveryManager::send(DiscoveryManager::FinishReport, retCode);
 }
 
 void ApplicationCore::messageHandler(QtMsgType, const QMessageLogContext&, const QString& msg)

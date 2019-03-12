@@ -153,6 +153,7 @@ void DiscoveryManager::onBinaryMessageReceived(const QByteArray& incomingData)
     }
 
     default:
+        qWarning("DiscoveryManager: Unrecognized command has arrived");
         break;
     }
 }

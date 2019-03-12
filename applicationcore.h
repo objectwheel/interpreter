@@ -16,7 +16,6 @@ public:
 
     static void prepare();
     static QSettings* settings();
-    static QString dataPath();
     static QString deviceUid();
     static QVariantMap deviceInfo();
     static ApplicationCore* instance();
