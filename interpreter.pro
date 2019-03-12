@@ -49,3 +49,4 @@ HEADERS += $$PWD/qmlapplication.h \
 include($$PWD/resources/resources.pri)
 include($$PWD/components/components.pri)
 include($$PWD/platform/platform.pri)
+include($$PWD/zipasync/zipasync.pri)

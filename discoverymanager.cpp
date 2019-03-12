@@ -4,6 +4,7 @@
 
 #include <QUdpSocket>
 #include <QTimerEvent>
+#include <QTemporaryFile>
 
 using namespace UtilityFunctions;
 
@@ -11,6 +12,7 @@ DiscoveryManager* DiscoveryManager::s_instance = nullptr;
 QBasicTimer DiscoveryManager::s_emulatorTimer;
 QUdpSocket* DiscoveryManager::s_broadcastSocket = nullptr;
 QWebSocket* DiscoveryManager::s_webSocket = nullptr;
+QTemporaryFile* DiscoveryManager::s_cacheFile = nullptr;
 QString DiscoveryManager::s_address;
 bool DiscoveryManager::s_connected = false;
 
@@ -142,9 +144,30 @@ void DiscoveryManager::onBinaryMessageReceived(const QByteArray& incomingData)
     switch (command) {
     case Execute: {
         QString projectUid;
-//        int progress;
-//        pull(data, progress);
-//        emit execute(???/*projectDirectory*/);
+        qint64 pos;
+        QByteArray chunkData;
+        pull(data, projectUid, pos, chunkData);
+
+        if (pos == 0) {
+            if (s_cacheFile)
+                delete s_cacheFile;
+            s_cacheFile = new QTemporaryFile(this);
+            if (!s_cacheFile->open()) {
+                qFatal("CRITICAL: Cannot create a temporary file");
+                return;
+            }
+        }
+
+        s_cacheFile->seek(pos);
+        s_cacheFile->write(chunkData);
+
+        if (!projectUid.isEmpty()) { // EOF
+            s_cacheFile->close();
+            emit execute(projectUid, s_cacheFile->fileName());
+            delete s_cacheFile;
+            s_cacheFile = nullptr;
+        }
+
         break;
     }
 

@@ -7,7 +7,6 @@
 #include <applicationwindow.h>
 #include <crossplatform.h>
 #include <hashfactory.h>
-#include <iostream>
 
 #include <QApplication>
 #include <QDebug>
@@ -18,8 +17,7 @@
 ApplicationCore* ApplicationCore::s_instance = nullptr;
 
 ApplicationCore::ApplicationCore()
-    : m_globalResources(/*&CommandlineParser::projectDirectory*/[]() -> QString {} )
-    , m_qmlApplication(nullptr)
+    : m_globalResources([]() -> QString { return ProjectManager::projectPath(ProjectManager::currentProjectUid()); })
 {
     s_instance = this;
 
@@ -65,7 +63,13 @@ ApplicationCore::ApplicationCore()
     Components::init();
 
     QObject::connect(&m_discoveryManager, &DiscoveryManager::terminate,
-                     [this] { terminateQmlApplication(); });
+                     std::bind(&ProjectManager::terminateProject, 0));
+
+    QObject::connect(&m_discoveryManager, &DiscoveryManager::execute,
+                     [] (const QString& uid, const QString& projectPath) {
+        ProjectManager::importProject(uid, projectPath);
+        ProjectManager::startProject(uid);
+    });
 
     m_applicationWindow = new ApplicationWindow;
     m_applicationWindow->show();
@@ -74,8 +78,6 @@ ApplicationCore::ApplicationCore()
 ApplicationCore::~ApplicationCore()
 {
     delete m_applicationWindow;
-    if (m_qmlApplication)
-        delete m_qmlApplication;
     s_instance = nullptr;
 }
 
@@ -132,38 +134,4 @@ QVariantMap ApplicationCore::deviceInfo()
 ApplicationCore* ApplicationCore::instance()
 {
     return s_instance;
-}
-
-void ApplicationCore::startQmlApplication(const QString& projectDirectory)
-{
-    if (m_qmlApplication)
-        return;
-
-    qInstallMessageHandler(messageHandler);
-
-    m_qmlApplication = new QmlApplication(projectDirectory);
-    QObject::connect(m_qmlApplication, &QmlApplication::quit,
-                     [this] { terminateQmlApplication(); });
-    QObject::connect(m_qmlApplication, &QmlApplication::exit,
-                     [this] (int retCode) { terminateQmlApplication(retCode); });
-    m_qmlApplication->run();
-    DiscoveryManager::send(DiscoveryManager::StartReport);
-}
-
-void ApplicationCore::terminateQmlApplication(int retCode)
-{
-    if (!m_qmlApplication)
-        return;
-
-    qInstallMessageHandler(nullptr);
-
-    delete m_qmlApplication;
-    m_qmlApplication = nullptr;
-    DiscoveryManager::send(DiscoveryManager::FinishReport, retCode);
-}
-
-void ApplicationCore::messageHandler(QtMsgType, const QMessageLogContext&, const QString& msg)
-{
-    DiscoveryManager::send(DiscoveryManager::OutputReport, msg);
-    std::cerr << msg.toStdString();
 }

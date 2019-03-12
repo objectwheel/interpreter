@@ -10,6 +10,7 @@
 class QUdpSocket;
 class QWebSocket;
 class QHostAddress;
+class QTemporaryFile;
 
 class DiscoveryManager : public QObject
 {
@@ -26,7 +27,7 @@ class DiscoveryManager : public QObject
 public:
     enum DiscoveryCommands {
         Broadcast = 0x1100,
-        ProjectFrame,
+        Execute,
         Terminate,
         InfoReport,
         StartReport,
@@ -74,12 +75,14 @@ signals:
     void connected();
     void disconnected();
     void terminate();
+    void execute(const QString& uid, const QString& projectPath);
 
 private:
     static DiscoveryManager* s_instance;
     static QBasicTimer s_emulatorTimer;
     static QUdpSocket* s_broadcastSocket;
     static QWebSocket* s_webSocket;
+    static QTemporaryFile* s_cacheFile;
     static QString s_address;
     static bool s_connected;
 };
