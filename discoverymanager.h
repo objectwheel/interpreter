@@ -37,12 +37,24 @@ public:
 
 public:
     static DiscoveryManager* instance();
-
     static bool isConnected();
-
     static QString address();
-
     static void setDisabled(bool disabled);
+
+public slots:
+    static void scheduleStartReport();
+    static void scheduleFinishReport(int exitCode);
+    static void scheduleOutputReport(const QString& output);
+
+private slots:
+    void start();
+    void stop();
+    void onBroadcastReadyRead();
+    void onBinaryMessageReceived(const QByteArray& incomingData);
+
+private:
+    void cleanCache();
+    QUrl hostAddressToUrl(const QHostAddress& address, int port);
 
     template<typename... Args>
     static void send(DiscoveryCommands command, Args&&... args)
@@ -55,21 +67,12 @@ public:
         s_webSocket->sendBinaryMessage(push(command, push(std::forward<Args>(args)...)));
     }
 
+protected:
+    void timerEvent(QTimerEvent* event) override;
+
 private:
     explicit DiscoveryManager(QObject* parent = nullptr);
     ~DiscoveryManager() override;
-
-private slots:
-    void start();
-    void stop();
-    void onBroadcastReadyRead();
-    void onBinaryMessageReceived(const QByteArray& incomingData);
-
-private:
-    QUrl hostAddressToUrl(const QHostAddress& address, int port);
-
-protected:
-    void timerEvent(QTimerEvent* event) override;
 
 signals:
     void connected();

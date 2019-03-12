@@ -72,7 +72,7 @@ void ProjectManager::startProject(const QString& projectDirectory)
     QObject::connect(s_qmlApplication, &QmlApplication::exit,
                      &ProjectManager::terminateProject);
     s_qmlApplication->run();
-    DiscoveryManager::send(DiscoveryManager::StartReport);
+    DiscoveryManager::scheduleStartReport();
 }
 
 void ProjectManager::terminateProject(int retCode)
@@ -85,11 +85,11 @@ void ProjectManager::terminateProject(int retCode)
 
     delete s_qmlApplication;
     s_qmlApplication = nullptr;
-    DiscoveryManager::send(DiscoveryManager::FinishReport, retCode);
+    DiscoveryManager::scheduleFinishReport(retCode);
 }
 
-void ProjectManager::messageHandler(QtMsgType, const QMessageLogContext&, const QString& msg)
+void ProjectManager::messageHandler(QtMsgType, const QMessageLogContext&, const QString& output)
 {
-    DiscoveryManager::send(DiscoveryManager::OutputReport, msg);
-    std::cerr << msg.toStdString();
+    DiscoveryManager::scheduleOutputReport(output);
+    std::cerr << output.toStdString();
 }

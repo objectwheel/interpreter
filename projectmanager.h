@@ -16,12 +16,13 @@ public:
     static ProjectManager* instance();
     static QString currentProjectUid();
     static QString projectPath(const QString& uid);
+
     static void importProject(const QString& uid, const QString& sourceZipPath);
     static void startProject(const QString& projectDirectory);
     static void terminateProject(int retCode = 0);
 
 private:
-    static void messageHandler(QtMsgType type, const QMessageLogContext& context, const QString& msg);
+    static void messageHandler(QtMsgType type, const QMessageLogContext& context, const QString& output);
 
 private:
     explicit ProjectManager(QObject* parent = nullptr);
@@ -32,6 +33,5 @@ private:
     static QmlApplication* s_qmlApplication;
     static QString s_currentProjectUid;
 };
-
 
 #endif // PROJECTMANAGER_H

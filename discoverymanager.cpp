@@ -34,6 +34,7 @@ DiscoveryManager::DiscoveryManager(QObject* parent) : QObject(parent)
     });
     connect(s_webSocket, &QWebSocket::disconnected, this, &DiscoveryManager::start);
     connect(s_webSocket, &QWebSocket::disconnected, this, [=] {
+        cleanCache();
         s_connected = false;
         emit disconnected();
     });
@@ -90,6 +91,21 @@ void DiscoveryManager::setDisabled(bool disabled)
     } else {
         instance()->start();
     }
+}
+
+void DiscoveryManager::scheduleStartReport()
+{
+    DiscoveryManager::send(DiscoveryManager::StartReport);
+}
+
+void DiscoveryManager::scheduleFinishReport(int exitCode)
+{
+    DiscoveryManager::send(DiscoveryManager::FinishReport, exitCode);
+}
+
+void DiscoveryManager::scheduleOutputReport(const QString& output)
+{
+    DiscoveryManager::send(DiscoveryManager::OutputReport, output);
 }
 
 void DiscoveryManager::start()
@@ -149,13 +165,17 @@ void DiscoveryManager::onBinaryMessageReceived(const QByteArray& incomingData)
         pull(data, projectUid, pos, chunkData);
 
         if (pos == 0) {
-            if (s_cacheFile)
-                delete s_cacheFile;
+            cleanCache();
             s_cacheFile = new QTemporaryFile(this);
             if (!s_cacheFile->open()) {
                 qFatal("CRITICAL: Cannot create a temporary file");
-                return;
+                break;
             }
+        }
+
+        if (!s_cacheFile) {
+            qWarning("WARNING: Cache corruption");
+            break;
         }
 
         s_cacheFile->seek(pos);
@@ -164,20 +184,28 @@ void DiscoveryManager::onBinaryMessageReceived(const QByteArray& incomingData)
         if (!projectUid.isEmpty()) { // EOF
             s_cacheFile->close();
             emit execute(projectUid, s_cacheFile->fileName());
-            delete s_cacheFile;
-            s_cacheFile = nullptr;
+            cleanCache();
         }
 
         break;
     }
 
     case Terminate: {
+        cleanCache();
         emit terminate();
         break;
     }
 
     default:
+        cleanCache();
         qWarning("DiscoveryManager: Unrecognized command has arrived");
         break;
     }
+}
+
+void DiscoveryManager::cleanCache()
+{
+    if (s_cacheFile)
+        delete s_cacheFile;
+    s_cacheFile = nullptr;
 }

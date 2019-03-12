@@ -17,7 +17,7 @@
 ApplicationCore* ApplicationCore::s_instance = nullptr;
 
 ApplicationCore::ApplicationCore()
-    : m_globalResources([]() -> QString { return ProjectManager::projectPath(ProjectManager::currentProjectUid()); })
+    : m_globalResources([] { return ProjectManager::projectPath(ProjectManager::currentProjectUid()); })
 {
     s_instance = this;
 
