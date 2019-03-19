@@ -62,17 +62,19 @@ ApplicationCore::ApplicationCore()
     // Initialize Components
     Components::init();
 
+    m_applicationWindow = new ApplicationWindow;
+    m_applicationWindow->show();
+
+    QObject::connect(qApp, &QApplication::lastWindowClosed,
+                     std::bind(&ProjectManager::terminateProject, 0));
     QObject::connect(&m_discoveryManager, &DiscoveryManager::terminate,
                      std::bind(&ProjectManager::terminateProject, 0));
-
     QObject::connect(&m_discoveryManager, &DiscoveryManager::execute,
                      [] (const QString& uid, const QString& projectPath) {
         ProjectManager::importProject(uid, projectPath);
-        ProjectManager::startProject(uid);
+        ProjectManager::startProject(ProjectManager::projectPath(uid));
+        DiscoveryManager::cleanExecutionCache();
     });
-
-    m_applicationWindow = new ApplicationWindow;
-    m_applicationWindow->show();
 }
 
 ApplicationCore::~ApplicationCore()
@@ -115,19 +117,16 @@ QVariantMap ApplicationCore::deviceInfo()
         return QVariantMap();
 
     static const QJsonObject info = {
-        {"buildCpuArchitecture", QSysInfo::buildCpuArchitecture()},
         {"currentCpuArchitecture", QSysInfo::currentCpuArchitecture()},
-        {"buildAbi", QSysInfo::buildAbi()},
         {"kernelType", QSysInfo::kernelType()},
         {"kernelVersion", QSysInfo::kernelVersion()},
-        {"productType", QSysInfo::productType()},
-        {"productVersion", QSysInfo::productVersion()},
         {"prettyProductName", QSysInfo::prettyProductName()},
-        {"machineHostName", QSysInfo::machineHostName()},
+        {"productType", QSysInfo::productType()},
         {"isEmulator", CrossPlatform::isEmulator()},
         {"deviceName", CrossPlatform::deviceName()},
         {"deviceUid", deviceUid()}
     };
+
     return info.toVariantMap();
 }
 

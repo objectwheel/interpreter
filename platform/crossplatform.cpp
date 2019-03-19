@@ -9,6 +9,10 @@
 #include <deviceinfo.h>
 #endif
 
+#if defined(Q_OS_MACOS)
+#include <deviceinfo.h>
+#endif
+
 namespace CrossPlatform {
 
 bool isAndroidEmulator()
@@ -50,6 +54,8 @@ QString deviceName()
                                                             "getDeviceName")).toString();
 #elif defined(Q_OS_IOS)
     static const QString deviceName = Ios::DeviceInfo::deviceName();
+#elif defined(Q_OS_MACOS)
+    static const QString deviceName = Macos::DeviceInfo::deviceName();
 #else
     static const QString deviceName = QObject::tr("Unknown");
 #endif

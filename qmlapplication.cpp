@@ -5,10 +5,11 @@
 #include <private/qjsengine_p.h>
 
 #include <QQmlContext>
-#include <QQmlProperty>
-#include <QCoreApplication>
-#include <QFileInfo>
 #include <QDebug>
+#include <QQmlProperty>
+#include <QFileInfo>
+#include <QWindow>
+#include <QGuiApplication>
 
 QmlApplication::QmlApplication(const QString& projectDirectory, QObject* parent) : QQmlEngine(parent)
   , m_rootObject(new QObject)
@@ -27,6 +28,7 @@ QmlApplication::~QmlApplication()
     QJSEnginePrivate::removeFromDebugServer(this);
     for (auto instance : m_instanceTree)
         instance.object->disconnect(this);
+    m_rootObject->disconnect(this);
     delete m_rootObject;
 }
 
@@ -64,17 +66,27 @@ void QmlApplication::run()
     // TODO: Apply other Ow™ kinda checks for project consistency
 
     // Create instances, handle parent-child relationship, set ids, save form instances
+    bool hasErrors = false;
     for (const QString& formPath : SaveUtils::formPaths(m_projectDirectory)) {
         const ControlInstance& formInstance = createInstance(formPath, ControlInstance());
-        if (!formInstance.object)
+        if (!formInstance.object) {
+            hasErrors = true;
             continue;
+        }
+
         m_instanceTree.insert(formPath, formInstance);
 
         for (const QString& childPath : SaveUtils::childrenPaths(formPath)) {
             const ControlInstance& parentInstance = m_instanceTree.value(SaveUtils::toParentDir(childPath));
-            const ControlInstance& childInstance = createInstance(childPath, parentInstance);
-            if (!childInstance.object)
+            if (!parentInstance.object)
                 continue;
+
+            const ControlInstance& childInstance = createInstance(childPath, parentInstance);
+            if (!childInstance.object) {
+                hasErrors = true;
+                continue;
+            }
+
             m_instanceTree.insert(childPath, childInstance);
         }
     }
@@ -84,6 +96,9 @@ void QmlApplication::run()
         instance.component->deleteLater();
         instance.component = nullptr;
     }
+
+    if (hasErrors)
+        emit exit(EXIT_FAILURE);
 }
 
 QmlApplication::ControlInstance QmlApplication::createInstance(const QString& dir,
@@ -127,6 +142,25 @@ QmlApplication::ControlInstance QmlApplication::createInstance(const QString& di
     }
 
     Q_ASSERT(object);
+
+    if (object->isWindowType()) {
+        auto window = qobject_cast<QWindow*>(object);
+        Q_ASSERT(window);
+        connect(window, &QWindow::visibleChanged, this, [=] {
+            bool lastWindowClosed = true;
+            for (const QWindow* w : QGuiApplication::topLevelWindows()) {
+                if (!w->isVisible()
+                        || w->transientParent()
+                        || w->type() == Qt::ToolTip
+                        || w->inherits("QWidgetWindow"))
+                    continue;
+                lastWindowClosed = false;
+                break;
+            }
+            if (lastWindowClosed)
+                emit quit();
+        }, Qt::QueuedConnection);
+    }
 
     if (SaveUtils::isForm(dir))
         rootContext()->setContextProperty(id, object);

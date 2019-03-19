@@ -10,9 +10,9 @@ class QmlApplication final : public QQmlEngine
     Q_DISABLE_COPY(QmlApplication)
 
     struct ControlInstance {
-        QObject* object;
-        QQmlContext* context;
-        QmlComponent* component;
+        QObject* object = nullptr;
+        QQmlContext* context = nullptr;
+        QmlComponent* component = nullptr;
     };
 
 public:

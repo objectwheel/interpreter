@@ -28,6 +28,9 @@ private:
     explicit ProjectManager(QObject* parent = nullptr);
     ~ProjectManager() override;
 
+signals:
+    void importProgress(int progress);
+
 private:
     static ProjectManager* s_instance;
     static QmlApplication* s_qmlApplication;

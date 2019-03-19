@@ -34,7 +34,7 @@ DiscoveryManager::DiscoveryManager(QObject* parent) : QObject(parent)
     });
     connect(s_webSocket, &QWebSocket::disconnected, this, &DiscoveryManager::start);
     connect(s_webSocket, &QWebSocket::disconnected, this, [=] {
-        cleanCache();
+        cleanExecutionCache();
         s_connected = false;
         emit disconnected();
     });
@@ -62,6 +62,17 @@ QUrl DiscoveryManager::hostAddressToUrl(const QHostAddress& address, int port)
         return QString("ws://[%1]:%2").arg(address.toString()).arg(port);
     else
         return QString("ws://%1:%2").arg(address.toString()).arg(port);
+}
+
+template<typename... Args>
+void DiscoveryManager::send(DiscoveryManager::DiscoveryCommands command, Args&&... args)
+{
+    using namespace UtilityFunctions;
+    if (!isConnected()) {
+        qWarning("WARNING: Cannot send any data since there is no active connection");
+        return;
+    }
+    s_webSocket->sendBinaryMessage(push(command, push(std::forward<Args>(args)...)));
 }
 
 DiscoveryManager* DiscoveryManager::instance()
@@ -93,17 +104,24 @@ void DiscoveryManager::setDisabled(bool disabled)
     }
 }
 
-void DiscoveryManager::scheduleStartReport()
+void DiscoveryManager::cleanExecutionCache()
+{
+    if (s_cacheFile)
+        delete s_cacheFile;
+    s_cacheFile = nullptr;
+}
+
+void DiscoveryManager::sendStartReport()
 {
     DiscoveryManager::send(DiscoveryManager::StartReport);
 }
 
-void DiscoveryManager::scheduleFinishReport(int exitCode)
+void DiscoveryManager::sendFinishReport(int exitCode)
 {
     DiscoveryManager::send(DiscoveryManager::FinishReport, exitCode);
 }
 
-void DiscoveryManager::scheduleOutputReport(const QString& output)
+void DiscoveryManager::sendOutputReport(const QString& output)
 {
     DiscoveryManager::send(DiscoveryManager::OutputReport, output);
 }
@@ -160,12 +178,13 @@ void DiscoveryManager::onBinaryMessageReceived(const QByteArray& incomingData)
     switch (command) {
     case Execute: {
         QString projectUid;
+        int progress;
         qint64 pos;
         QByteArray chunkData;
-        pull(data, projectUid, pos, chunkData);
+        pull(data, projectUid, progress, pos, chunkData);
 
         if (pos == 0) {
-            cleanCache();
+            cleanExecutionCache();
             s_cacheFile = new QTemporaryFile(this);
             if (!s_cacheFile->open()) {
                 qFatal("CRITICAL: Cannot create a temporary file");
@@ -181,31 +200,25 @@ void DiscoveryManager::onBinaryMessageReceived(const QByteArray& incomingData)
         s_cacheFile->seek(pos);
         s_cacheFile->write(chunkData);
 
+        emit downloadProgress(progress);
+
         if (!projectUid.isEmpty()) { // EOF
             s_cacheFile->close();
             emit execute(projectUid, s_cacheFile->fileName());
-            cleanCache();
         }
 
         break;
     }
 
     case Terminate: {
-        cleanCache();
+        cleanExecutionCache();
         emit terminate();
         break;
     }
 
     default:
-        cleanCache();
+        cleanExecutionCache();
         qWarning("DiscoveryManager: Unrecognized command has arrived");
         break;
     }
-}
-
-void DiscoveryManager::cleanCache()
-{
-    if (s_cacheFile)
-        delete s_cacheFile;
-    s_cacheFile = nullptr;
 }

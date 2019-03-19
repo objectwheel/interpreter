@@ -3,7 +3,6 @@
 #include <qmlapplication.h>
 #include <discoverymanager.h>
 #include <saveutils.h>
-#include <iostream>
 
 #include <QStandardPaths>
 #include <QFileInfo>
@@ -71,8 +70,8 @@ void ProjectManager::startProject(const QString& projectDirectory)
                     std::bind(&ProjectManager::terminateProject, 0));
     QObject::connect(s_qmlApplication, &QmlApplication::exit,
                      &ProjectManager::terminateProject);
+    DiscoveryManager::sendStartReport();
     s_qmlApplication->run();
-    DiscoveryManager::scheduleStartReport();
 }
 
 void ProjectManager::terminateProject(int retCode)
@@ -83,13 +82,16 @@ void ProjectManager::terminateProject(int retCode)
     s_currentProjectUid.clear();
     qInstallMessageHandler(nullptr);
 
-    delete s_qmlApplication;
+    // Workaround: If we don't do this, the windows on
+    // QmlApplication will also emit lastWindowClosed
+    // when they are deleted, so this will be recalled
+    auto qmlApp = s_qmlApplication;
     s_qmlApplication = nullptr;
-    DiscoveryManager::scheduleFinishReport(retCode);
+    delete qmlApp;
+    DiscoveryManager::sendFinishReport(retCode);
 }
 
 void ProjectManager::messageHandler(QtMsgType, const QMessageLogContext&, const QString& output)
 {
-    DiscoveryManager::scheduleOutputReport(output);
-    std::cerr << output.toStdString();
+    DiscoveryManager::sendOutputReport(output);
 }
