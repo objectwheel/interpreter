@@ -10,7 +10,9 @@
 #include <QDebug>
 #include <QTimer>
 
-ApplicationCore::ApplicationCore() : m_globalResources(&CommandlineParser::projectDirectory)
+ApplicationCore::ApplicationCore()
+    : m_globalResources(&CommandlineParser::projectDirectory)
+    , m_qmlApplication(CommandlineParser::projectDirectory())
 {
     // Initialize application
     QApplication::setOrganizationName("Objectwheel");
@@ -28,19 +30,14 @@ ApplicationCore::ApplicationCore() : m_globalResources(&CommandlineParser::proje
 
     // Connections
     QObject::connect(&m_qmlApplication, &QmlApplication::quit,
-            QCoreApplication::instance(), &QCoreApplication::quit);
+            QCoreApplication::instance(), &QCoreApplication::quit, Qt::QueuedConnection);
     QObject::connect(&m_qmlApplication, &QmlApplication::exit,
-            QCoreApplication::instance(), &QCoreApplication::exit);
-    QObject::connect(&m_qmlApplication, &QmlApplication::error, [=] (const QString& errorString) {
-        qWarning().noquote() << errorString.trimmed();
-        qInstallMessageHandler([] (QtMsgType, const QMessageLogContext&, const QString&) {});
-        QTimer::singleShot(0, std::bind(&QCoreApplication::exit, EXIT_FAILURE));
-    });
+            QCoreApplication::instance(), &QCoreApplication::exit, Qt::QueuedConnection);
 }
 
 void ApplicationCore::run()
 {
-    m_qmlApplication.run(CommandlineParser::projectDirectory());
+    m_qmlApplication.run();
 }
 
 void ApplicationCore::prepare()

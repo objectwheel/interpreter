@@ -72,3 +72,9 @@ QObject* QmlComponent::beginCreate(QQmlContext* publicContext)
 
     return d->beginCreate(context);
 }
+
+bool QmlComponent::isCompletePending() const
+{
+    Q_D(const QmlComponent);
+    return d->state.completePending;
+}
