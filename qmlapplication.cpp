@@ -50,16 +50,19 @@ void QmlApplication::run()
 {
     if (m_projectDirectory.isEmpty()) {
         qWarning("WARNING: Project directory cannot be empty");
+        emit exit(EXIT_FAILURE);
         return;
     }
 
     if (!QFileInfo::exists(m_projectDirectory)) {
         qWarning("WARNING: Project directory doesn't exist");
+        emit exit(EXIT_FAILURE);
         return;
     }
 
     if (QFileInfo(m_projectDirectory).isFile()) {
         qWarning("WARNING: Project directory cannot point out to a file");
+        emit exit(EXIT_FAILURE);
         return;
     }
 

@@ -67,10 +67,15 @@ ApplicationCore::ApplicationCore()
 
     QObject::connect(qApp, &QApplication::lastWindowClosed,
                      std::bind(&ProjectManager::terminateProject, 0));
+    QObject::connect(qApp, &QApplication::lastWindowClosed,
+                     m_applicationWindow, &ApplicationWindow::show);
     QObject::connect(&m_discoveryManager, &DiscoveryManager::terminate,
                      std::bind(&ProjectManager::terminateProject, 0));
+    QObject::connect(&m_discoveryManager, &DiscoveryManager::terminate,
+                     m_applicationWindow, &ApplicationWindow::show);
     QObject::connect(&m_discoveryManager, &DiscoveryManager::execute,
-                     [] (const QString& uid, const QString& projectPath) {
+                     [=] (const QString& uid, const QString& projectPath) {
+        m_applicationWindow->hide();
         ProjectManager::importProject(uid, projectPath);
         ProjectManager::startProject(ProjectManager::projectPath(uid));
         DiscoveryManager::cleanExecutionCache();

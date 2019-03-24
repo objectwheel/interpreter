@@ -27,7 +27,8 @@ SOURCES += $$PWD/main.cpp \
            $$PWD/connectionstatuswidget.cpp \
            $$PWD/connectivitywidget.cpp \
            $$PWD/utilityfunctions.cpp \
-           $$PWD/projectmanager.cpp
+           $$PWD/projectmanager.cpp \
+           $$PWD/quitbutton.cpp
 
 HEADERS += $$PWD/qmlapplication.h \
            $$PWD/applicationcore.h \
@@ -43,7 +44,8 @@ HEADERS += $$PWD/qmlapplication.h \
            $$PWD/connectionstatuswidget.h \
            $$PWD/connectivitywidget.h \
            $$PWD/utilityfunctions.h \
-           $$PWD/projectmanager.h
+           $$PWD/projectmanager.h \
+           $$PWD/quitbutton.h
 
 ### Includes
 include($$PWD/resources/resources.pri)

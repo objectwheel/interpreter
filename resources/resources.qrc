@@ -22,5 +22,6 @@
         <file>images/stack.svg</file>
         <file>images/wrench.svg</file>
         <file>images/quit.svg</file>
+        <file>images/quitbutton.svg</file>
     </qresource>
 </RCC>
