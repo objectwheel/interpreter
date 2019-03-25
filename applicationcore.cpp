@@ -67,20 +67,31 @@ ApplicationCore::ApplicationCore()
 
     QObject::connect(qApp, &QApplication::lastWindowClosed,
                      std::bind(&ProjectManager::terminateProject, 0));
-    QObject::connect(qApp, &QApplication::lastWindowClosed,
-                     m_applicationWindow, &ApplicationWindow::show);
     QObject::connect(&m_discoveryManager, &DiscoveryManager::terminate,
                      std::bind(&ProjectManager::terminateProject, 0));
-    QObject::connect(&m_discoveryManager, &DiscoveryManager::terminate,
+    QObject::connect(&m_projectManager, &ProjectManager::finished,
+                     DiscoveryManager::instance(), &DiscoveryManager::sendFinishReport);
+    QObject::connect(&m_projectManager, &ProjectManager::finished,
                      m_applicationWindow, &ApplicationWindow::show);
     QObject::connect(&m_discoveryManager, &DiscoveryManager::execute,
-                     [=] (const QString& uid, const QString& projectPath) {
-        m_applicationWindow->hide();
-
-        ProjectManager::importProject(uid, projectPath);
-        ProjectManager::startProject(ProjectManager::projectPath(uid));
-        DiscoveryManager::cleanExecutionCache();
-
+                     ProjectManager::instance(), &ProjectManager::importProject);
+    QObject::connect(&m_projectManager, &ProjectManager::importProgress,
+                     DiscoveryManager::instance(), &DiscoveryManager::sendUnzipProgressReport);
+    QObject::connect(&m_projectManager, &ProjectManager::readyOutput,
+                     DiscoveryManager::instance(), &DiscoveryManager::sendOutputReport);
+    QObject::connect(&m_projectManager, &ProjectManager::importError,
+                     DiscoveryManager::instance(), &DiscoveryManager::cleanExecutionCache);
+    QObject::connect(&m_projectManager, &ProjectManager::importError,
+                      DiscoveryManager::instance(), &DiscoveryManager::sendErrorReport);
+    QObject::connect(&m_projectManager, &ProjectManager::imported,
+                     DiscoveryManager::instance(), &DiscoveryManager::cleanExecutionCache);
+    QObject::connect(&m_projectManager, &ProjectManager::imported,
+                     m_applicationWindow, &ApplicationWindow::hide);
+    QObject::connect(&m_projectManager, &ProjectManager::imported,
+                     ProjectManager::instance(), &ProjectManager::startProject);
+    QObject::connect(&m_projectManager, &ProjectManager::aboutToStart,
+                     DiscoveryManager::instance(), &DiscoveryManager::sendStartReport);
+    QObject::connect(&m_projectManager, &ProjectManager::aboutToStart, m_quitButton, [=] {
         m_quitButton->setPosition(10, 10);
         m_quitButton->show();
         m_quitButton->raise();

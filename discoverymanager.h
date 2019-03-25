@@ -32,7 +32,9 @@ public:
         InfoReport,
         StartReport,
         OutputReport,
-        FinishReport
+        FinishReport,
+        UnzipProgressReport,
+        ErrorReport
     };
 
 public:
@@ -45,7 +47,9 @@ public slots:
     static void cleanExecutionCache();
     static void sendStartReport();
     static void sendFinishReport(int exitCode);
+    static void sendUnzipProgressReport(int progress);
     static void sendOutputReport(const QString& output);
+    static void sendErrorReport(const QString& errorString);
 
 private slots:
     void start();

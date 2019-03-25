@@ -121,9 +121,19 @@ void DiscoveryManager::sendFinishReport(int exitCode)
     DiscoveryManager::send(DiscoveryManager::FinishReport, exitCode);
 }
 
+void DiscoveryManager::sendUnzipProgressReport(int progress)
+{
+    DiscoveryManager::send(DiscoveryManager::UnzipProgressReport, progress);
+}
+
 void DiscoveryManager::sendOutputReport(const QString& output)
 {
     DiscoveryManager::send(DiscoveryManager::OutputReport, output);
+}
+
+void DiscoveryManager::sendErrorReport(const QString& errorString)
+{
+    DiscoveryManager::send(DiscoveryManager::ErrorReport, errorString);
 }
 
 void DiscoveryManager::start()
