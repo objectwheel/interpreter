@@ -3,14 +3,25 @@
 #include <QBackingStore>
 #include <QResizeEvent>
 #include <QSvgRenderer>
+#include <QApplication>
+#include <QScreen>
 
 QuitButton::QuitButton(QWindow* parent) : QWindow(parent)
+  , m_pressX(0)
+  , m_pressY(0)
+  , m_moved(false)
+  , m_pressed(false)
   , m_backingStore(new QBackingStore(this))
   , m_svgRenderer(new QSvgRenderer(QString(":/images/quitbutton.svg"), this))
-  , m_pressed(false)
 {
     setParent(parent);
-    resize({32, 32});
+    resize({48, 48});
+    setFlags(Qt::Tool
+             | Qt::FramelessWindowHint
+             | Qt::WindowDoesNotAcceptFocus
+             | Qt::WindowStaysOnTopHint
+             | Qt::BypassWindowManagerHint
+             | Qt::NoDropShadowWindowHint);
 }
 
 void QuitButton::update()
@@ -61,33 +72,49 @@ void QuitButton::exposeEvent(QExposeEvent* event)
 void QuitButton::mousePressEvent(QMouseEvent* event)
 {
     m_pressed = true;
-    m_pressX = event->x();
-    m_pressY = event->y();
-    update();
+    m_moved = false;
+    m_pressX = event->globalX() - x();
+    m_pressY = event->globalY() - y();
+    repaint();
     QWindow::mousePressEvent(event);
 }
 
 void QuitButton::mouseMoveEvent(QMouseEvent* event)
 {
-    if (m_pressed)
-        setPosition(event->globalX() - m_pressX, event->globalY() - m_pressY);
+    if (m_pressed) {
+        QPoint startPos(m_pressX, m_pressY);
+        QPoint currentPos(event->globalX(), event->globalY());
+        if ((startPos - currentPos).manhattanLength() >=
+                QApplication::startDragDistance()) {
+            m_moved = true;
+            QPoint nextPos = currentPos - startPos;
+            if (nextPos.x() < 0)
+                nextPos.setX(0);
+            if (nextPos.y() < 0)
+                nextPos.setY(0);
+            if (nextPos.x() > screen()->availableGeometry().width() - width())
+                nextPos.setX(screen()->availableGeometry().width() - width());
+            if (nextPos.y() > screen()->availableGeometry().height() - height())
+                nextPos.setY(screen()->availableGeometry().height() - height());
+            setPosition(nextPos);
+            repaint();
+        }
+    }
     QWindow::mouseMoveEvent(event);
 }
 
 void QuitButton::mouseReleaseEvent(QMouseEvent* event)
 {
     m_pressed = false;
-    update();
+    repaint();
+    if (!m_moved)
+        emit clicked();
     QWindow::mouseReleaseEvent(event);
 }
 
-void QuitButton::paintEvent(QPainter *painter)
+void QuitButton::paintEvent(QPainter* painter)
 {
     painter->setRenderHint(QPainter::Antialiasing);
-    if (m_pressed)
-        painter->setOpacity(1);
-    else
-        painter->setOpacity(0.5);
-    int length = qMin(width(), height());
-    m_svgRenderer->render(painter, QRectF(width() / 2.0 - length / 2.0, height() / 2.0 - length / 2.0, length, length));
+    qreal length = qMin(width(), height()) - 0.5;
+    m_svgRenderer->render(painter, {(width() - length) / 2, (height() - length) / 2, length, length});
 }

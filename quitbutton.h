@@ -26,12 +26,16 @@ private:
     void mouseReleaseEvent(QMouseEvent* event) override;
     void paintEvent(QPainter* painter);
 
+signals:
+    void clicked();
+
 private:
-    QBackingStore* m_backingStore;
-    QSvgRenderer* m_svgRenderer;
-    bool m_pressed;
     int m_pressX;
     int m_pressY;
+    bool m_moved;
+    bool m_pressed;
+    QBackingStore* m_backingStore;
+    QSvgRenderer* m_svgRenderer;
 };
 
 #endif // QUITBUTTON_H

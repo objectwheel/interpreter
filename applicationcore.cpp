@@ -7,6 +7,7 @@
 #include <applicationwindow.h>
 #include <crossplatform.h>
 #include <hashfactory.h>
+#include <quitbutton.h>
 
 #include <QApplication>
 #include <QDebug>
@@ -15,7 +16,6 @@
 #include <QJsonObject>
 
 ApplicationCore* ApplicationCore::s_instance = nullptr;
-
 ApplicationCore::ApplicationCore()
     : m_globalResources([] { return ProjectManager::projectPath(ProjectManager::currentProjectUid()); })
 {
@@ -76,14 +76,26 @@ ApplicationCore::ApplicationCore()
     QObject::connect(&m_discoveryManager, &DiscoveryManager::execute,
                      [=] (const QString& uid, const QString& projectPath) {
         m_applicationWindow->hide();
+
         ProjectManager::importProject(uid, projectPath);
         ProjectManager::startProject(ProjectManager::projectPath(uid));
         DiscoveryManager::cleanExecutionCache();
+
+        m_quitButton->setPosition(10, 10);
+        m_quitButton->show();
+        m_quitButton->raise();
     });
+
+    m_quitButton = new QuitButton;
+    QObject::connect(m_quitButton, &QuitButton::clicked,
+                     m_quitButton, &QuitButton::hide);
+    QObject::connect(m_quitButton, &QuitButton::clicked,
+                     std::bind(&ProjectManager::terminateProject, 0));
 }
 
 ApplicationCore::~ApplicationCore()
 {
+    delete m_quitButton;
     delete m_applicationWindow;
     s_instance = nullptr;
 }

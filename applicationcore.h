@@ -7,6 +7,7 @@
 #include <QSettings>
 
 class ApplicationWindow;
+class QuitButton;
 
 class ApplicationCore final
 {
@@ -27,6 +28,7 @@ private:
     GlobalResources m_globalResources;
     DiscoveryManager m_discoveryManager;
     ApplicationWindow* m_applicationWindow;
+    QuitButton* m_quitButton;
 
 public:
     ApplicationCore(const ApplicationCore&) = delete;
