@@ -22,6 +22,11 @@ ApplicationWindow::ApplicationWindow(QWidget* parent) : QMainWindow(parent)
             QCoreApplication::instance(), &QCoreApplication::quit);
 }
 
+CentralWidget* ApplicationWindow::centralWidget() const
+{
+    return m_centralWidget;
+}
+
 QSize ApplicationWindow::sizeHint() const
 {
     return {342, 608};

@@ -17,6 +17,7 @@ class ApplicationWindow : public QMainWindow
 
 public:
     explicit ApplicationWindow(QWidget* parent = nullptr);
+    CentralWidget* centralWidget() const;
 
 protected:
     QSize sizeHint() const override;

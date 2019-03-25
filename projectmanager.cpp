@@ -16,8 +16,8 @@ ProjectManager::ProjectManager(QObject* parent) : QObject(parent)
 {
     s_instance = this;
 
-    QObject::connect(&s_zipWatcher, &QFutureWatcherBase::progressValueChanged, this, [=]
-    { emit importProgress(s_zipWatcher.progressValue()); });
+    QObject::connect(&s_zipWatcher, &QFutureWatcherBase::progressValueChanged,
+                     this, &ProjectManager::importProgress);
 
     QObject::connect(&s_zipWatcher, &QFutureWatcherBase::finished, this, [=]
     {

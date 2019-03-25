@@ -33,7 +33,8 @@ public:
         StartReport,
         OutputReport,
         FinishReport,
-        UnzipProgressReport,
+        ProgressReport,
+        UploadStarted,
         ErrorReport
     };
 
@@ -47,7 +48,7 @@ public slots:
     static void cleanExecutionCache();
     static void sendStartReport();
     static void sendFinishReport(int exitCode);
-    static void sendUnzipProgressReport(int progress);
+    static void sendProgressReport(int progress);
     static void sendOutputReport(const QString& output);
     static void sendErrorReport(const QString& errorString);
 
@@ -74,6 +75,7 @@ signals:
     void disconnected();
     void terminate();
     void execute(const QString& uid, const QString& projectPath);
+    void downloadStarted();
     void downloadProgress(int progress);
 
 private:

@@ -7,13 +7,18 @@
 #include <applicationwindow.h>
 #include <crossplatform.h>
 #include <hashfactory.h>
-#include <quitbutton.h>
+#include <centralwidget.h>
+#include <progressbar.h>
 
 #include <QApplication>
 #include <QDebug>
 #include <QTimer>
 #include <QFontDatabase>
 #include <QJsonObject>
+
+#if defined(Q_OS_IOS) || defined(Q_OS_ANDROID)
+#include <quitbutton.h>
+#endif
 
 ApplicationCore* ApplicationCore::s_instance = nullptr;
 ApplicationCore::ApplicationCore()
@@ -63,12 +68,19 @@ ApplicationCore::ApplicationCore()
     Components::init();
 
     m_applicationWindow = new ApplicationWindow;
+#if defined(Q_OS_IOS) || defined(Q_OS_ANDROID)
+    m_quitButton = new QuitButton;
+#endif
     m_applicationWindow->show();
 
     QObject::connect(qApp, &QApplication::lastWindowClosed,
                      std::bind(&ProjectManager::terminateProject, 0));
     QObject::connect(&m_discoveryManager, &DiscoveryManager::terminate,
                      std::bind(&ProjectManager::terminateProject, 0));
+    QObject::connect(&m_discoveryManager, &DiscoveryManager::downloadStarted,
+                     m_applicationWindow->centralWidget()->progressBar(), &ProgressBar::show);
+    QObject::connect(&m_discoveryManager, &DiscoveryManager::downloadProgress, m_applicationWindow, [=] (int p)
+    { m_applicationWindow->centralWidget()->progressBar()->setValue(p * 0.66); });
     QObject::connect(&m_projectManager, &ProjectManager::finished,
                      DiscoveryManager::instance(), &DiscoveryManager::sendFinishReport);
     QObject::connect(&m_projectManager, &ProjectManager::finished,
@@ -76,9 +88,17 @@ ApplicationCore::ApplicationCore()
     QObject::connect(&m_discoveryManager, &DiscoveryManager::execute,
                      ProjectManager::instance(), &ProjectManager::importProject);
     QObject::connect(&m_projectManager, &ProjectManager::importProgress,
-                     DiscoveryManager::instance(), &DiscoveryManager::sendUnzipProgressReport);
+                     DiscoveryManager::instance(), &DiscoveryManager::sendProgressReport);
+    QObject::connect(&m_projectManager, &ProjectManager::importProgress, m_applicationWindow, [=] (int p)
+    {
+        m_applicationWindow->centralWidget()->progressBar()->setValue(67 + p / 3);
+        if (p == 100)
+            qApp->processEvents();
+    });
     QObject::connect(&m_projectManager, &ProjectManager::readyOutput,
                      DiscoveryManager::instance(), &DiscoveryManager::sendOutputReport);
+    QObject::connect(&m_projectManager, &ProjectManager::importError,
+                     m_applicationWindow->centralWidget()->progressBar(), &ProgressBar::hide);
     QObject::connect(&m_projectManager, &ProjectManager::importError,
                      DiscoveryManager::instance(), &DiscoveryManager::cleanExecutionCache);
     QObject::connect(&m_projectManager, &ProjectManager::importError,
@@ -90,23 +110,27 @@ ApplicationCore::ApplicationCore()
     QObject::connect(&m_projectManager, &ProjectManager::imported,
                      ProjectManager::instance(), &ProjectManager::startProject);
     QObject::connect(&m_projectManager, &ProjectManager::aboutToStart,
+                     m_applicationWindow->centralWidget()->progressBar(), &ProgressBar::hide);
+    QObject::connect(&m_projectManager, &ProjectManager::aboutToStart,
                      DiscoveryManager::instance(), &DiscoveryManager::sendStartReport);
+#if defined(Q_OS_IOS) || defined(Q_OS_ANDROID)
     QObject::connect(&m_projectManager, &ProjectManager::aboutToStart, m_quitButton, [=] {
         m_quitButton->setPosition(10, 10);
         m_quitButton->show();
         m_quitButton->raise();
     });
-
-    m_quitButton = new QuitButton;
     QObject::connect(m_quitButton, &QuitButton::clicked,
                      m_quitButton, &QuitButton::hide);
     QObject::connect(m_quitButton, &QuitButton::clicked,
                      std::bind(&ProjectManager::terminateProject, 0));
+#endif
 }
 
 ApplicationCore::~ApplicationCore()
 {
+#if defined(Q_OS_IOS) || defined(Q_OS_ANDROID)
     delete m_quitButton;
+#endif
     delete m_applicationWindow;
     s_instance = nullptr;
 }

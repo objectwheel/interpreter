@@ -113,27 +113,27 @@ void DiscoveryManager::cleanExecutionCache()
 
 void DiscoveryManager::sendStartReport()
 {
-    DiscoveryManager::send(DiscoveryManager::StartReport);
+    send(DiscoveryManager::StartReport);
 }
 
 void DiscoveryManager::sendFinishReport(int exitCode)
 {
-    DiscoveryManager::send(DiscoveryManager::FinishReport, exitCode);
+    send(DiscoveryManager::FinishReport, exitCode);
 }
 
-void DiscoveryManager::sendUnzipProgressReport(int progress)
+void DiscoveryManager::sendProgressReport(int progress)
 {
-    DiscoveryManager::send(DiscoveryManager::UnzipProgressReport, progress);
+    send(DiscoveryManager::ProgressReport, progress);
 }
 
 void DiscoveryManager::sendOutputReport(const QString& output)
 {
-    DiscoveryManager::send(DiscoveryManager::OutputReport, output);
+    send(DiscoveryManager::OutputReport, output);
 }
 
 void DiscoveryManager::sendErrorReport(const QString& errorString)
 {
-    DiscoveryManager::send(DiscoveryManager::ErrorReport, errorString);
+    send(DiscoveryManager::ErrorReport, errorString);
 }
 
 void DiscoveryManager::start()
@@ -210,13 +210,25 @@ void DiscoveryManager::onBinaryMessageReceived(const QByteArray& incomingData)
         s_cacheFile->seek(pos);
         s_cacheFile->write(chunkData);
 
-        emit downloadProgress(progress);
+        emit downloadProgress(50 + progress / 2);
 
         if (!projectUid.isEmpty()) { // EOF
             s_cacheFile->close();
             emit execute(projectUid, s_cacheFile->fileName());
         }
 
+        break;
+    }
+
+    case ProgressReport: {
+        int progress;
+        UtilityFunctions::pull(data, progress);
+        emit downloadProgress(progress / 2);
+        break;
+    }
+
+    case UploadStarted: {
+        emit downloadStarted();
         break;
     }
 

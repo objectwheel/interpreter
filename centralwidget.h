@@ -9,12 +9,14 @@ class ConnectivityWidget;
 class QLabel;
 class QPushButton;
 class QScrollArea;
+class ProgressBar;
 
 class CentralWidget : public QWidget
 {
     Q_OBJECT
 public:
     explicit CentralWidget(QWidget* parent = nullptr);
+    ProgressBar* progressBar() const;
 
 signals:
     void infoButtonClicked();
@@ -29,6 +31,7 @@ private:
     ConnectivityWidget* m_connectivityWidget;
     QLabel* m_titleLabel;
     QLabel* m_versionLabel;
+    ProgressBar* m_progressBar;
     QHBoxLayout* m_scrollAreaLayout;
     QScrollArea* m_buttonsScrollArea;
     QVBoxLayout* m_buttonLayout;

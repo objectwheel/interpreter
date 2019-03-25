@@ -6,9 +6,11 @@
 #include <discoverymanager.h>
 #include <QSettings>
 
-class ApplicationWindow;
+#if defined(Q_OS_IOS) || defined(Q_OS_ANDROID)
 class QuitButton;
+#endif
 
+class ApplicationWindow;
 class ApplicationCore final
 {
 public:
@@ -28,7 +30,10 @@ private:
     GlobalResources m_globalResources;
     DiscoveryManager m_discoveryManager;
     ApplicationWindow* m_applicationWindow;
+
+#if defined(Q_OS_IOS) || defined(Q_OS_ANDROID)
     QuitButton* m_quitButton;
+#endif
 
 public:
     ApplicationCore(const ApplicationCore&) = delete;

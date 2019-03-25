@@ -1,6 +1,7 @@
 #include <centralwidget.h>
 #include <connectivitywidget.h>
 #include <discoverymanager.h>
+#include <progressbar.h>
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -55,6 +56,7 @@ CentralWidget::CentralWidget(QWidget* parent) : QWidget(parent)
   , m_connectivityWidget(new ConnectivityWidget(this))
   , m_titleLabel(new QLabel(this))
   , m_versionLabel(new QLabel(this))
+  , m_progressBar(new ProgressBar(this))
   , m_scrollAreaLayout(new QHBoxLayout)
   , m_buttonsScrollArea(new QScrollArea(this))
   , m_buttonLayout(new QVBoxLayout(new QWidget(m_buttonsScrollArea)))
@@ -71,6 +73,8 @@ CentralWidget::CentralWidget(QWidget* parent) : QWidget(parent)
     m_layout->addWidget(m_titleLabel, 0, Qt::AlignHCenter);
     m_layout->addWidget(m_versionLabel, 0, Qt::AlignHCenter);
     m_layout->addStretch();
+    m_layout->addWidget(m_progressBar, 0, Qt::AlignHCenter);
+    m_layout->addSpacing(6);
     m_layout->addLayout(m_scrollAreaLayout);
     m_layout->addStretch();
     m_layout->addWidget(m_infoButton, 0, Qt::AlignHCenter);
@@ -101,13 +105,15 @@ CentralWidget::CentralWidget(QWidget* parent) : QWidget(parent)
 
     QFont font;
     font.setPixelSize(16);
-    font.setWeight(QFont::Normal);
     m_titleLabel->setFont(font);
     m_titleLabel->setText(tr("Objectwheel Interpreter"));
 
     font.setPixelSize(13);
     m_versionLabel->setFont(font);
     m_versionLabel->setText("v1.2");
+
+    m_progressBar->hide();
+    m_progressBar->setFixedWidth(100);
 
     m_connectivityWidget->setState(ConnectivityWidget::Searching);
     connect(DiscoveryManager::instance(), &DiscoveryManager::connected, this, [=] {
@@ -192,4 +198,9 @@ CentralWidget::CentralWidget(QWidget* parent) : QWidget(parent)
     m_infoButton->setIcon(QIcon(":/images/info.svg"));
     connect(m_infoButton, &QPushButton::clicked,
             this, &CentralWidget::infoButtonClicked);
+}
+
+ProgressBar* CentralWidget::progressBar() const
+{
+    return m_progressBar;
 }
