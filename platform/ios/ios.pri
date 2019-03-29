@@ -1,4 +1,9 @@
-DEPENDPATH  += $$PWD
-INCLUDEPATH += $$PWD
-HEADERS     += $$PWD/deviceinfo.h
-SOURCES     += $$PWD/deviceinfo.mm
+DEPENDPATH      += $$PWD
+INCLUDEPATH     += $$PWD
+QMAKE_INFO_PLIST = $$PWD/Info.plist
+
+HEADERS         += $$PWD/deviceinfo.h \
+                   $$PWD/windowoperations.h
+
+SOURCES         += $$PWD/deviceinfo.mm \
+                   $$PWD/windowoperations.mm

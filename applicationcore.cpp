@@ -30,7 +30,7 @@ ApplicationCore::ApplicationCore()
     for (const QString& fontName : lsfile(QLatin1String(":/fonts")))
         QFontDatabase::addApplicationFont(QLatin1String(":/fonts") + separator() + fontName);
 
-#if defined(Q_OS_MACOS)
+#if defined(Q_OS_MACOS) || defined(Q_OS_IOS)
     QFont font(".SF NS Display");
 #elif defined(Q_OS_WIN)
     QFont font("Segoe UI");
@@ -79,6 +79,10 @@ ApplicationCore::ApplicationCore()
                      DiscoveryManager::instance(), &DiscoveryManager::sendFinishReport);
     QObject::connect(&m_projectManager, &ProjectManager::finished,
                      m_applicationWindow, &ApplicationWindow::show);
+#if defined(Q_OS_IOS) || defined(Q_OS_ANDROID)
+    QObject::connect(&m_projectManager, &ProjectManager::finished,
+                     m_quitButton, &QuitButton::hide, Qt::QueuedConnection);
+#endif
     QObject::connect(&m_discoveryManager, &DiscoveryManager::execute,
                      ProjectManager::instance(), &ProjectManager::importProject);
     QObject::connect(&m_projectManager, &ProjectManager::importProgress,
@@ -102,28 +106,35 @@ ApplicationCore::ApplicationCore()
     QObject::connect(&m_projectManager, &ProjectManager::imported,
                      &ApplicationCore::setRecentProjectUid);
     QObject::connect(&m_projectManager, &ProjectManager::imported, [=] (const QString& uid) {
+        m_applicationWindow->centralWidget()->progressBar()->hide();
         m_applicationWindow->activateWindow(); // Make qml window activated after the app window hidden
         m_applicationWindow->raise();
         if (m_applicationWindow->mayThemeChange(uid))
-            return;
+            return DiscoveryManager::sendFinishReport(0);
         m_applicationWindow->hide();
         m_projectManager.startProject(uid);
     });
-    QObject::connect(&m_projectManager, &ProjectManager::aboutToStart,
-                     m_applicationWindow->centralWidget()->progressBar(), &ProgressBar::hide);
     QObject::connect(&m_projectManager, &ProjectManager::aboutToStart,
                      DiscoveryManager::instance(), &DiscoveryManager::sendStartReport);
 
 #if defined(Q_OS_IOS) || defined(Q_OS_ANDROID)
     QObject::connect(&m_projectManager, &ProjectManager::aboutToStart, m_quitButton, [=] {
-        m_quitButton->setPosition(10, 10);
+#if defined(Q_OS_IOS)
+        m_quitButton->move(10, 30);
+#else
+        m_quitButton->move(10, 10);
+#endif
         m_quitButton->show();
         m_quitButton->raise();
     }, Qt::QueuedConnection);
+
     QObject::connect(m_quitButton, &QuitButton::clicked,
-                     m_quitButton, &QuitButton::hide);
-    QObject::connect(m_quitButton, &QuitButton::clicked,
-                     std::bind(&ProjectManager::terminateProject, 0));
+                     m_quitButton, [=] {
+        if (!m_quitButton->isMoved()) {
+            m_quitButton->hide();
+            ProjectManager::terminateProject();
+        }
+    });
 #endif
 }
 

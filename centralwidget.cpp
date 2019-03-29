@@ -78,7 +78,8 @@ CentralWidget::CentralWidget(QWidget* parent) : QWidget(parent)
     m_layout->addSpacing(6);
     m_layout->addLayout(m_scrollAreaLayout);
     m_layout->addStretch();
-    m_layout->addWidget(m_infoButton, 0, Qt::AlignHCenter);
+    // TODO: m_layout->addWidget(m_infoButton, 0, Qt::AlignHCenter);
+    m_infoButton->hide();
 
     m_scrollAreaLayout->setSpacing(6);
     m_scrollAreaLayout->setContentsMargins(0, 0, 0, 0);
@@ -98,6 +99,10 @@ CentralWidget::CentralWidget(QWidget* parent) : QWidget(parent)
     m_buttonLayout->addWidget(m_quitButton);
 
     QScroller::grabGesture(m_buttonsScrollArea, QScroller::LeftMouseButtonGesture);
+    m_buttonsScrollArea->setFocusPolicy(Qt::NoFocus);
+    m_buttonsScrollArea->viewport()->setFocusPolicy(Qt::NoFocus);
+    m_buttonsScrollArea->setAttribute(Qt::WA_MacShowFocusRect, false);
+    m_buttonsScrollArea->viewport()->setAttribute(Qt::WA_MacShowFocusRect, false);
     m_buttonsScrollArea->setWidget(m_buttonLayout->parentWidget());
     m_buttonsScrollArea->setMaximumWidth(260);
     m_buttonsScrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -118,7 +123,6 @@ CentralWidget::CentralWidget(QWidget* parent) : QWidget(parent)
     m_versionLabel->setText("v1.2");
 
     m_progressBar->hide();
-    m_progressBar->setFixedWidth(100);
 
     m_connectivityWidget->setState(ConnectivityWidget::Searching);
     connect(DiscoveryManager::instance(), &DiscoveryManager::connected, this, [=] {

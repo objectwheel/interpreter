@@ -7,8 +7,12 @@
 #include <quicktheme.h>
 #include <crossplatform.h>
 
-#include <QCoreApplication>
+#include <QApplication>
 #include <QMessageBox>
+
+#if defined(Q_OS_IOS)
+#include <windowoperations.h>
+#endif
 
 ApplicationWindow::ApplicationWindow(QWidget* parent) : QMainWindow(parent)
   , m_view(new View(this))
@@ -17,6 +21,11 @@ ApplicationWindow::ApplicationWindow(QWidget* parent) : QMainWindow(parent)
 {
     setWindowTitle(tr("Objectwheel Interpreter"));
     setCentralWidget(m_view);
+
+#if defined(Q_OS_IOS)
+    Ios::WindowOperations::lightenStatusBar();
+#endif
+
     m_view->add(Central, m_centralWidget);
     m_view->show(Central);
 
@@ -24,7 +33,7 @@ ApplicationWindow::ApplicationWindow(QWidget* parent) : QMainWindow(parent)
     connect(m_centralWidget, &CentralWidget::disableDiscoveryButtonClicked,
             DiscoveryManager::instance(), &DiscoveryManager::setDisabled);
     connect(m_centralWidget, &CentralWidget::quitButtonClicked,
-            QCoreApplication::instance(), &QCoreApplication::quit);
+            QApplication::instance(), &QApplication::quit, Qt::QueuedConnection);
 }
 
 CentralWidget* ApplicationWindow::centralWidget() const
@@ -54,6 +63,8 @@ bool ApplicationWindow::mayThemeChange(const QString& uid)
             CrossPlatform::restart();
             return true;
         }
+        if (ret & QMessageBox::Ok)
+            return true;
     }
     return false;
 }

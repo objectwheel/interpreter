@@ -1,120 +1,72 @@
 #include <quitbutton.h>
+#include <utilityfunctions.h>
+
 #include <QPainter>
-#include <QBackingStore>
-#include <QResizeEvent>
-#include <QSvgRenderer>
 #include <QApplication>
 #include <QScreen>
+#include <QMouseEvent>
+#include <QWindow>
 
-QuitButton::QuitButton(QWindow* parent) : QWindow(parent)
-  , m_pressX(0)
-  , m_pressY(0)
+QuitButton::QuitButton(QWidget* parent) : QAbstractButton(parent)
+  , m_x(0)
+  , m_y(0)
   , m_moved(false)
-  , m_pressed(false)
-  , m_backingStore(new QBackingStore(this))
-  , m_svgRenderer(new QSvgRenderer(QString(":/images/quitbutton.svg"), this))
+  , m_svgRenderer(QString(":/images/quitbutton.svg"))
 {
     resize({42, 42});
-    setFlags(Qt::Tool
+    setAutoFillBackground(false);
+    setWindowFlags(Qt::Tool
              | Qt::FramelessWindowHint
              | Qt::WindowDoesNotAcceptFocus
              | Qt::WindowStaysOnTopHint
              | Qt::BypassWindowManagerHint
              | Qt::NoDropShadowWindowHint);
-}
-
-void QuitButton::update()
-{
-    requestUpdate();
-}
-
-void QuitButton::repaint()
-{
-    if (!isExposed())
-        return;
-
-    QPainter painter;
-    QRect rect(0, 0, width(), height());
-
-    m_backingStore->beginPaint(rect);
-
-    painter.begin(m_backingStore->paintDevice());
-    paintEvent(&painter);
-    painter.end();
-
-    m_backingStore->endPaint();
-    m_backingStore->flush(rect);
-}
-
-bool QuitButton::event(QEvent* event)
-{
-    if (event->type() == QEvent::UpdateRequest) {
-        repaint();
-        return true;
-    }
-    return QWindow::event(event);
-}
-
-void QuitButton::resizeEvent(QResizeEvent* event)
-{
-    QWindow::resizeEvent(event);
-    m_backingStore->resize(event->size());
-}
-
-void QuitButton::exposeEvent(QExposeEvent* event)
-{
-    QWindow::exposeEvent(event);
-    if (isExposed())
-        repaint();
+    setAttribute(Qt::WA_MacShowFocusRect, false);
+    setAttribute(Qt::WA_NoSystemBackground, true);
+    setAttribute(Qt::WA_TranslucentBackground, true);
 }
 
 void QuitButton::mousePressEvent(QMouseEvent* event)
 {
-    QWindow::mousePressEvent(event);
-    m_pressed = true;
+    QAbstractButton::mousePressEvent(event);
+    m_x = event->globalX() - x();
+    m_y = event->globalY() - y();
     m_moved = false;
-    m_pressX = event->globalX() - x();
-    m_pressY = event->globalY() - y();
     repaint();
 }
 
 void QuitButton::mouseMoveEvent(QMouseEvent* event)
 {
-    QWindow::mouseMoveEvent(event);
-    if (m_pressed) {
-        QPoint startPos(m_pressX, m_pressY);
-        QPoint currentPos(event->globalX(), event->globalY());
-        if ((startPos - currentPos).manhattanLength() >=
-                QApplication::startDragDistance()) {
-            m_moved = true;
-            QPoint nextPos = currentPos - startPos;
-            if (nextPos.x() < 0)
-                nextPos.setX(0);
-            if (nextPos.y() < 0)
-                nextPos.setY(0);
-            if (nextPos.x() > screen()->availableGeometry().width() - width())
-                nextPos.setX(screen()->availableGeometry().width() - width());
-            if (nextPos.y() > screen()->availableGeometry().height() - height())
-                nextPos.setY(screen()->availableGeometry().height() - height());
-            setPosition(nextPos);
-            repaint();
-        }
+    QAbstractButton::mouseMoveEvent(event);
+    QWindow* window = UtilityFunctions::window(this);
+    QPoint startPos(m_x, m_y);
+    QPoint currentPos(event->globalX(), event->globalY());
+    if (window && (startPos - currentPos).manhattanLength() >=
+            QApplication::startDragDistance()) {
+        QPoint nextPos = currentPos - startPos;
+        if (nextPos.x() < 0)
+            nextPos.setX(0);
+        if (nextPos.y() < 0)
+            nextPos.setY(0);
+        if (nextPos.x() > window->screen()->availableGeometry().width() - width())
+            nextPos.setX(window->screen()->availableGeometry().width() - width());
+        if (nextPos.y() > window->screen()->availableGeometry().height() - height())
+            nextPos.setY(window->screen()->availableGeometry().height() - height());
+        m_moved = true;
+        move(nextPos);
+        repaint();
     }
-
 }
 
-void QuitButton::mouseReleaseEvent(QMouseEvent* event)
+void QuitButton::paintEvent(QPaintEvent*)
 {
-    QWindow::mouseReleaseEvent(event);
-    m_pressed = false;
-    repaint();
-    if (!m_moved)
-        emit clicked();
-}
-
-void QuitButton::paintEvent(QPainter* painter)
-{
-    painter->setRenderHint(QPainter::Antialiasing);
+    QPainter painter(this);
+    painter.setRenderHint(QPainter::Antialiasing);
     qreal length = qMin(width(), height()) - 0.5;
-    m_svgRenderer->render(painter, {(width() - length) / 2, (height() - length) / 2, length, length});
+    m_svgRenderer.render(&painter, {(width() - length) / 2, (height() - length) / 2, length, length});
+
+    if (isDown()) {
+        painter.setCompositionMode(QPainter::CompositionMode_SourceAtop);
+        painter.fillRect(rect(), "#30000000");
+    }
 }

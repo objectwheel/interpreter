@@ -12,6 +12,7 @@ ConnectionStatusWidget::ConnectionStatusWidget(QWidget* parent) : QWidget(parent
   , m_label(new QLabel(this))
   , m_animation(new QPropertyAnimation(this, "pos"))
 {
+    resize(sizeHint());
     setAutoFillBackground(true);
     parent->installEventFilter(this);
 
@@ -41,7 +42,7 @@ bool ConnectionStatusWidget::eventFilter(QObject* watched, QEvent* event)
 
 QSize ConnectionStatusWidget::sizeHint() const
 {
-    return {25, 25};
+    return {30, 30};
 }
 
 void ConnectionStatusWidget::onConnect()
@@ -58,7 +59,11 @@ void ConnectionStatusWidget::onConnect()
             m_animation->setStartValue(QPoint(0, y()));
         } else
             m_animation->setStartValue(QPoint(0, -height()));
+#if defined(Q_OS_IOS)
+        m_animation->setEndValue(QPoint(0, 20));
+#else
         m_animation->setEndValue(QPoint(0, 0));
+#endif
         m_animation->start();
     }
 }
@@ -75,7 +80,11 @@ void ConnectionStatusWidget::onDisconnect()
     static auto connection = connect(&timer, &QTimer::timeout, this, [=] {
         timer.stop();
         if (!DiscoveryManager::isConnected()) {
+#if defined(Q_OS_IOS)
+            m_animation->setStartValue(QPoint(0, 20));
+#else
             m_animation->setStartValue(QPoint(0, 0));
+#endif
             m_animation->setEndValue(QPoint(0, -height()));
             m_animation->start();
         }

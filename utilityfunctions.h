@@ -4,6 +4,9 @@
 #include <utility>
 #include <QDataStream>
 
+class QWindow;
+class QWidget;
+
 namespace UtilityFunctions {
 
 namespace Internal {
@@ -41,6 +44,8 @@ void pull(const QByteArray& data, Args&&... args) {
     stream.setVersion(QDataStream::Qt_5_12);
     Internal::pullHelper(stream, std::forward<Args>(args)...);
 }
+
+QWindow* window(const QWidget* widget);
 
 } // UtilityFunctions
 
