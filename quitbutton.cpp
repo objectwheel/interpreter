@@ -14,7 +14,7 @@ QuitButton::QuitButton(QWindow* parent) : QWindow(parent)
   , m_backingStore(new QBackingStore(this))
   , m_svgRenderer(new QSvgRenderer(QString(":/images/quitbutton.svg"), this))
 {
-    resize({36, 36});
+    resize({42, 42});
     setFlags(Qt::Tool
              | Qt::FramelessWindowHint
              | Qt::WindowDoesNotAcceptFocus

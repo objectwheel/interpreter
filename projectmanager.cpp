@@ -2,8 +2,8 @@
 #include <zipasync.h>
 #include <qmlapplication.h>
 #include <saveutils.h>
+#include <applicationcore.h>
 
-#include <QStandardPaths>
 #include <QFileInfo>
 #include <QDir>
 
@@ -51,9 +51,7 @@ QString ProjectManager::currentProjectUid()
 
 QString ProjectManager::projectPath(const QString& uid)
 {
-    const QStringList& dataPath = QStandardPaths::standardLocations(QStandardPaths::AppDataLocation);
-    Q_ASSERT(!dataPath.isEmpty());
-    return dataPath.first() + '/' + uid;
+    return ApplicationCore::dataPath() + "/projects/" + uid;
 }
 
 void ProjectManager::importProject(const QString& uid, const QString& sourceZipPath)

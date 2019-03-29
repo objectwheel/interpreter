@@ -11,17 +11,16 @@
 #include <progressbar.h>
 
 #include <QApplication>
-#include <QDebug>
-#include <QTimer>
 #include <QFontDatabase>
 #include <QJsonObject>
+#include <QStandardPaths>
 
 #if defined(Q_OS_IOS) || defined(Q_OS_ANDROID)
 #include <quitbutton.h>
 #endif
 
 ApplicationCore* ApplicationCore::s_instance = nullptr;
-QSettings ApplicationCore::s_settings;
+QSettings ApplicationCore::s_settings(ApplicationCore::dataPath() + "/settings.ini", QSettings::IniFormat);
 
 ApplicationCore::ApplicationCore()
     : m_globalResources([] { return ProjectManager::projectPath(ProjectManager::currentProjectUid()); })
@@ -157,6 +156,11 @@ QSettings* ApplicationCore::settings()
     return &s_settings;
 }
 
+QString ApplicationCore::dataPath()
+{
+    return QStandardPaths::standardLocations(QStandardPaths::AppDataLocation).last();
+}
+
 QString ApplicationCore::deviceUid()
 {
     static QString uidKey(QStringLiteral("DeviceInfo/DeviceUid"));
@@ -193,7 +197,8 @@ QVariantMap ApplicationCore::deviceInfo()
         {"productType", QSysInfo::productType()},
         {"isEmulator", CrossPlatform::isEmulator()},
         {"deviceName", CrossPlatform::deviceName()},
-        {"deviceUid", deviceUid()}
+        {"deviceUid", deviceUid()},
+        {"interpreterVersion", "1.2"}
     };
 
     return info.toVariantMap();

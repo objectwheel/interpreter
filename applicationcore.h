@@ -19,6 +19,7 @@ public:
 
     static void prepare();
     static QSettings* settings();
+    static QString dataPath();
     static QString deviceUid();
     static QString recentProjectUid();
     static void setRecentProjectUid(const QString& uid);
