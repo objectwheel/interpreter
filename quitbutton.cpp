@@ -14,8 +14,7 @@ QuitButton::QuitButton(QWindow* parent) : QWindow(parent)
   , m_backingStore(new QBackingStore(this))
   , m_svgRenderer(new QSvgRenderer(QString(":/images/quitbutton.svg"), this))
 {
-    setParent(parent);
-    resize({48, 48});
+    resize({36, 36});
     setFlags(Qt::Tool
              | Qt::FramelessWindowHint
              | Qt::WindowDoesNotAcceptFocus
@@ -58,29 +57,30 @@ bool QuitButton::event(QEvent* event)
 
 void QuitButton::resizeEvent(QResizeEvent* event)
 {
-    m_backingStore->resize(event->size());
     QWindow::resizeEvent(event);
+    m_backingStore->resize(event->size());
 }
 
 void QuitButton::exposeEvent(QExposeEvent* event)
 {
+    QWindow::exposeEvent(event);
     if (isExposed())
         repaint();
-    QWindow::exposeEvent(event);
 }
 
 void QuitButton::mousePressEvent(QMouseEvent* event)
 {
+    QWindow::mousePressEvent(event);
     m_pressed = true;
     m_moved = false;
     m_pressX = event->globalX() - x();
     m_pressY = event->globalY() - y();
     repaint();
-    QWindow::mousePressEvent(event);
 }
 
 void QuitButton::mouseMoveEvent(QMouseEvent* event)
 {
+    QWindow::mouseMoveEvent(event);
     if (m_pressed) {
         QPoint startPos(m_pressX, m_pressY);
         QPoint currentPos(event->globalX(), event->globalY());
@@ -100,16 +100,16 @@ void QuitButton::mouseMoveEvent(QMouseEvent* event)
             repaint();
         }
     }
-    QWindow::mouseMoveEvent(event);
+
 }
 
 void QuitButton::mouseReleaseEvent(QMouseEvent* event)
 {
+    QWindow::mouseReleaseEvent(event);
     m_pressed = false;
     repaint();
     if (!m_moved)
         emit clicked();
-    QWindow::mouseReleaseEvent(event);
 }
 
 void QuitButton::paintEvent(QPainter* painter)

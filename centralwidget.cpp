@@ -89,9 +89,12 @@ CentralWidget::CentralWidget(QWidget* parent) : QWidget(parent)
     m_buttonLayout->setSpacing(10);
     m_buttonLayout->setContentsMargins(0, 0, 0, 0);
     m_buttonLayout->addWidget(m_disableDiscoveryButton);
-    m_buttonLayout->addWidget(m_connectManuallyButton);
-    m_buttonLayout->addWidget(m_myProjectsButton);
-    m_buttonLayout->addWidget(m_settingsButton);
+    // TODO: m_buttonLayout->addWidget(m_connectManuallyButton);
+    m_connectManuallyButton->hide();
+    // TODO: m_buttonLayout->addWidget(m_myProjectsButton);
+    m_myProjectsButton->hide();
+    // TODO: m_buttonLayout->addWidget(m_settingsButton);
+    m_settingsButton->hide();
     m_buttonLayout->addWidget(m_quitButton);
 
     QScroller::grabGesture(m_buttonsScrollArea, QScroller::LeftMouseButtonGesture);

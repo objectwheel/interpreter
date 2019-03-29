@@ -114,12 +114,13 @@ ApplicationCore::ApplicationCore()
                      m_applicationWindow->centralWidget()->progressBar(), &ProgressBar::hide);
     QObject::connect(&m_projectManager, &ProjectManager::aboutToStart,
                      DiscoveryManager::instance(), &DiscoveryManager::sendStartReport);
+
 #if defined(Q_OS_IOS) || defined(Q_OS_ANDROID)
     QObject::connect(&m_projectManager, &ProjectManager::aboutToStart, m_quitButton, [=] {
         m_quitButton->setPosition(10, 10);
         m_quitButton->show();
         m_quitButton->raise();
-    });
+    }, Qt::QueuedConnection);
     QObject::connect(m_quitButton, &QuitButton::clicked,
                      m_quitButton, &QuitButton::hide);
     QObject::connect(m_quitButton, &QuitButton::clicked,
