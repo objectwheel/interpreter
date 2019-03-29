@@ -20,12 +20,14 @@ public:
     static void prepare();
     static QSettings* settings();
     static QString deviceUid();
+    static QString recentProjectUid();
+    static void setRecentProjectUid(const QString& uid);
     static QVariantMap deviceInfo();
     static ApplicationCore* instance();
 
 private:
     static ApplicationCore* s_instance;
-    QSettings m_settings;
+    static QSettings s_settings;
     ProjectManager m_projectManager;
     GlobalResources m_globalResources;
     DiscoveryManager m_discoveryManager;

@@ -155,6 +155,7 @@ QmlApplication::ControlInstance QmlApplication::createInstance(const QString& di
                 if (!w->isVisible()
                         || w->transientParent()
                         || w->type() == Qt::ToolTip
+                        || w->inherits("QuitButton")
                         || w->inherits("QWidgetWindow"))
                     continue;
                 lastWindowClosed = false;

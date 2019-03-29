@@ -2,7 +2,7 @@ QT += androidextras
 
 DISTFILES += $$PWD/AndroidManifest.xml \
              $$PWD/res/values/libs.xml \
-             $$PWD/src/com/objectwheel/deviceinfo/DeviceInfo.java \
+             $$PWD/src/com/objectwheel/deviceinfo/DeviceInfo.java
 
 ANDROID_PACKAGE_SOURCE_DIR = $$PWD
 

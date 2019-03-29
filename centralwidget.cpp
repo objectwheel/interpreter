@@ -14,6 +14,7 @@
 namespace {
 const QLatin1String g_buttonStyleSheet(
         "QPushButton {"
+        "    color: white;"
         "    border-bottom: 1px solid #40000000;"
         "    border-radius: 3px;"
         "    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,"
@@ -102,6 +103,7 @@ CentralWidget::CentralWidget(QWidget* parent) : QWidget(parent)
     m_buttonsScrollArea->verticalScrollBar()->setFixedWidth(4);
     m_buttonsScrollArea->setWidgetResizable(true);
     m_buttonsScrollArea->setStyleSheet(g_scrollAreaStyleSheet);
+    m_buttonLayout->parentWidget()->setAutoFillBackground(false);
 
     QFont font;
     font.setPixelSize(16);

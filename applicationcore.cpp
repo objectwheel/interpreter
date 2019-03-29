@@ -21,17 +21,12 @@
 #endif
 
 ApplicationCore* ApplicationCore::s_instance = nullptr;
+QSettings ApplicationCore::s_settings;
+
 ApplicationCore::ApplicationCore()
     : m_globalResources([] { return ProjectManager::projectPath(ProjectManager::currentProjectUid()); })
 {
     s_instance = this;
-
-    // Initialize application
-    QApplication::setOrganizationName("Objectwheel");
-    QApplication::setOrganizationDomain("objectwheel.com");
-    QApplication::setApplicationName("interpreter");
-    QApplication::setApplicationVersion("1.0.0");
-    QApplication::setApplicationDisplayName("Objectwheel Interpreter");
 
     for (const QString& fontName : lsfile(QLatin1String(":/fonts")))
         QFontDatabase::addApplicationFont(QLatin1String(":/fonts") + separator() + fontName);
@@ -47,20 +42,6 @@ ApplicationCore::ApplicationCore()
     font.setStyleStrategy(QFont::PreferAntialias);
     QApplication::setFont(font);
 
-    QPalette palette(QApplication::palette());
-    palette.setColor(QPalette::Active, QPalette::Text, "#e5e5e5");
-    palette.setColor(QPalette::Inactive, QPalette::Text, "#e5e5e5");
-    palette.setColor(QPalette::Disabled, QPalette::Text, "#e5e5e5");
-    palette.setColor(QPalette::Active, QPalette::WindowText, "#e5e5e5");
-    palette.setColor(QPalette::Inactive, QPalette::WindowText, "#e5e5e5");
-    palette.setColor(QPalette::Disabled, QPalette::WindowText, "#b0b0b0");
-    palette.setColor(QPalette::Active, QPalette::ButtonText, "#e5e5e5");
-    palette.setColor(QPalette::Inactive, QPalette::ButtonText, "#e5e5e5");
-    palette.setColor(QPalette::Disabled, QPalette::ButtonText, "#b0b0b0");
-    palette.setColor(QPalette::Window, "#2F363C");
-
-    QApplication::setPalette(palette);
-
     // Initialize Web View
     QtWebView::initialize();
 
@@ -71,6 +52,20 @@ ApplicationCore::ApplicationCore()
 #if defined(Q_OS_IOS) || defined(Q_OS_ANDROID)
     m_quitButton = new QuitButton;
 #endif
+
+    QPalette palette(m_applicationWindow->palette());
+    palette.setColor(QPalette::Active, QPalette::Text, "#e5e5e5");
+    palette.setColor(QPalette::Inactive, QPalette::Text, "#e5e5e5");
+    palette.setColor(QPalette::Disabled, QPalette::Text, "#e5e5e5");
+    palette.setColor(QPalette::Active, QPalette::WindowText, "#e5e5e5");
+    palette.setColor(QPalette::Inactive, QPalette::WindowText, "#e5e5e5");
+    palette.setColor(QPalette::Disabled, QPalette::WindowText, "#b0b0b0");
+    palette.setColor(QPalette::Active, QPalette::ButtonText, "#e5e5e5");
+    palette.setColor(QPalette::Inactive, QPalette::ButtonText, "#e5e5e5");
+    palette.setColor(QPalette::Disabled, QPalette::ButtonText, "#b0b0b0");
+    palette.setColor(QPalette::Window, "#2F363C");
+    palette.setColor(QPalette::Base, "#2F363C");
+    m_applicationWindow->setPalette(palette);
     m_applicationWindow->show();
 
     QObject::connect(qApp, &QApplication::lastWindowClosed,
@@ -106,9 +101,15 @@ ApplicationCore::ApplicationCore()
     QObject::connect(&m_projectManager, &ProjectManager::imported,
                      DiscoveryManager::instance(), &DiscoveryManager::cleanExecutionCache);
     QObject::connect(&m_projectManager, &ProjectManager::imported,
-                     m_applicationWindow, &ApplicationWindow::hide);
-    QObject::connect(&m_projectManager, &ProjectManager::imported,
-                     ProjectManager::instance(), &ProjectManager::startProject);
+                     &ApplicationCore::setRecentProjectUid);
+    QObject::connect(&m_projectManager, &ProjectManager::imported, [=] (const QString& uid) {
+        if (m_applicationWindow->mayThemeChange(uid))
+            return;
+        m_applicationWindow->activateWindow(); // Make qml window activated after the app window hidden
+        m_applicationWindow->raise();
+        m_applicationWindow->hide();
+        m_projectManager.startProject(uid);
+    });
     QObject::connect(&m_projectManager, &ProjectManager::aboutToStart,
                      m_applicationWindow->centralWidget()->progressBar(), &ProgressBar::hide);
     QObject::connect(&m_projectManager, &ProjectManager::aboutToStart,
@@ -137,30 +138,45 @@ ApplicationCore::~ApplicationCore()
 
 void ApplicationCore::prepare()
 {
-//    QuickTheme::setTheme(CommandlineParser::projectDirectory());
+    // Initialize application
+    QApplication::setOrganizationName("Objectwheel");
+    QApplication::setOrganizationDomain("objectwheel.com");
+    QApplication::setApplicationName("interpreter");
+    QApplication::setApplicationVersion("1.2.0");
+    QApplication::setApplicationDisplayName("Objectwheel Interpreter");
+
+    if (!recentProjectUid().isEmpty())
+        QuickTheme::setTheme(ProjectManager::projectPath(recentProjectUid()));
     QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
 }
 
 QSettings* ApplicationCore::settings()
 {
-    if (s_instance)
-        return &s_instance->m_settings;
-    return nullptr;
+    return &s_settings;
 }
 
 QString ApplicationCore::deviceUid()
 {
-    if (!s_instance)
-        return {};
-
     static QString uidKey(QStringLiteral("DeviceInfo/DeviceUid"));
-    static QString uid(s_instance->m_settings.value(uidKey).toString());
+    static QString uid(s_settings.value(uidKey).toString());
     if (uid.isEmpty()) {
         uid = HashFactory::generate();
-        s_instance->m_settings.setValue(uidKey, uid);
+        s_settings.setValue(uidKey, uid);
     }
     return uid;
+}
+
+QString ApplicationCore::recentProjectUid()
+{
+    static QString uidKey(QStringLiteral("DeviceInfo/RecentProjectUid"));
+    return s_settings.value(uidKey).toString();
+}
+
+void ApplicationCore::setRecentProjectUid(const QString& uid)
+{
+    static QString uidKey(QStringLiteral("DeviceInfo/RecentProjectUid"));
+    s_settings.setValue(uidKey, uid);
 }
 
 QVariantMap ApplicationCore::deviceInfo()

@@ -8,5 +8,6 @@ bool isAndroidEmulator();
 bool isIosEmulator();
 bool isEmulator();
 QString deviceName();
+void restart();
 }
 #endif // CROSSPLATFORM_H

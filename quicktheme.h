@@ -4,6 +4,7 @@
 class QString;
 namespace QuickTheme
 {
+bool activeThemeDiffersFrom(const QString& projectDir);
 void setTheme(const QString& projectDir, int* version = nullptr);
 }
 
