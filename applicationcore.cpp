@@ -13,13 +13,7 @@
 ApplicationCore::ApplicationCore()
     : m_globalResources(&CommandlineParser::projectDirectory)
     , m_qmlApplication(CommandlineParser::projectDirectory())
-{
-    // Initialize application
-    QApplication::setOrganizationName("Objectwheel");
-    QApplication::setOrganizationDomain("objectwheel.com");
-    QApplication::setApplicationName("interpreter");
-    QApplication::setApplicationVersion("1.0.0");
-    QApplication::setApplicationDisplayName("Objectwheel Interpreter");
+{    
     QApplication::setWindowIcon(QIcon(":/resources/images/owicon.png"));
 
     // Initialize Web View
@@ -42,6 +36,13 @@ void ApplicationCore::run()
 
 void ApplicationCore::prepare()
 {
+    // Initialize application
+    QApplication::setOrganizationName("Objectwheel");
+    QApplication::setOrganizationDomain("objectwheel.com");
+    QApplication::setApplicationName("interpreter");
+    QApplication::setApplicationVersion("1.2.0");
+    QApplication::setApplicationDisplayName("Objectwheel Interpreter");
+
     QuickTheme::setTheme(CommandlineParser::projectDirectory());
     qputenv("QML_DISABLE_DISK_CACHE", "true");
     QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps); // For devices that devicePixelRatio > 1
