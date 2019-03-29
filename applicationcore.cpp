@@ -103,10 +103,10 @@ ApplicationCore::ApplicationCore()
     QObject::connect(&m_projectManager, &ProjectManager::imported,
                      &ApplicationCore::setRecentProjectUid);
     QObject::connect(&m_projectManager, &ProjectManager::imported, [=] (const QString& uid) {
-        if (m_applicationWindow->mayThemeChange(uid))
-            return;
         m_applicationWindow->activateWindow(); // Make qml window activated after the app window hidden
         m_applicationWindow->raise();
+        if (m_applicationWindow->mayThemeChange(uid))
+            return;
         m_applicationWindow->hide();
         m_projectManager.startProject(uid);
     });
