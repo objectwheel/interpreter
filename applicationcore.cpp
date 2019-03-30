@@ -76,9 +76,15 @@ ApplicationCore::ApplicationCore()
                      m_quitButton, &QuitButton::hide, Qt::QueuedConnection);
 #endif
     QObject::connect(&m_discoveryManager, &DiscoveryManager::justKill,
+                     &m_projectManager, &ProjectManager::cancelImport);
+    QObject::connect(&m_discoveryManager, &DiscoveryManager::justKill,
                      std::bind(&ProjectManager::terminateProject, 0, true));
     QObject::connect(&m_discoveryManager, &DiscoveryManager::terminate,
+                     &m_projectManager, &ProjectManager::cancelImport);
+    QObject::connect(&m_discoveryManager, &DiscoveryManager::terminate,
                      std::bind(&ProjectManager::terminateProject, 0, false));
+    QObject::connect(&m_discoveryManager, &DiscoveryManager::terminate,
+                     m_applicationWindow->centralWidget()->progressBar(), &ProgressBar::hide);
     QObject::connect(&m_discoveryManager, &DiscoveryManager::downloadStarted,
                      m_applicationWindow->centralWidget()->progressBar(), &ProgressBar::show);
     QObject::connect(&m_discoveryManager, &DiscoveryManager::downloadProgress, m_applicationWindow, [=] (int p)
@@ -101,6 +107,11 @@ ApplicationCore::ApplicationCore()
         if (p == 100)
             qApp->processEvents();
     });
+    QObject::connect(&m_discoveryManager, &DiscoveryManager::disconnected,
+                     &m_projectManager, &ProjectManager::cancelImport);
+    QObject::connect(&m_discoveryManager, &DiscoveryManager::disconnected,
+                     m_applicationWindow->centralWidget()->progressBar(), &ProgressBar::hide);
+
     QObject::connect(&m_projectManager, &ProjectManager::readyOutput,
                      DiscoveryManager::instance(), &DiscoveryManager::sendOutputReport);
     QObject::connect(&m_projectManager, &ProjectManager::importError,

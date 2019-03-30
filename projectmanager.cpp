@@ -82,6 +82,21 @@ void ProjectManager::importProject(const QString& uid, const QString& sourceZipP
     }
 }
 
+void ProjectManager::cancelImport()
+{
+    if (s_zipWatcher.isFinished())
+        return;
+
+    s_zipWatcher.cancel();
+    s_zipWatcher.waitForFinished();
+
+    const QString& uid = s_zipWatcher.property("__OW_PROJECT_UID__").toString();
+    if (uid.isEmpty() || !QFileInfo(projectPath(uid)).exists())
+        return;
+
+    QDir(projectPath(uid)).removeRecursively();
+}
+
 void ProjectManager::startProject(const QString& uid)
 {
     if (s_qmlApplication)

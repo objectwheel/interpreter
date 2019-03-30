@@ -19,6 +19,7 @@ public:
     static QString projectPath(const QString& uid);
 
     static void importProject(const QString& uid, const QString& sourceZipPath);
+    static void cancelImport();
     static void startProject(const QString& uid);
     static void terminateProject(int retCode = 0, bool justKill = false);
 
@@ -30,12 +31,13 @@ private:
     ~ProjectManager() override;
 
 signals:
-    void readyOutput(const QString& poutput);
     void importError(const QString& errorString);
     void imported(const QString& uid);
     void importProgress(int progress);
-    void finished(int exitCode);
+
     void aboutToStart();
+    void readyOutput(const QString& poutput);
+    void finished(int exitCode);
 
 private:
     static ProjectManager* s_instance;
