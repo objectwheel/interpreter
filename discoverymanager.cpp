@@ -195,6 +195,7 @@ void DiscoveryManager::onBinaryMessageReceived(const QByteArray& incomingData)
 
         if (pos == 0) {
             cleanExecutionCache();
+            emit justKill();
             s_cacheFile = new QTemporaryFile(this);
             if (!s_cacheFile->open()) {
                 qFatal("CRITICAL: Cannot create a temporary file");

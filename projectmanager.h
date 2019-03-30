@@ -20,7 +20,7 @@ public:
 
     static void importProject(const QString& uid, const QString& sourceZipPath);
     static void startProject(const QString& uid);
-    static void terminateProject(int retCode = 0);
+    static void terminateProject(int retCode = 0, bool justKill = false);
 
 private:
     static void messageHandler(QtMsgType, const QMessageLogContext&, const QString& output);

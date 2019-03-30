@@ -74,6 +74,7 @@ signals:
     void connected();
     void disconnected();
     void terminate();
+    void justKill();
     void execute(const QString& uid, const QString& projectPath);
     void downloadStarted();
     void downloadProgress(int progress);

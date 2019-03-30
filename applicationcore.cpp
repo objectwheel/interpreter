@@ -68,9 +68,17 @@ ApplicationCore::ApplicationCore()
     m_applicationWindow->show();
 
     QObject::connect(qApp, &QApplication::lastWindowClosed,
-                     std::bind(&ProjectManager::terminateProject, 0));
+                     std::bind(&ProjectManager::terminateProject, 0, false));
+    QObject::connect(&m_discoveryManager, &DiscoveryManager::justKill,
+                     m_applicationWindow, &ApplicationWindow::show);
+#if defined(Q_OS_IOS) || defined(Q_OS_ANDROID)
+    QObject::connect(&m_discoveryManager, &DiscoveryManager::justKill,
+                     m_quitButton, &QuitButton::hide, Qt::QueuedConnection);
+#endif
+    QObject::connect(&m_discoveryManager, &DiscoveryManager::justKill,
+                     std::bind(&ProjectManager::terminateProject, 0, true));
     QObject::connect(&m_discoveryManager, &DiscoveryManager::terminate,
-                     std::bind(&ProjectManager::terminateProject, 0));
+                     std::bind(&ProjectManager::terminateProject, 0, false));
     QObject::connect(&m_discoveryManager, &DiscoveryManager::downloadStarted,
                      m_applicationWindow->centralWidget()->progressBar(), &ProgressBar::show);
     QObject::connect(&m_discoveryManager, &DiscoveryManager::downloadProgress, m_applicationWindow, [=] (int p)
@@ -109,8 +117,11 @@ ApplicationCore::ApplicationCore()
         m_applicationWindow->centralWidget()->progressBar()->hide();
         m_applicationWindow->activateWindow(); // Make qml window activated after the app window hidden
         m_applicationWindow->raise();
-        if (m_applicationWindow->mayThemeChange(uid))
-            return DiscoveryManager::sendFinishReport(0);
+        if (m_applicationWindow->mayThemeChange(uid)) {
+            DiscoveryManager::sendStartReport();
+            DiscoveryManager::sendFinishReport(0);
+            return;
+        }
         m_applicationWindow->hide();
         m_projectManager.startProject(uid);
     });
