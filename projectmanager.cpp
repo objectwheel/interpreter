@@ -19,8 +19,7 @@ ProjectManager::ProjectManager(QObject* parent) : QObject(parent)
     QObject::connect(&s_zipWatcher, &QFutureWatcherBase::progressValueChanged,
                      this, &ProjectManager::importProgress);
 
-    QObject::connect(&s_zipWatcher, &QFutureWatcherBase::finished, this, [=]
-    {
+    QObject::connect(&s_zipWatcher, &QFutureWatcherBase::finished, this, [=] {
         if (s_zipWatcher.future().resultCount() > 0) {
             int last = s_zipWatcher.future().resultCount() - 1;
             size_t result = s_zipWatcher.resultAt(last);
