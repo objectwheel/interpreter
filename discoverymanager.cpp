@@ -194,8 +194,6 @@ void DiscoveryManager::onBinaryMessageReceived(const QByteArray& incomingData)
         pull(data, projectUid, progress, pos, chunkData);
 
         if (pos == 0) {
-            cleanExecutionCache();
-            emit justKill();
             s_cacheFile = new QTemporaryFile(this);
             if (!s_cacheFile->open()) {
                 qFatal("CRITICAL: Cannot create a temporary file");
@@ -229,6 +227,8 @@ void DiscoveryManager::onBinaryMessageReceived(const QByteArray& incomingData)
     }
 
     case UploadStarted: {
+        cleanExecutionCache();
+        emit justKill();
         emit downloadStarted();
         break;
     }
