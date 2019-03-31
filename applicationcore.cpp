@@ -111,7 +111,6 @@ ApplicationCore::ApplicationCore()
                      &m_projectManager, &ProjectManager::cancelImport);
     QObject::connect(&m_discoveryManager, &DiscoveryManager::disconnected,
                      m_applicationWindow->centralWidget()->progressBar(), &ProgressBar::hide);
-
     QObject::connect(&m_projectManager, &ProjectManager::readyOutput,
                      DiscoveryManager::instance(), &DiscoveryManager::sendOutputReport);
     QObject::connect(&m_projectManager, &ProjectManager::importError,
