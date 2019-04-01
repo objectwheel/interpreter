@@ -14,6 +14,9 @@
 #include <QFontDatabase>
 #include <QJsonObject>
 #include <QStandardPaths>
+#include <QMessageBox>
+#include <QTimer>
+#include <QSharedMemory>
 
 #if defined(Q_OS_IOS) || defined(Q_OS_ANDROID)
 #include <quitbutton.h>
@@ -130,6 +133,9 @@ ApplicationCore::ApplicationCore()
         if (m_applicationWindow->mayThemeChange(uid)) {
             DiscoveryManager::sendStartReport();
             DiscoveryManager::sendFinishReport(0);
+            QTimer::singleShot(1500, &CrossPlatform::restart);
+            QMessageBox::information(m_applicationWindow, QObject::tr("Restarting"),
+                                     QObject::tr("Restarting in 2 seconds..."), Qt::NoButton);
             return;
         }
         m_applicationWindow->hide();
@@ -181,6 +187,22 @@ void ApplicationCore::prepare()
         QuickTheme::setTheme(ProjectManager::projectPath(recentProjectUid()));
     QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
+}
+
+bool ApplicationCore::locked()
+{
+    QSharedMemory* sharedMemory = new QSharedMemory("T2JqZWN0d2hlZWxJbnRlcnByZXRlclNoYXJlZE1lbW9yeUtleQ");
+    if(!sharedMemory->create(1)) {
+        sharedMemory->attach();
+        sharedMemory->detach();
+        if(!sharedMemory->create(1)) {
+            QMessageBox::warning(nullptr,
+                                 QObject::tr("Quitting"),
+                                 QObject::tr("Another instance is already running."));
+            return true;
+        }
+    }
+    return false;
 }
 
 QSettings* ApplicationCore::settings()

@@ -101,6 +101,7 @@ void restart()
     QProcess::startDetached(qApp->applicationFilePath());
 #endif
     QMetaObject::invokeMethod(qApp, &QApplication::quit, Qt::QueuedConnection);
+    qApp->quit();
 }
 
 }

@@ -17,6 +17,7 @@ public:
     ApplicationCore();
     ~ApplicationCore();
 
+    static bool locked();
     static void prepare();
     static QSettings* settings();
     static QString dataPath();

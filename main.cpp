@@ -11,6 +11,9 @@ int main(int argc, char* argv[])
     // Initialize application
     QApplication app(argc, argv);
 
+    if (ApplicationCore::locked())
+        return EXIT_FAILURE;
+
     // Run core
     ApplicationCore core;
 

@@ -5,7 +5,6 @@
 #include <discoverymanager.h>
 #include <projectmanager.h>
 #include <quicktheme.h>
-#include <crossplatform.h>
 
 #include <QApplication>
 #include <QMessageBox>
@@ -59,11 +58,7 @@ bool ApplicationWindow::mayThemeChange(const QString& uid)
         static const QMessageBox::StandardButtons btn = QMessageBox::Yes | QMessageBox::No;
 #endif
         int ret = QMessageBox::warning(nullptr, tr("Theme Change"), message, btn);
-        if (ret & QMessageBox::Yes) {
-            CrossPlatform::restart();
-            return true;
-        }
-        if (ret & QMessageBox::Ok)
+        if (ret & QMessageBox::Yes)
             return true;
     }
     return false;
