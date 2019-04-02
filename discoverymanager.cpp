@@ -116,9 +116,9 @@ void DiscoveryManager::sendStartReport()
     send(DiscoveryManager::StartReport);
 }
 
-void DiscoveryManager::sendFinishReport(int exitCode)
+void DiscoveryManager::sendFinishReport(int exitCode, bool crashExit)
 {
-    send(DiscoveryManager::FinishReport, exitCode);
+    send(DiscoveryManager::FinishReport, exitCode, crashExit);
 }
 
 void DiscoveryManager::sendProgressReport(int progress)
@@ -228,7 +228,7 @@ void DiscoveryManager::onBinaryMessageReceived(const QByteArray& incomingData)
 
     case UploadStarted: {
         cleanExecutionCache();
-        emit justKill();
+        emit internalTermination();
         emit downloadStarted();
         break;
     }

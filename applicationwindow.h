@@ -21,7 +21,7 @@ public:
     QSize sizeHint() const override;
 
 public slots:
-    bool mayThemeChange(const QString& uid);
+    bool mightThemeChange(const QString& uid);
 
 private:
     View* m_view;

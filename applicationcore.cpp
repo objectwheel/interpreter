@@ -71,23 +71,28 @@ ApplicationCore::ApplicationCore()
     m_applicationWindow->show();
 
     QObject::connect(qApp, &QApplication::lastWindowClosed,
-                     std::bind(&ProjectManager::terminateProject, 0, false));
-    QObject::connect(&m_discoveryManager, &DiscoveryManager::justKill,
+                     std::bind(&ProjectManager::terminateProject, 0, false, false));
+    QObject::connect(&m_discoveryManager, &DiscoveryManager::internalTermination,
                      m_applicationWindow, &ApplicationWindow::show);
 #if defined(Q_OS_IOS) || defined(Q_OS_ANDROID)
-    QObject::connect(&m_discoveryManager, &DiscoveryManager::justKill,
+    QObject::connect(&m_discoveryManager, &DiscoveryManager::internalTermination,
                      m_quitButton, &QuitButton::hide, Qt::QueuedConnection);
 #endif
-    QObject::connect(&m_discoveryManager, &DiscoveryManager::justKill,
+    QObject::connect(&m_discoveryManager, &DiscoveryManager::internalTermination,
                      &m_projectManager, &ProjectManager::cancelImport);
-    QObject::connect(&m_discoveryManager, &DiscoveryManager::justKill,
-                     std::bind(&ProjectManager::terminateProject, 0, true));
+    QObject::connect(&m_discoveryManager, &DiscoveryManager::internalTermination,
+                     std::bind(&ProjectManager::terminateProject, 0, false, true));
     QObject::connect(&m_discoveryManager, &DiscoveryManager::terminate,
                      &m_projectManager, &ProjectManager::cancelImport);
     QObject::connect(&m_discoveryManager, &DiscoveryManager::terminate,
-                     std::bind(&ProjectManager::terminateProject, 0, false));
-    QObject::connect(&m_discoveryManager, &DiscoveryManager::terminate,
-                     m_applicationWindow->centralWidget()->progressBar(), &ProgressBar::hide);
+                     std::bind(&ProjectManager::terminateProject, 0, true, false));
+    QObject::connect(&m_discoveryManager, &DiscoveryManager::terminate, m_applicationWindow, [=] {
+        if (m_applicationWindow->centralWidget()->progressBar()->isVisible()) {
+            DiscoveryManager::sendStartReport();
+            DiscoveryManager::sendFinishReport(0, true);
+            m_applicationWindow->centralWidget()->progressBar()->hide();
+        }
+    });
     QObject::connect(&m_discoveryManager, &DiscoveryManager::downloadStarted,
                      m_applicationWindow->centralWidget()->progressBar(), &ProgressBar::show);
     QObject::connect(&m_discoveryManager, &DiscoveryManager::downloadProgress, m_applicationWindow, [=] (int p)
@@ -107,8 +112,8 @@ ApplicationCore::ApplicationCore()
     QObject::connect(&m_projectManager, &ProjectManager::importProgress, m_applicationWindow, [=] (int p)
     {
         m_applicationWindow->centralWidget()->progressBar()->setValue(67 + p / 3);
-        if (p == 100)
-            qApp->processEvents();
+        if (p > 90)
+            m_applicationWindow->centralWidget()->progressBar()->repaint();
     });
     QObject::connect(&m_discoveryManager, &DiscoveryManager::disconnected,
                      &m_projectManager, &ProjectManager::cancelImport);
@@ -130,12 +135,12 @@ ApplicationCore::ApplicationCore()
         m_applicationWindow->centralWidget()->progressBar()->hide();
         m_applicationWindow->activateWindow(); // Make qml window activated after the app window hidden
         m_applicationWindow->raise();
-        if (m_applicationWindow->mayThemeChange(uid)) {
+        if (m_applicationWindow->mightThemeChange(uid)) {
             DiscoveryManager::sendStartReport();
-            DiscoveryManager::sendFinishReport(0);
+            DiscoveryManager::sendFinishReport(0, false);
             QTimer::singleShot(1500, &CrossPlatform::restart);
             QMessageBox::information(m_applicationWindow, QObject::tr("Restarting"),
-                                     QObject::tr("Restarting in 2 seconds..."), Qt::NoButton);
+                                     QObject::tr("Restarting in 2 seconds..."));
             return;
         }
         m_applicationWindow->hide();
@@ -159,7 +164,7 @@ ApplicationCore::ApplicationCore()
                      m_quitButton, [=] {
         if (!m_quitButton->isMoved()) {
             m_quitButton->hide();
-            ProjectManager::terminateProject();
+            ProjectManager::terminateProject(0, false);
         }
     });
 #endif

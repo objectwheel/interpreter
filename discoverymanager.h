@@ -47,7 +47,7 @@ public:
 public slots:
     static void cleanExecutionCache();
     static void sendStartReport();
-    static void sendFinishReport(int exitCode);
+    static void sendFinishReport(int exitCode, bool crashExit);
     static void sendProgressReport(int progress);
     static void sendOutputReport(const QString& output);
     static void sendErrorReport(const QString& errorString);
@@ -74,7 +74,7 @@ signals:
     void connected();
     void disconnected();
     void terminate();
-    void justKill();
+    void internalTermination();
     void execute(const QString& uid, const QString& projectPath);
     void downloadStarted();
     void downloadProgress(int progress);

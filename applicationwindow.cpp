@@ -45,7 +45,7 @@ QSize ApplicationWindow::sizeHint() const
     return {342, 608};
 }
 
-bool ApplicationWindow::mayThemeChange(const QString& uid)
+bool ApplicationWindow::mightThemeChange(const QString& uid)
 {
     if (QuickTheme::activeThemeDiffersFrom(ProjectManager::projectPath(uid))) {
 #if defined(Q_OS_IOS)

@@ -21,7 +21,7 @@ public:
     static void importProject(const QString& uid, const QString& sourceZipPath);
     static void cancelImport();
     static void startProject(const QString& uid);
-    static void terminateProject(int retCode = 0, bool justKill = false);
+    static void terminateProject(int retCode, bool crashExit, bool internalTermination = false);
 
 private:
     static void messageHandler(QtMsgType, const QMessageLogContext&, const QString& output);
@@ -37,7 +37,7 @@ signals:
 
     void aboutToStart();
     void readyOutput(const QString& poutput);
-    void finished(int exitCode);
+    void finished(int exitCode, bool crashExit);
 
 private:
     static ProjectManager* s_instance;

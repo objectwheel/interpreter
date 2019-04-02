@@ -106,14 +106,14 @@ void ProjectManager::startProject(const QString& uid)
 
     s_qmlApplication = new QmlApplication(projectPath(uid));
     QObject::connect(s_qmlApplication, &QmlApplication::quit,
-                    std::bind(&ProjectManager::terminateProject, 0, false));
+                    std::bind(&ProjectManager::terminateProject, 0, false, false));
     QObject::connect(s_qmlApplication, &QmlApplication::exit,
-                     [=] (int retCode) { ProjectManager::terminateProject(retCode); });
+                     [=] (int retCode) { ProjectManager::terminateProject(retCode, false); });
     emit instance()->aboutToStart();
     s_qmlApplication->run();
 }
 
-void ProjectManager::terminateProject(int retCode, bool justKill)
+void ProjectManager::terminateProject(int retCode, bool crashExit, bool internalTermination)
 {
     if (!s_qmlApplication)
         return;
@@ -127,8 +127,8 @@ void ProjectManager::terminateProject(int retCode, bool justKill)
     auto qmlApp = s_qmlApplication;
     s_qmlApplication = nullptr;
     delete qmlApp;
-    if (!justKill)
-        emit instance()->finished(retCode);
+    if (!internalTermination)
+        emit instance()->finished(retCode, crashExit);
 }
 
 void ProjectManager::messageHandler(QtMsgType, const QMessageLogContext&, const QString& output)
