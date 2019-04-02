@@ -185,7 +185,7 @@ void ApplicationCore::prepare()
     QApplication::setOrganizationName("Objectwheel");
     QApplication::setOrganizationDomain("objectwheel.com");
     QApplication::setApplicationName("interpreter");
-    QApplication::setApplicationVersion("1.2.0");
+    QApplication::setApplicationVersion("2.9");
     QApplication::setApplicationDisplayName("Objectwheel Interpreter");
 
     if (!recentProjectUid().isEmpty())
@@ -259,7 +259,7 @@ QVariantMap ApplicationCore::deviceInfo()
         {"isEmulator", CrossPlatform::isEmulator()},
         {"deviceName", CrossPlatform::deviceName()},
         {"deviceUid", deviceUid()},
-        {"interpreterVersion", "1.2"}
+        {"interpreterVersion", "2.9"}
     };
 
     return info.toVariantMap();

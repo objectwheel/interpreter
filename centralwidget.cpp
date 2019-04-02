@@ -120,7 +120,7 @@ CentralWidget::CentralWidget(QWidget* parent) : QWidget(parent)
 
     font.setPixelSize(13);
     m_versionLabel->setFont(font);
-    m_versionLabel->setText("v1.2");
+    m_versionLabel->setText("v2.9");
 
     m_progressBar->hide();
 
