@@ -26,7 +26,7 @@ ApplicationCore* ApplicationCore::s_instance = nullptr;
 QSettings ApplicationCore::s_settings(ApplicationCore::dataPath() + "/settings.ini", QSettings::IniFormat);
 
 ApplicationCore::ApplicationCore()
-    : m_globalResources([] { return ProjectManager::projectPath(ProjectManager::currentProjectUid()); })
+    : m_globalResources([] { return ProjectManager::projectDirectory(ProjectManager::currentProjectUid()); })
 {
     s_instance = this;
 
@@ -88,7 +88,7 @@ ApplicationCore::ApplicationCore()
                      std::bind(&ProjectManager::terminateProject, 0, true, false));
     QObject::connect(&m_discoveryManager, &DiscoveryManager::terminate, m_applicationWindow, [=] {
         if (m_applicationWindow->centralWidget()->progressBar()->isVisible()) {
-            DiscoveryManager::sendStartReport();
+            DiscoveryManager::sendStartReport({});
             DiscoveryManager::sendFinishReport(0, true);
             m_applicationWindow->centralWidget()->progressBar()->hide();
         }
@@ -136,7 +136,7 @@ ApplicationCore::ApplicationCore()
         m_applicationWindow->activateWindow(); // Make qml window activated after the app window hidden
         m_applicationWindow->raise();
         if (m_applicationWindow->mightThemeChange(uid)) {
-            DiscoveryManager::sendStartReport();
+            DiscoveryManager::sendStartReport({});
             DiscoveryManager::sendFinishReport(0, false);
             QTimer::singleShot(1500, &CrossPlatform::restart);
             QMessageBox::information(m_applicationWindow, QObject::tr("Restarting"),
@@ -189,13 +189,14 @@ void ApplicationCore::prepare()
     QApplication::setApplicationDisplayName("Objectwheel Interpreter");
 
     if (!recentProjectUid().isEmpty())
-        QuickTheme::setTheme(ProjectManager::projectPath(recentProjectUid()));
+        QuickTheme::setTheme(ProjectManager::projectDirectory(recentProjectUid()));
     QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
 }
 
 bool ApplicationCore::locked()
 {
+#if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
     QSharedMemory* sharedMemory = new QSharedMemory("T2JqZWN0d2hlZWxJbnRlcnByZXRlclNoYXJlZE1lbW9yeUtleQ");
     if(!sharedMemory->create(1)) {
         sharedMemory->attach();
@@ -207,6 +208,7 @@ bool ApplicationCore::locked()
             return true;
         }
     }
+#endif
     return false;
 }
 

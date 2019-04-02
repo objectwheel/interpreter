@@ -111,9 +111,9 @@ void DiscoveryManager::cleanExecutionCache()
     s_cacheFile = nullptr;
 }
 
-void DiscoveryManager::sendStartReport()
+void DiscoveryManager::sendStartReport(const QString& projectDirectory)
 {
-    send(DiscoveryManager::StartReport);
+    send(DiscoveryManager::StartReport, projectDirectory);
 }
 
 void DiscoveryManager::sendFinishReport(int exitCode, bool crashExit)

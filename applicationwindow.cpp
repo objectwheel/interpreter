@@ -47,7 +47,7 @@ QSize ApplicationWindow::sizeHint() const
 
 bool ApplicationWindow::mightThemeChange(const QString& uid)
 {
-    if (QuickTheme::activeThemeDiffersFrom(ProjectManager::projectPath(uid))) {
+    if (QuickTheme::activeThemeDiffersFrom(ProjectManager::projectDirectory(uid))) {
 #if defined(Q_OS_IOS)
         static const QString message = tr("Theme change detected on the project. Please "
                                           "restart the application for this change to take effect.");

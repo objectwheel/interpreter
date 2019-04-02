@@ -46,7 +46,7 @@ public:
 
 public slots:
     static void cleanExecutionCache();
-    static void sendStartReport();
+    static void sendStartReport(const QString& projectDirectory);
     static void sendFinishReport(int exitCode, bool crashExit);
     static void sendProgressReport(int progress);
     static void sendOutputReport(const QString& output);

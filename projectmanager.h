@@ -16,7 +16,7 @@ class ProjectManager final : public QObject
 public:
     static ProjectManager* instance();
     static QString currentProjectUid();
-    static QString projectPath(const QString& uid);
+    static QString projectDirectory(const QString& uid);
 
     static void importProject(const QString& uid, const QString& sourceZipPath);
     static void cancelImport();
@@ -35,8 +35,8 @@ signals:
     void imported(const QString& uid);
     void importProgress(int progress);
 
-    void aboutToStart();
-    void readyOutput(const QString& poutput);
+    void aboutToStart(const QString& projectDirectory);
+    void readyOutput(const QString& output);
     void finished(int exitCode, bool crashExit);
 
 private:

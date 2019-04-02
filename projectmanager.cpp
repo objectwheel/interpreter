@@ -48,7 +48,7 @@ QString ProjectManager::currentProjectUid()
     return s_currentProjectUid;
 }
 
-QString ProjectManager::projectPath(const QString& uid)
+QString ProjectManager::projectDirectory(const QString& uid)
 {
     return ApplicationCore::dataPath() + "/projects/" + uid;
 }
@@ -65,15 +65,15 @@ void ProjectManager::importProject(const QString& uid, const QString& sourceZipP
         return;
     }
 
-    if (QFileInfo::exists(projectPath(uid)) && !QDir(projectPath(uid)).removeRecursively()) {
+    if (QFileInfo::exists(projectDirectory(uid)) && !QDir(projectDirectory(uid)).removeRecursively()) {
         emit instance()->importError(tr("Error removing existing project."));
         return;
     }
 
-    QDir().mkpath(projectPath(uid));
+    QDir().mkpath(projectDirectory(uid));
 
     s_zipWatcher.setProperty("__OW_PROJECT_UID__", uid);
-    s_zipWatcher.setFuture(ZipAsync::unzip(sourceZipPath, projectPath(uid)));
+    s_zipWatcher.setFuture(ZipAsync::unzip(sourceZipPath, projectDirectory(uid)));
 
     if (s_zipWatcher.isCanceled()) {
         emit instance()->importError(tr("Cannot extract the project archive for some reason."));
@@ -90,10 +90,10 @@ void ProjectManager::cancelImport()
     s_zipWatcher.waitForFinished();
 
     const QString& uid = s_zipWatcher.property("__OW_PROJECT_UID__").toString();
-    if (uid.isEmpty() || !QFileInfo(projectPath(uid)).exists())
+    if (uid.isEmpty() || !QFileInfo(projectDirectory(uid)).exists())
         return;
 
-    QDir(projectPath(uid)).removeRecursively();
+    QDir(projectDirectory(uid)).removeRecursively();
 }
 
 void ProjectManager::startProject(const QString& uid)
@@ -104,12 +104,12 @@ void ProjectManager::startProject(const QString& uid)
     s_currentProjectUid = uid;
     qInstallMessageHandler(messageHandler);
 
-    s_qmlApplication = new QmlApplication(projectPath(uid));
+    s_qmlApplication = new QmlApplication(projectDirectory(uid));
     QObject::connect(s_qmlApplication, &QmlApplication::quit,
                     std::bind(&ProjectManager::terminateProject, 0, false, false));
     QObject::connect(s_qmlApplication, &QmlApplication::exit,
                      [=] (int retCode) { ProjectManager::terminateProject(retCode, false); });
-    emit instance()->aboutToStart();
+    emit instance()->aboutToStart(projectDirectory(uid));
     s_qmlApplication->run();
 }
 
