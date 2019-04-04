@@ -51,14 +51,24 @@ bool ApplicationWindow::mightThemeChange(const QString& uid)
 #if defined(Q_OS_IOS)
         static const QString message = tr("Theme change detected on the project. Please "
                                           "restart the application for this change to take effect.");
-        static const QMessageBox::StandardButtons btn = QMessageBox::Ok;
+        static const QMessageBox::StandardButtons btns = QMessageBox::Close;
+        static const QMessageBox::StandardButton defaultBtn = QMessageBox::Close;
 #else
         static const QString message = tr("Theme change detected on the project. Would you like to "
                                           "restart the application for this change to take effect?");
-        static const QMessageBox::StandardButtons btn = QMessageBox::Yes | QMessageBox::No;
+        static const QMessageBox::StandardButtons btns = QMessageBox::Yes | QMessageBox::No;
+        static const QMessageBox::StandardButton defaultBtn = QMessageBox::Yes;
 #endif
-        int ret = QMessageBox::warning(nullptr, tr("Theme Change"), message, btn);
+        QMessageBox warning;
+        warning.QWidget::setWindowTitle(tr("Theme Change"));
+        warning.setIcon(QMessageBox::Question);
+        warning.setText(message);
+        warning.setStandardButtons(btns);
+        warning.setDefaultButton(defaultBtn);
+        int ret = warning.exec();
         if (ret & QMessageBox::Yes)
+            return true;
+        if (ret & QMessageBox::Close)
             return true;
     }
     return false;

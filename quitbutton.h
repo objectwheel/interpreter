@@ -1,30 +1,40 @@
 #ifndef QUITBUTTON_H
 #define QUITBUTTON_H
 
-#include <QAbstractButton>
-#include <QSvgRenderer>
+#include <QWindow>
 
 class QSvgRenderer;
-
-class QuitButton final : public QAbstractButton
+class QuitButton final : public QWindow
 {
     Q_OBJECT
     Q_DISABLE_COPY(QuitButton)
 
 public:
-    explicit QuitButton(QWidget* parent = nullptr);
-    bool isMoved() const { return m_moved; }
+    explicit QuitButton(QWindow* parent = nullptr);
+
+public slots:
+    void update();
+    void repaint();
 
 private:
+    bool event(QEvent* event) override;
+    void resizeEvent(QResizeEvent* event) override;
+    void exposeEvent(QExposeEvent* event) override;
     void mousePressEvent(QMouseEvent* event) override;
+    void mouseReleaseEvent(QMouseEvent* event) override;
     void mouseMoveEvent(QMouseEvent* event) override;
-    void paintEvent(QPaintEvent* event) override;
+    void paintEvent(QPainter* painter);
+
+signals:
+    void clicked();
 
 private:
     int m_x;
     int m_y;
     bool m_moved;
-    QSvgRenderer m_svgRenderer;
+    bool m_pressed;
+    QBackingStore* m_backingStore;
+    QSvgRenderer* m_svgRenderer;
 };
 
 #endif // QUITBUTTON_H

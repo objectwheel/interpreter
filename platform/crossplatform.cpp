@@ -71,8 +71,7 @@ QString deviceName()
 void restart()
 {
 #if defined(Q_OS_IOS)
-    qWarning("WARNING: CrossPlatform::restart() does nothing on IOS");
-    return;
+    qWarning("WARNING: CrossPlatform::restart() only quits on IOS");
 #elif defined(Q_OS_ANDROID)
     auto activity = QtAndroid::androidActivity();
     auto packageManager = activity.callObjectMethod(

@@ -17,6 +17,7 @@
 #include <QMessageBox>
 #include <QTimer>
 #include <QSharedMemory>
+#include <QSurfaceFormat>
 
 #if defined(Q_OS_IOS) || defined(Q_OS_ANDROID)
 #include <quitbutton.h>
@@ -43,6 +44,10 @@ ApplicationCore::ApplicationCore()
     font.setPixelSize(13);
     font.setStyleStrategy(QFont::PreferAntialias);
     QApplication::setFont(font);
+
+    QSurfaceFormat format(QSurfaceFormat::defaultFormat());
+    format.setAlphaBufferSize(8);
+    QSurfaceFormat::setDefaultFormat(format);
 
     // Initialize Web View
     QtWebView::initialize();
@@ -139,8 +144,10 @@ ApplicationCore::ApplicationCore()
             DiscoveryManager::sendStartReport({});
             DiscoveryManager::sendFinishReport(0, false);
             QTimer::singleShot(1500, &CrossPlatform::restart);
+#if !defined(Q_OS_IOS)
             QMessageBox::information(m_applicationWindow, QObject::tr("Restarting"),
                                      QObject::tr("Restarting in 2 seconds..."));
+#endif
             return;
         }
         m_applicationWindow->hide();
@@ -152,9 +159,9 @@ ApplicationCore::ApplicationCore()
 #if defined(Q_OS_IOS) || defined(Q_OS_ANDROID)
     QObject::connect(&m_projectManager, &ProjectManager::aboutToStart, m_quitButton, [=] {
 #if defined(Q_OS_IOS)
-        m_quitButton->move(10, 30);
+        m_quitButton->setPosition(10, 30);
 #else
-        m_quitButton->move(10, 10);
+        m_quitButton->setPosition(10, 10);
 #endif
         m_quitButton->show();
         m_quitButton->raise();
@@ -162,10 +169,8 @@ ApplicationCore::ApplicationCore()
 
     QObject::connect(m_quitButton, &QuitButton::clicked,
                      m_quitButton, [=] {
-        if (!m_quitButton->isMoved()) {
-            m_quitButton->hide();
-            ProjectManager::terminateProject(0, false);
-        }
+        m_quitButton->hide();
+        ProjectManager::terminateProject(0, false);
     });
 #endif
 }
@@ -219,7 +224,7 @@ QSettings* ApplicationCore::settings()
 
 QString ApplicationCore::dataPath()
 {
-    return QStandardPaths::standardLocations(QStandardPaths::AppDataLocation).last();
+    return QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
 }
 
 QString ApplicationCore::deviceUid()
