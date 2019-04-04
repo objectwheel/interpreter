@@ -66,7 +66,7 @@ void ProjectManager::importProject(const QString& uid, const QString& sourceZipP
     }
 
     if (QFileInfo::exists(projectDirectory(uid)) && !QDir(projectDirectory(uid)).removeRecursively()) {
-        emit instance()->importError(tr("Error removing existing project."));
+        emit instance()->importError(tr("Error removing existing project"));
         return;
     }
 
@@ -76,7 +76,7 @@ void ProjectManager::importProject(const QString& uid, const QString& sourceZipP
     s_zipWatcher.setFuture(ZipAsync::unzip(sourceZipPath, projectDirectory(uid)));
 
     if (s_zipWatcher.isCanceled()) {
-        emit instance()->importError(tr("Cannot extract the project archive for some reason."));
+        emit instance()->importError(tr("Cannot extract the project archive for some reason"));
         return;
     }
 }

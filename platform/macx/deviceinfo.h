@@ -4,10 +4,10 @@
 #include <QString>
 
 namespace Macos {
-
 namespace DeviceInfo {
 
 QString deviceName();
+
 }
 }
 
