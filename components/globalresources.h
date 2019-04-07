@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QUrl>
+#include <functional>
 
 class GlobalResources final : public QObject
 {
