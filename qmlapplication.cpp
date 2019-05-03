@@ -106,9 +106,9 @@ void QmlApplication::run()
 QmlApplication::ControlInstance QmlApplication::createInstance(const QString& dir,
                                                                const ControlInstance& parentInstance)
 {
-    Q_ASSERT_X(SaveUtils::isOwctrl(dir), "createInstance", "Owctrl™ structure is corrupted.");
+    Q_ASSERT_X(SaveUtils::isControlValid(dir), "createInstance", "Owctrl™ structure is corrupted.");
 
-    const QString& url = SaveUtils::toUrl(dir);
+    const QString& url = SaveUtils::toMainQmlFile(dir);
     const QString& id = SaveUtils::id(dir);
 
     Q_ASSERT(!id.isEmpty());

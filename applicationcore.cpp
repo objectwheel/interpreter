@@ -46,6 +46,6 @@ void ApplicationCore::prepare()
     QuickTheme::setTheme(CommandlineParser::projectDirectory());
     qputenv("QML_DISABLE_DISK_CACHE", "true");
     QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps); // For devices that devicePixelRatio > 1
-    if (SaveUtils::projectScaling(CommandlineParser::projectDirectory()) != "noScaling")
+    if (SaveUtils::projectHdpiScaling(CommandlineParser::projectDirectory()))
         QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 }
