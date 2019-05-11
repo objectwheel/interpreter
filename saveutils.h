@@ -1,93 +1,120 @@
 #ifndef SAVEUTILS_H
 #define SAVEUTILS_H
 
-#include <QJsonValue>
+#include <QVariant>
 
-#define SIGN_OWDB        "T3dkYl92Mi4w"    // FIXME: There is no function of this
-#define SIGN_OWCTRL      "T3djdHJsX3YyLjA"
-#define SIGN_OWPRJ       "T3dwcmpfdjIuMA"
+namespace SaveUtils {
 
-#define DIR_THIS         "t"
-#define DIR_CHILDREN     "c"
-#define DIR_MAINFORM     "1"
-#define DIR_OWDB         "owdb"
-#define DIR_IMPORTS      "imports"
-#define DIR_OW           "Objectwheel"
-#define DIR_GLOBAL       "GlobalResources"
+enum ControlProperties : quint32 {
+    ControlId = 0x1000,
+    ControlUid,
+    ControlIcon,
+    ControlToolName,
+    ControlToolCategory,
+    ControlVersion,
+    ControlSignature
+};
 
-#define FILE_PROJECT     "project.json"
-#define FILE_OWDB        "owdb.json"       // FIXME: There is no function of this
-#define FILE_CONTROL     "control.json"    // TODO: Embed icon.png data into control.json
-#define FILE_ICON        "icon.png"        // TODO: Apply everywhere
-#define FILE_MAIN        "main.qml"        // TODO: Apply everywhere
+enum ProjectProperties : quint32 {
+    ProjectName = 0x2000,
+    ProjectDescription,
+    ProjectCreationDate,
+    ProjectModificationDate,
+    ProjectSize,
+    ProjectUid,
+    ProjectTheme,
+    ProjectHdpiScaling,
+    ProjectVersion,
+    ProjectSignature
+};
 
-#define TAG_ID           "id"
-#define TAG_UID          "uid"
-#define TAG_CHECKSUM     "checksum"        // TODO: Reserved
-#define TAG_NAME         "name"
-#define TAG_CATEGORY     "category"
-#define TAG_OWDB_SIGN    "owdbsign"        // FIXME: There is no function of this
-#define TAG_OWCTRL_SIGN  "owctrlsign"
+enum UserProperties : quint32 {
+    UserEmail = 0x3000,
+    UserPassword,
+    UserFirst,
+    UserLast,
+    UserCountry,
+    UserCompany,
+    UserTitle,
+    UserPhone,
+    UserIcon,
+    UserPlan,
+    UserRegistrationDate,
+    UserLastOnlineDate,
+    UserVersion,
+    UserSignature
+};
 
-#define PTAG_NAME        "name"
-#define PTAG_DESCRIPTION "description"
-#define PTAG_CHECKSUM    "checksum"        // TODO: Reserved
-#define PTAG_OWNER       "owner"
-#define PTAG_CRDATE      "crdate"
-#define PTAG_MFDATE      "mfdate"
-#define PTAG_SIZE        "size"
-#define PTAG_UID         "uid"
-#define PTAG_THEME       "theme"
-#define PTAG_SCALING     "scaling"
-#define PTAG_OWPRJ_SIGN  "owprj"
+bool isForm(const QString& controlDir);
+bool isControlValid(const QString& controlDir);
+bool isProjectValid(const QString& projectDir);
+bool isUserValid(const QString& userDir);
 
-namespace SaveUtils
-{
-bool isForm(const QString& rootPath);
-bool isMain(const QString& rootPath);
-bool isOwctrl(const QString& rootPath);
-bool isOwprj(const QString& projectDir);
+QString controlMetaFileName();
+QString projectMetaFileName();
+QString userMetaFileName();
+QString mainQmlFileName();
 
-int biggestDir(const QString& basePath);
-int childrenCount(const QString& rootPath);
-
-QString toUrl(const QString& rootPath);
-QString toIcon(const QString& rootPath);
-QString toThisDir(const QString& rootPath);
-QString toParentDir(const QString& topPath);
-QString toChildrenDir(const QString& rootPath);
-QString toOwdbDir(const QString& projectDir);
-QString toProjectFile(const QString& projectDir);
+QString toControlMetaFile(const QString& controlDir);
+QString toProjectMetaFile(const QString& projectDir);
+QString toUserMetaFile(const QString& userDir);
+QString toMainQmlFile(const QString& controlDir);
+QString toThisDir(const QString& controlDir);
+QString toChildrenDir(const QString& controlDir);
+QString toParentDir(const QString& controlDir);
+QString toDesignsDir(const QString& projectDir);
 QString toImportsDir(const QString& projectDir);
 QString toOwDir(const QString& projectDir);
 QString toGlobalDir(const QString& projectDir);
-QString toControlFile(const QString& rootPath);
 
-QStringList formPaths(const QString& projectDir);
-QStringList controlPaths(const QString& topPath);
-QStringList childrenPaths(const QString& rootPath);
+QString id(const QString& controlDir);
+QString uid(const QString& controlDir);
+QString name(const QString& controlDir);
+QString category(const QString& controlDir);
+QByteArray icon(const QString& controlDir);
 
-QString id(const QString& rootPath);
-QString uid(const QString& rootPath);
-QString name(const QString& rootPath);
-QString category(const QString& rootPath);
-
+bool projectHdpiScaling(const QString& projectDir);
+qint64 projectSize(const QString& projectDir);
 QString projectUid(const QString& projectDir);
 QString projectName(const QString& projectDir);
-QString projectSize(const QString& projectDir);
-QString projectOwner(const QString& projectDir);
-QString projectCrDate(const QString& projectDir);
-QString projectMfDate(const QString& projectDir);
-QString projectScaling(const QString& projectDir);
 QString projectDescription(const QString& projectDir);
+QDateTime projectCreationDate(const QString& projectDir);
+QDateTime projectModificationDate(const QString& projectDir);
 QJsonValue projectTheme(const QString& projectDir);
 
-QJsonValue property(const QString& rootPath, const QString& property);
-QJsonValue projectProperty(const QString& projectDir, const QString& property);
+quint32 userPlan(const QString& userDir);
+QString userEmail(const QString& userDir);
+QString userFirst(const QString& userDir);
+QString userLast(const QString& userDir);
+QString userCountry(const QString& userDir);
+QString userCompany(const QString& userDir);
+QString userTitle(const QString& userDir);
+QString userPhone(const QString& userDir);
+QByteArray userPassword(const QString& userDir);
+QByteArray userIcon(const QString& userDir);
+QDateTime userLastOnlineDate(const QString& userDir);
+QDateTime userRegistrationDate(const QString& userDir);
 
-void setProperty(const QString& rootPath,  const QString& property, const QJsonValue& value);
-void setProjectProperty(const QString& projectDir, const QString& property, const QJsonValue& value);
+QMap<ControlProperties, QVariant> controlMap(const QString& controlDir);
+QMap<ProjectProperties, QVariant> projectMap(const QString& projectDir);
+QMap<UserProperties, QVariant> userMap(const QString& userDir);
+
+QVariant property(const QString& controlDir, ControlProperties property);
+QVariant property(const QString& projectDir, ProjectProperties property);
+QVariant property(const QString& userDir, UserProperties property);
+
+void setProperty(const QString& controlDir, ControlProperties property, const QVariant& value);
+void setProperty(const QString& projectDir, ProjectProperties property, const QVariant& value);
+void setProperty(const QString& userDir, UserProperties property, const QVariant& value);
+
+void makeControlMetaFile(const QString& controlDir);
+void makeProjectMetaFile(const QString& projectDir);
+void makeUserMetaFile(const QString& userDir);
+
 void regenerateUids(const QString& topPath);
-}
+QStringList formPaths(const QString& projectDir);
+QStringList childrenPaths(const QString& controlDir);
+
+} // SaveUtils
 
 #endif // SAVEUTILS_H

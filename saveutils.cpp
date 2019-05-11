@@ -1,323 +1,458 @@
 #include <saveutils.h>
-#include <filemanager.h>
+#include <filesystemutils.h>
 #include <hashfactory.h>
+#include <serializeenum.h>
 
-#include <QJsonArray>
-#include <QJsonObject>
-#include <QJsonDocument>
+#include <QDateTime>
+#include <QDir>
+#include <QJsonValue>
+#include <QSaveFile>
 
-// TODO: Change QString with QLatin1String whenever it is possible
-// TODO: Always use case insensitive comparison when it is possible
-
-namespace {
-
-void exchangeMatchesForFile(const QString& filePath, const QString& from, const QString& to)
-{
-    QByteArray data = rdfile(filePath);
-    data.replace(from.toUtf8(), to.toUtf8());
-    wrfile(filePath, data);
-}
-
-QJsonObject rootJsonObjectForFile(const QString& fileName)
-{
-    return QJsonDocument::fromJson(rdfile(fileName)).object();
-}
-
-void writeJsonObjectToFile(const QJsonObject& jsonObject, const QString& fileName)
-{
-    wrfile(fileName, QJsonDocument(jsonObject).toJson());
-}
-}
+#define VERSION      2.9
+#define SIGN_OWCTRL  "b3djdHJs"
+#define SIGN_OWPRJT  "b3dwcmp0"
+#define SIGN_OWUSER  "b3d1c2Vy"
+#define DIR_THIS     "t"
+#define DIR_CHILDREN "c"
+#define DIR_DESIGNS  "designs"
+#define DIR_IMPORTS  "imports"
+#define DIR_OW       "Objectwheel"
+#define DIR_GLOBAL   "GlobalResources"
 
 namespace SaveUtils {
 
-bool isForm(const QString& rootPath)
+bool isForm(const QString& controlDir)
 {
-    return DIR_OWDB == fname(dname(rootPath));
+    QDir dir(controlDir);
+    dir.cdUp();
+    return QStringLiteral(DIR_DESIGNS) == dir.dirName();
 }
 
-/*!
-    Returns true if given path belongs to main form
-    It doesn't check whether rootPath belong to a form or not.
-*/
-bool isMain(const QString& rootPath)
+bool isControlValid(const QString& controlDir)
 {
-    return fname(rootPath) == DIR_MAINFORM;
+    const QString& sign = property(controlDir, ControlSignature).toString();
+    return sign == QStringLiteral(SIGN_OWCTRL) && !uid(controlDir).isEmpty();
 }
 
-bool isOwctrl(const QString& rootPath)
+bool isProjectValid(const QString& projectDir)
 {
-    Q_ASSERT(!rootPath.isEmpty());
-    const QString& sign = property(rootPath, TAG_OWCTRL_SIGN).toString();
-    return sign == SIGN_OWCTRL && !uid(rootPath).isEmpty();
+    const QString& sign = property(projectDir, ProjectSignature).toString();
+    return sign == QStringLiteral(SIGN_OWPRJT);
 }
 
-bool isOwprj(const QString& projectDir)
+bool isUserValid(const QString& userDir)
 {
-    const QString& sign = projectProperty(projectDir, PTAG_OWPRJ_SIGN).toString();
-    return sign == SIGN_OWPRJ;
+    const QString& sign = property(userDir, UserSignature).toString();
+    return sign == QStringLiteral(SIGN_OWUSER);
 }
 
-/*!
-    Returns biggest number from integer named dirs.
-    If no integer named dir exists, 0 returned.
-    If no dir exists or dirs are smaller than zero, 0 returned.
-*/
-int biggestDir(const QString& basePath)
+QString controlMetaFileName()
 {
-    int num = 0;
-    for (const QString& dir : lsdir(basePath)) {
-        if (dir.toInt() > num)
-            num = dir.toInt();
-    }
-    return num;
+    static const QString& controlMetaFile = QStringLiteral("control.meta");
+    return controlMetaFile;
 }
 
-/*!
-    Counts all children paths (rootPath) within given root path.
-*/
-int childrenCount(const QString& rootPath)
+QString projectMetaFileName()
 {
-    Q_ASSERT(!rootPath.isEmpty());
-
-    int counter = 0;
-    const QString& childrenDir = toChildrenDir(rootPath);
-    for (const QString& childDirName : lsdir(childrenDir)) {
-        const QString& childRootPath = childrenDir + separator() + childDirName;
-        if (isOwctrl(childRootPath)) {
-            ++counter;
-            counter += childrenCount(childRootPath);
-        }
-    }
-
-    return counter;
+    static const QString& projectMetaFile = QStringLiteral("project.meta");
+    return projectMetaFile;
 }
 
-QString toUrl(const QString& rootPath)
+QString userMetaFileName()
 {
-    return rootPath + separator() + DIR_THIS + separator() + FILE_MAIN;
+    static const QString& userMetaFile = QStringLiteral("user.meta");
+    return userMetaFile;
 }
 
-QString toIcon(const QString& rootPath)
+QString mainQmlFileName()
 {
-    return rootPath + separator() + DIR_THIS + separator() + FILE_ICON;
+    static const QString& mainQmlFile = QStringLiteral("main.qml");
+    return mainQmlFile;
 }
 
-QString toThisDir(const QString& rootPath)
+QString toControlMetaFile(const QString& controlDir)
 {
-    return rootPath + separator() + DIR_THIS;
+    return controlDir + '/' + QStringLiteral(DIR_THIS) + '/' + controlMetaFileName();
 }
 
-QString toParentDir(const QString& topPath)
+QString toProjectMetaFile(const QString& projectDir)
 {
-    return dname(dname(topPath));
+    return projectDir + '/' + projectMetaFileName();
 }
 
-QString toChildrenDir(const QString& rootPath)
+QString toUserMetaFile(const QString& userDir)
 {
-    return rootPath + separator() + DIR_CHILDREN;
+    return userDir + '/' + userMetaFileName();
 }
 
-QString toOwdbDir(const QString& projectDir)
+QString toMainQmlFile(const QString& controlDir)
 {
-    return projectDir + separator() + DIR_OWDB;
+    return controlDir + '/' + QStringLiteral(DIR_THIS) + '/' + mainQmlFileName();
 }
 
-QString toProjectFile(const QString& projectDir)
+QString toThisDir(const QString& controlDir)
 {
-    return projectDir + separator() + FILE_PROJECT;
+    return controlDir + '/' + QStringLiteral(DIR_THIS);
+}
+
+QString toChildrenDir(const QString& controlDir)
+{
+    return controlDir + '/' + QStringLiteral(DIR_CHILDREN);
+}
+
+QString toParentDir(const QString& controlDir)
+{
+    QDir dir(controlDir);
+    dir.cdUp();
+    dir.cdUp();
+    return dir.path();
+}
+
+QString toDesignsDir(const QString& projectDir)
+{
+    return projectDir + '/' + QStringLiteral(DIR_DESIGNS);
 }
 
 QString toImportsDir(const QString& projectDir)
 {
-    return toOwdbDir(projectDir) + separator() + DIR_IMPORTS;
+    return projectDir + '/' + QStringLiteral(DIR_IMPORTS);
 }
 
 QString toOwDir(const QString& projectDir)
 {
-    return toImportsDir(projectDir) + separator() + DIR_OW;
+    return toImportsDir(projectDir) + '/' + QStringLiteral(DIR_OW);
 }
 
 QString toGlobalDir(const QString& projectDir)
 {
-    return toOwDir(projectDir) + separator() + DIR_GLOBAL;
+    return toOwDir(projectDir) + '/' + QStringLiteral(DIR_GLOBAL);
 }
 
-QString toControlFile(const QString& rootPath)
+QString id(const QString& controlDir)
 {
-    return rootPath + separator() + DIR_THIS + separator() + FILE_CONTROL;
+    return property(controlDir, ControlId).toString();
+}
+
+QString uid(const QString& controlDir)
+{
+    return property(controlDir, ControlUid).toString();
+}
+
+QString name(const QString& controlDir)
+{
+    return property(controlDir, ControlToolName).toString();
+}
+
+QString category(const QString& controlDir)
+{
+    return property(controlDir, ControlToolCategory).toString();
+}
+
+QByteArray icon(const QString& controlDir)
+{
+    return property(controlDir, ControlIcon).toByteArray();
+}
+
+bool projectHdpiScaling(const QString& projectDir)
+{
+    return property(projectDir, ProjectHdpiScaling).value<bool>();
+}
+
+qint64 projectSize(const QString& projectDir)
+{
+    return property(projectDir, ProjectSize).value<qint64>();
+}
+
+QString projectUid(const QString& projectDir)
+{
+    return property(projectDir, ProjectUid).value<QString>();
+}
+
+QString projectName(const QString& projectDir)
+{
+    return property(projectDir, ProjectName).value<QString>();
+}
+
+QString projectDescription(const QString& projectDir)
+{
+    return property(projectDir, ProjectDescription).value<QString>();
+}
+
+QDateTime projectCreationDate(const QString& projectDir)
+{
+    return property(projectDir, ProjectCreationDate).value<QDateTime>();
+}
+
+QDateTime projectModificationDate(const QString& projectDir)
+{
+    return property(projectDir, ProjectModificationDate).value<QDateTime>();
+}
+
+QJsonValue projectTheme(const QString& projectDir)
+{
+    return property(projectDir, ProjectTheme).value<QJsonValue>();
+}
+
+quint32 userPlan(const QString& userDir)
+{
+    return property(userDir, UserPlan).value<quint32>();
+}
+
+QString userEmail(const QString& userDir)
+{
+    return property(userDir, UserEmail).value<QString>();
+}
+
+QString userFirst(const QString& userDir)
+{
+    return property(userDir, UserFirst).value<QString>();
+}
+
+QString userLast(const QString& userDir)
+{
+    return property(userDir, UserLast).value<QString>();
+}
+
+QString userCountry(const QString& userDir)
+{
+    return property(userDir, UserCountry).value<QString>();
+}
+
+QString userCompany(const QString& userDir)
+{
+    return property(userDir, UserCompany).value<QString>();
+}
+
+QString userTitle(const QString& userDir)
+{
+    return property(userDir, UserTitle).value<QString>();
+}
+
+QString userPhone(const QString& userDir)
+{
+    return property(userDir, UserPhone).value<QString>();
+}
+
+QByteArray userPassword(const QString& userDir)
+{
+    return property(userDir, UserPassword).value<QByteArray>();
+}
+
+QByteArray userIcon(const QString& userDir)
+{
+    return property(userDir, UserIcon).value<QByteArray>();
+}
+
+QDateTime userLastOnlineDate(const QString& userDir)
+{
+    return property(userDir, UserLastOnlineDate).value<QDateTime>();
+}
+
+QDateTime userRegistrationDate(const QString& userDir)
+{
+    return property(userDir, UserRegistrationDate).value<QDateTime>();
+}
+
+QMap<ControlProperties, QVariant> controlMap(const QString& controlDir)
+{
+    QMap<ControlProperties, QVariant> map;
+    QFile file(toControlMetaFile(controlDir));
+    if (!file.open(QFile::ReadOnly)) {
+        qWarning("SaveUtils: Cannot open control meta file");
+        return map;
+    }
+    QDataStream in(&file);
+    in.setVersion(QDataStream::Qt_5_12);
+    in >> map;
+    file.close();
+    return map;
+}
+
+QMap<ProjectProperties, QVariant> projectMap(const QString& projectDir)
+{
+    QMap<ProjectProperties, QVariant> map;
+    QFile file(toProjectMetaFile(projectDir));
+    if (!file.open(QFile::ReadOnly)) {
+        qWarning("SaveUtils: Cannot open project meta file");
+        return map;
+    }
+    QDataStream in(&file);
+    in.setVersion(QDataStream::Qt_5_12);
+    in >> map;
+    file.close();
+    return map;
+}
+
+QMap<UserProperties, QVariant> userMap(const QString& userDir)
+{
+    QMap<UserProperties, QVariant> map;
+    QFile file(toUserMetaFile(userDir));
+    if (!file.open(QFile::ReadOnly)) {
+        qWarning("SaveUtils: Cannot open user meta file");
+        return map;
+    }
+    QDataStream in(&file);
+    in.setVersion(QDataStream::Qt_5_12);
+    in >> map;
+    file.close();
+    return map;
+}
+
+QVariant property(const QString& controlDir, ControlProperties property)
+{
+    return controlMap(controlDir).value(property);
+}
+
+QVariant property(const QString& projectDir, ProjectProperties property)
+{
+    return projectMap(projectDir).value(property);
+}
+
+QVariant property(const QString& userDir, UserProperties property)
+{
+    return userMap(userDir).value(property);
+}
+
+void setProperty(const QString& controlDir, ControlProperties property, const QVariant& value)
+{
+    QMap<ControlProperties, QVariant> map(controlMap(controlDir));
+    map.insert(property, value);
+    QSaveFile file(toControlMetaFile(controlDir));
+    if (!file.open(QSaveFile::WriteOnly)) {
+        qWarning("SaveUtils: Cannot open control meta file");
+        return;
+    }
+    QDataStream out(&file);
+    out.setVersion(QDataStream::Qt_5_12);
+    out << map;
+    if (!file.commit())
+        qWarning("SaveUtils: Control meta file save unsuccessful");
+}
+
+void setProperty(const QString& projectDir, ProjectProperties property, const QVariant& value)
+{
+    QMap<ProjectProperties, QVariant> map(projectMap(projectDir));
+    map.insert(property, value);
+    map.insert(ProjectModificationDate, QDateTime::currentDateTime());
+    QSaveFile file(toProjectMetaFile(projectDir));
+    if (!file.open(QSaveFile::WriteOnly)) {
+        qWarning("SaveUtils: Cannot open project meta file");
+        return;
+    }
+    QDataStream out(&file);
+    out.setVersion(QDataStream::Qt_5_12);
+    out << map;
+    if (!file.commit())
+        qWarning("SaveUtils: Project meta file save unsuccessful");
+}
+
+void setProperty(const QString& userDir, UserProperties property, const QVariant& value)
+{
+    QMap<UserProperties, QVariant> map(userMap(userDir));
+    map.insert(property, value);
+    QSaveFile file(toUserMetaFile(userDir));
+    if (!file.open(QSaveFile::WriteOnly)) {
+        qWarning("SaveUtils: Cannot open user meta file");
+        return;
+    }
+    QDataStream out(&file);
+    out.setVersion(QDataStream::Qt_5_12);
+    out << map;
+    if (!file.commit())
+        qWarning("SaveUtils: User meta file save unsuccessful");
+}
+
+void makeControlMetaFile(const QString& controlDir)
+{
+    if (!QFileInfo::exists(toControlMetaFile(controlDir))) {
+        QMap<ControlProperties, QVariant> map;
+        map.insert(ControlVersion, qreal(VERSION));
+        map.insert(ControlSignature, QStringLiteral(SIGN_OWCTRL));
+        QFile file(toControlMetaFile(controlDir));
+        if (!file.open(QFile::WriteOnly)) {
+            qWarning("SaveUtils: Cannot open control meta file");
+            return;
+        }
+        QDataStream out(&file);
+        out.setVersion(QDataStream::Qt_5_12);
+        out << map;
+        file.close();
+    }
+}
+
+void makeProjectMetaFile(const QString& projectDir)
+{
+    if (!QFileInfo::exists(toProjectMetaFile(projectDir))) {
+        QMap<ProjectProperties, QVariant> map;
+        map.insert(ProjectVersion, qreal(VERSION));
+        map.insert(ProjectSignature, QStringLiteral(SIGN_OWPRJT));
+        QFile file(toProjectMetaFile(projectDir));
+        if (!file.open(QFile::WriteOnly)) {
+            qWarning("SaveUtils: Cannot open project meta file");
+            return;
+        }
+        QDataStream out(&file);
+        out.setVersion(QDataStream::Qt_5_12);
+        out << map;
+        file.close();
+    }
+}
+
+void makeUserMetaFile(const QString& userDir)
+{
+    if (!QFileInfo::exists(toUserMetaFile(userDir))) {
+        QMap<UserProperties, QVariant> map;
+        map.insert(UserVersion, qreal(VERSION));
+        map.insert(UserSignature, QStringLiteral(SIGN_OWUSER));
+        QFile file(toUserMetaFile(userDir));
+        if (!file.open(QFile::WriteOnly)) {
+            qWarning("SaveUtils: Cannot open user meta file");
+            return;
+        }
+        QDataStream out(&file);
+        out.setVersion(QDataStream::Qt_5_12);
+        out << map;
+        file.close();
+    }
+}
+
+void regenerateUids(const QString& topPath)
+{
+    for (const QString& controlFilePath
+         : FileSystemUtils::searchFiles(controlMetaFileName(), topPath)) {
+        const QString& controlDir = toParentDir(controlFilePath);
+        if (!isControlValid(controlDir))
+            continue;
+        setProperty(controlDir, ControlUid, HashFactory::generate());
+    }
 }
 
 QStringList formPaths(const QString& projectDir)
 {
     QStringList paths;
-
-    if (projectDir.isEmpty())
-        return paths;
-
-    const QString& dirOwdb = toOwdbDir(projectDir);
-    for (const QString& formFolder : lsdir(dirOwdb)) {
-        const QString& formDir = dirOwdb + separator() + formFolder;
-        if (isOwctrl(formDir))
+    const QString& designsDir = toDesignsDir(projectDir);
+    for (const QString& formDirName
+         : QDir(designsDir).entryList(QDir::AllDirs | QDir::NoDotAndDotDot)) {
+        const QString& formDir = designsDir + '/' + formDirName;
+        if (isControlValid(formDir))
             paths.append(formDir);
     }
-
     return paths;
 }
 
-/*!
-    Searches for all controls paths, starting from topPath.
-    Returns all control paths (rootPaths) within given topPath.
-*/
-QStringList controlPaths(const QString& topPath)
+QStringList childrenPaths(const QString& controlDir)
 {
     QStringList paths;
-
-    if (topPath.isEmpty())
-        return paths;
-
-    for (const QString& controlFilePath : fps(FILE_CONTROL, topPath)) {
-        const QString& controlDir = toParentDir(controlFilePath);
-        if (isOwctrl(controlDir))
-            paths.append(controlDir);
+    const QString& childrenDir = toChildrenDir(controlDir);
+    for (const QString& childDirName
+         : QDir(childrenDir).entryList(QDir::AllDirs | QDir::NoDotAndDotDot)) {
+        const QString& childControlDir = childrenDir + '/' + childDirName;
+        if (isControlValid(childControlDir)) {
+            paths.append(childControlDir);
+            paths.append(childrenPaths(childControlDir));
+        }
     }
-
     return paths;
 }
 
-/*!
-    Returns all children paths (rootPath) within given root path.
-*/
-QStringList childrenPaths(const QString& rootPath)
-{
-    Q_ASSERT(!rootPath.isEmpty());
-
-    QStringList paths;
-    const QString& childrenDir = toChildrenDir(rootPath);
-    for (const QString& childDirName : lsdir(childrenDir)) {
-        const QString& childRootPath = childrenDir + separator() + childDirName;
-        if (isOwctrl(childRootPath)) {
-            paths.append(childRootPath);
-            paths.append(childrenPaths(childRootPath));
-        }
-    }
-
-    return paths;
-}
-
-QString id(const QString& rootPath)
-{
-    return property(rootPath, TAG_ID).toString();
-}
-
-QString uid(const QString& rootPath)
-{
-    return property(rootPath, TAG_UID).toString();
-}
-
-QString name(const QString& rootPath)
-{
-    return property(rootPath, TAG_NAME).toString();
-}
-
-QString category(const QString& rootPath)
-{
-    return property(rootPath, TAG_CATEGORY).toString();
-}
-
-QString projectUid(const QString& projectDir)
-{
-    return projectProperty(projectDir, PTAG_UID).toString();
-}
-
-QString projectName(const QString& projectDir)
-{
-    return projectProperty(projectDir, PTAG_NAME).toString();
-}
-
-QString projectDescription(const QString& projectDir)
-{
-    return projectProperty(projectDir, PTAG_DESCRIPTION).toString();
-}
-
-QString projectOwner(const QString& projectDir)
-{
-    return projectProperty(projectDir, PTAG_OWNER).toString();
-}
-
-QString projectCrDate(const QString& projectDir)
-{
-    return projectProperty(projectDir, PTAG_CRDATE).toString();
-}
-
-QString projectMfDate(const QString& projectDir)
-{
-    return projectProperty(projectDir, PTAG_MFDATE).toString();
-}
-
-QString projectSize(const QString& projectDir)
-{
-    return projectProperty(projectDir, PTAG_SIZE).toString();
-}
-
-QString projectScaling(const QString& projectDir)
-{
-    return projectProperty(projectDir, PTAG_SCALING).toString();
-}
-
-QJsonValue projectTheme(const QString& projectDir)
-{
-    return projectProperty(projectDir, PTAG_THEME);
-}
-
-QJsonValue property(const QString& rootPath, const QString& property)
-{
-    return rootJsonObjectForFile(toControlFile(rootPath)).value(property);
-}
-
-QJsonValue projectProperty(const QString& projectDir, const QString& property)
-{
-    return rootJsonObjectForFile(toProjectFile(projectDir)).value(property);
-}
-
-void setProperty(const QString& rootPath, const QString& property, const QJsonValue& value)
-{
-    Q_ASSERT(!rootPath.isEmpty() && !property.isEmpty() && isOwctrl(rootPath));
-    const QString& controlFile = toControlFile(rootPath);
-    QJsonObject rootJsonObject = rootJsonObjectForFile(controlFile);
-    rootJsonObject.insert(property, value);
-    writeJsonObjectToFile(rootJsonObject, controlFile);
-}
-
-void setProjectProperty(const QString& projectDir, const QString& property, const QJsonValue& value)
-{
-    Q_ASSERT(!projectDir.isEmpty() && !property.isEmpty() && isOwprj(projectDir));
-    const QString& projectFile = toProjectFile(projectDir);
-    QJsonObject rootJsonObject = rootJsonObjectForFile(projectFile);
-    rootJsonObject.insert(property, value);
-    writeJsonObjectToFile(rootJsonObject, projectFile);
-}
-
-/*!
-    Recalculates all uids belongs to given control and its children (all).
-*/
-void regenerateUids(const QString& topPath)
-{
-    Q_ASSERT(!topPath.isEmpty());
-    const QStringList& controlFiles = fps(FILE_CONTROL, topPath);
-    for (const QString& controlFile : controlFiles) {
-        const QString& controlDir = toParentDir(controlFile);
-
-        if (!isOwctrl(controlDir))
-            continue;
-
-        const QString& controlUid = uid(controlDir);
-        const QString& newUid = HashFactory::generate();
-
-        for (const QString& controlFile : controlFiles) {
-            if (isOwctrl(toParentDir(controlFile)))
-                exchangeMatchesForFile(controlFile, controlUid, newUid);
-        }
-    }
-}
 } // SaveUtils

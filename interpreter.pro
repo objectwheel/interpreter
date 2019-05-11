@@ -29,7 +29,8 @@ SOURCES += $$PWD/main.cpp \
            $$PWD/connectivitywidget.cpp \
            $$PWD/utilityfunctions.cpp \
            $$PWD/projectmanager.cpp \
-           $$PWD/progressbar.cpp
+           $$PWD/progressbar.cpp \
+           $$PWD/filesystemutils.cpp
 
 HEADERS += $$PWD/qmlapplication.h \
            $$PWD/applicationcore.h \
@@ -46,7 +47,9 @@ HEADERS += $$PWD/qmlapplication.h \
            $$PWD/connectivitywidget.h \
            $$PWD/utilityfunctions.h \
            $$PWD/projectmanager.h \
-           $$PWD/progressbar.h
+           $$PWD/progressbar.h \
+           $$PWD/serializeenum.h \
+           $$PWD/filesystemutils.h
 
 ios|android {
     SOURCES += $$PWD/quitbutton.cpp

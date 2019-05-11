@@ -25,7 +25,7 @@ class DiscoveryManager : public QObject
     };
 
 public:
-    enum DiscoveryCommands {
+    enum DiscoveryCommands : quint32 {
         Broadcast = 0x1100,
         Execute,
         Terminate,
@@ -88,13 +88,5 @@ private:
     static QString s_address;
     static bool s_connected;
 };
-
-Q_DECLARE_METATYPE(DiscoveryManager::DiscoveryCommands)
-
-inline QDataStream& operator>>(QDataStream& in, DiscoveryManager::DiscoveryCommands& e)
-{ return in >> (int&) e; }
-
-inline QDataStream& operator<<(QDataStream& out, const DiscoveryManager::DiscoveryCommands& e)
-{ return out << int(e); }
 
 #endif // DISCOVERYMANAGER_H

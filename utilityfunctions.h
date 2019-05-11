@@ -22,7 +22,8 @@ void pushHelper(QDataStream& stream, Arg&& arg, Args&&... args)
 }
 
 template <typename Arg, typename... Args>
-void pullHelper(QDataStream& stream, Arg&& arg, Args&&... args) {
+void pullHelper(QDataStream& stream, Arg&& arg, Args&&... args)
+{
     stream >> std::forward<Arg>(arg);
     pullHelper(stream, std::forward<Args>(args)...);
 }
@@ -30,7 +31,8 @@ void pullHelper(QDataStream& stream, Arg&& arg, Args&&... args) {
 } // Internal
 
 template <typename... Args>
-QByteArray push(Args&&... args) {
+QByteArray push(Args&&... args)
+{
     QByteArray data;
     QDataStream stream(&data, QIODevice::WriteOnly);
     stream.setVersion(QDataStream::Qt_5_12);
@@ -39,7 +41,8 @@ QByteArray push(Args&&... args) {
 }
 
 template <typename... Args>
-void pull(const QByteArray& data, Args&&... args) {
+void pull(const QByteArray& data, Args&&... args)
+{
     QDataStream stream(data);
     stream.setVersion(QDataStream::Qt_5_12);
     Internal::pullHelper(stream, std::forward<Args>(args)...);

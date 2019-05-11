@@ -3,7 +3,6 @@
 #include <quicktheme.h>
 #include <saveutils.h>
 #include <qtwebviewfunctions.h>
-#include <filemanager.h>
 #include <applicationwindow.h>
 #include <crossplatform.h>
 #include <hashfactory.h>
@@ -18,21 +17,22 @@
 #include <QTimer>
 #include <QSharedMemory>
 #include <QSurfaceFormat>
+#include <QDir>
 
 #if defined(Q_OS_IOS) || defined(Q_OS_ANDROID)
 #include <quitbutton.h>
 #endif
 
 ApplicationCore* ApplicationCore::s_instance = nullptr;
-QSettings ApplicationCore::s_settings(ApplicationCore::dataPath() + "/settings.ini", QSettings::IniFormat);
+QSettings ApplicationCore::s_settings(ApplicationCore::dataPath() + "/Objectwheel, Inc./interpreter/settings.ini", QSettings::IniFormat); // BUG: FIXME
 
 ApplicationCore::ApplicationCore()
     : m_globalResources([] { return ProjectManager::projectDirectory(ProjectManager::currentProjectUid()); })
 {
     s_instance = this;
 
-    for (const QString& fontName : lsfile(QLatin1String(":/fonts")))
-        QFontDatabase::addApplicationFont(QLatin1String(":/fonts") + separator() + fontName);
+    for (const QString& fontName : QDir(QLatin1String(":/fonts")).entryList(QDir::Files))
+        QFontDatabase::addApplicationFont(QLatin1String(":/fonts/") + fontName);
 
 #if defined(Q_OS_MACOS) || defined(Q_OS_IOS)
     QFont font(".SF NS Display");
@@ -187,7 +187,7 @@ ApplicationCore::~ApplicationCore()
 void ApplicationCore::prepare()
 {
     // Initialize application
-    QApplication::setOrganizationName("Objectwheel");
+    QApplication::setOrganizationName("Objectwheel, Inc.");
     QApplication::setOrganizationDomain("objectwheel.com");
     QApplication::setApplicationName("interpreter");
     QApplication::setApplicationVersion("2.9");
