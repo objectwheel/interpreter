@@ -1,7 +1,6 @@
 #ifndef APPLICATIONCORE_H
 #define APPLICATIONCORE_H
 
-#include <globalresources.h>
 #include <qmlapplication.h>
 
 class ApplicationCore final
@@ -14,7 +13,6 @@ public:
     static void prepare();
 
 private:
-    GlobalResources m_globalResources;
     QmlApplication m_qmlApplication;
 
 public:

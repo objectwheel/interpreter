@@ -39,10 +39,8 @@ const QString& QmlApplication::projectDirectory() const
 void QmlApplication::setProjectDirectory(const QString& projectDirectory)
 {
     m_projectDirectory = projectDirectory;
-    if (!projectDirectory.isEmpty()) {
-        addImportPath(SaveUtils::toImportsDir(m_projectDirectory));
-        addImportPath(SaveUtils::toGlobalDir(m_projectDirectory));
-    }
+    if (!projectDirectory.isEmpty())
+        addImportPath(SaveUtils::toProjectImportsDir(m_projectDirectory));
 }
 
 void QmlApplication::run()
@@ -79,7 +77,7 @@ void QmlApplication::run()
         m_instanceTree.insert(formPath, formInstance);
 
         for (const QString& childPath : SaveUtils::childrenPaths(formPath)) {
-            const ControlInstance& parentInstance = m_instanceTree.value(SaveUtils::toParentDir(childPath));
+            const ControlInstance& parentInstance = m_instanceTree.value(SaveUtils::toDoubleUp(childPath));
             if (!parentInstance.object)
                 continue;
 
@@ -108,8 +106,8 @@ QmlApplication::ControlInstance QmlApplication::createInstance(const QString& di
 {
     Q_ASSERT_X(SaveUtils::isControlValid(dir), "createInstance", "Owctrl™ structure is corrupted.");
 
-    const QString& url = SaveUtils::toMainQmlFile(dir);
-    const QString& id = SaveUtils::id(dir);
+    const QString& url = SaveUtils::toControlMainQmlFile(dir);
+    const QString& id = SaveUtils::controlId(dir);
 
     Q_ASSERT(!id.isEmpty());
 

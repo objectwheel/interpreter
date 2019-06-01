@@ -10,9 +10,7 @@
 #include <QDebug>
 #include <QTimer>
 
-ApplicationCore::ApplicationCore()
-    : m_globalResources(&CommandlineParser::projectDirectory)
-    , m_qmlApplication(CommandlineParser::projectDirectory())
+ApplicationCore::ApplicationCore() : m_qmlApplication(CommandlineParser::projectDirectory())
 {    
     QApplication::setWindowIcon(QIcon(":/resources/images/owicon.png"));
 
