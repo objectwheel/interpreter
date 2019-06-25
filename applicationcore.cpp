@@ -40,10 +40,14 @@ void ApplicationCore::prepare()
     QApplication::setApplicationName("interpreter");
     QApplication::setApplicationVersion("1.2.0");
     QApplication::setApplicationDisplayName("Objectwheel Interpreter");
-
     QuickTheme::setTheme(CommandlineParser::projectDirectory());
-    qputenv("QML_DISABLE_DISK_CACHE", "true");
-    QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps); // For devices that devicePixelRatio > 1
-    if (SaveUtils::projectHdpiScaling(CommandlineParser::projectDirectory()))
+
+    if (SaveUtils::projectHdpiScaling(CommandlineParser::projectDirectory())) {
+        QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
         QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+    }
+
+    qputenv("QML_DISABLE_DISK_CACHE", "true");
+    qputenv("QT_QUICK_CONTROLS_CONF",
+            SaveUtils::toProjectAssetsDir(CommandlineParser::projectDirectory()).toUtf8());
 }
