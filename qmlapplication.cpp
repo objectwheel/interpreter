@@ -9,6 +9,7 @@
 #include <QQmlProperty>
 #include <QFileInfo>
 #include <QCoreApplication>
+#include <QQuickItem>
 
 QmlApplication::QmlApplication(const QString& projectDirectory, QObject* parent) : QQmlEngine(parent)
   , m_rootObject(new QObject)
@@ -101,6 +102,26 @@ void QmlApplication::run()
         emit exit(EXIT_FAILURE);
 }
 
+void QmlApplication::setInstanceParent(QmlApplication::ControlInstance* instance, QObject* parentObject)
+{
+    Q_ASSERT(parentObject);
+    Q_ASSERT(instance->object);
+
+    if (auto item = qobject_cast<QQuickItem*>(instance->object))
+        item->setParentItem(nullptr);
+
+    instance->object->setParent(parentObject);
+
+    QQmlProperty defaultProperty(parentObject);
+    Q_ASSERT(defaultProperty.isValid());
+
+    QQmlListReference childList = defaultProperty.read().value<QQmlListReference>();
+    Q_ASSERT(!qobject_cast<QQuickItem*>(instance->object) || childList.canAppend());
+
+    if (childList.canAppend())
+        childList.append(instance->object);
+}
+
 QmlApplication::ControlInstance QmlApplication::createInstance(const QString& dir,
                                                                const ControlInstance& parentInstance)
 {
@@ -149,15 +170,10 @@ QmlApplication::ControlInstance QmlApplication::createInstance(const QString& di
     instance.object = object;
     instance.component = component;
 
-    if (!SaveUtils::isForm(dir)) {
-        QQmlProperty defaultProperty(parentInstance.object);
-        Q_ASSERT(defaultProperty.isValid());
-        instance.object->setParent(parentInstance.object);
-        QQmlListReference childList = defaultProperty.read().value<QQmlListReference>();
-        childList.append(instance.object);
-    } else {
+    if (!SaveUtils::isForm(dir))
+        setInstanceParent(&instance, parentInstance.object);
+    else
         instance.object->setParent(m_rootObject);
-    }
 
     return instance;
 }

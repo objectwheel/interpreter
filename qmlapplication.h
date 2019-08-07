@@ -27,6 +27,7 @@ public slots:
     void run();
 
 private:
+    void setInstanceParent(QmlApplication::ControlInstance* instance, QObject* parentObject);
     ControlInstance createInstance(const QString& dir, const ControlInstance& parentInstance);
 
 private:
