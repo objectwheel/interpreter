@@ -1,6 +1,7 @@
 import QtQuick 2.9
 import QtQuick.Layouts 1.0
 import QtQuick.Controls 1.4
+import QtQuick.Controls 2.4
 import QtQuick.Window 2.2
 import QtQml 2.0
 import QtQml.Models 2.1
@@ -17,7 +18,7 @@ import Qt.labs.particles 1.0
 import Qt.labs.settings 1.0
 import QtWebKit 3.0
 import QtWebKit 1.0
-import QtTest 1.0
+import QtTest 1.12
 import QtSensors 5.9
 import QtPurchasing 1.0
 import QtPositioning 5.9
@@ -32,4 +33,5 @@ import QtQuick.Extras 1.4
 import QtQuick.Controls.Imagine 2.3
 import QtQuick.Controls.Material 2.3
 import QtQuick.Controls.Universal 2.3
+
 Item {}

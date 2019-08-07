@@ -12,7 +12,7 @@ class QWebSocket;
 class QHostAddress;
 class QTemporaryFile;
 
-class DiscoveryManager : public QObject
+class DiscoveryManager final : public QObject
 {
     Q_OBJECT
     Q_DISABLE_COPY(DiscoveryManager)

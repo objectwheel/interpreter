@@ -5,9 +5,9 @@ DEFINES += QT_DEPRECATED_WARNINGS
 DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000
 CONFIG  += c++14 strict_c++
 
-QT += widgets network qml qml-private quick webview websockets gamepad webchannel
-QT += sensors svg scxml purchasing positioning nfc location bluetooth datavisualization
-QT += charts 3dcore 3drender 3dinput 3dlogic 3dextras 3danimation 3dquick multimedia
+QT += widgets network qml qml-private quick-private quicktemplates2-private webview websockets
+QT += sensors svg scxml purchasing positioning nfc location bluetooth datavisualization gamepad
+QT += charts 3dcore 3drender 3dinput 3dlogic 3dextras 3danimation 3dquick multimedia webchannel
 
 ### Sources
 INCLUDEPATH += $$PWD

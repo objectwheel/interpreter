@@ -1,12 +1,13 @@
 #include <quicktheme.h>
 #include <saveutils.h>
 #include <QJsonObject>
+#include <QJsonDocument>
 
 namespace QuickTheme {
 
 void setTheme(const QString& projectDir, int* version)
 {
-    const QJsonObject& object = SaveUtils::projectTheme(projectDir).toObject();
+    const QJsonObject& object = QJsonDocument::fromBinaryData(SaveUtils::projectTheme(projectDir)).object();
     const QString& stylev1 = object.value("stylev1").toString();
     const QString& stylev2 = object.value("stylev2").toString();
     const QString& theme = object.value("theme").toString();
@@ -17,6 +18,7 @@ void setTheme(const QString& projectDir, int* version)
 
     qputenv("QT_QUICK_CONTROLS_1_STYLE", stylev1.toUtf8());
     qputenv("QT_QUICK_CONTROLS_STYLE", stylev2.toUtf8());
+    qputenv("QT_LABS_CONTROLS_STYLE", stylev2.toUtf8());
 
     if (stylev2 == "Material") {
         if (!theme.isEmpty())
@@ -53,7 +55,7 @@ void setTheme(const QString& projectDir, int* version)
 
 bool activeThemeDiffersFrom(const QString& projectDir)
 {
-    const QJsonObject& object = SaveUtils::projectTheme(projectDir).toObject();
+    const QJsonObject& object = QJsonDocument::fromBinaryData(SaveUtils::projectTheme(projectDir)).object();
     QString stylev1_1 = object.value("stylev1").toString();
     QString stylev2_1 = object.value("stylev2").toString();
     QString theme_1 = object.value("theme").toString();

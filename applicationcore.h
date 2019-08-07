@@ -2,7 +2,6 @@
 #define APPLICATIONCORE_H
 
 #include <projectmanager.h>
-#include <globalresources.h>
 #include <discoverymanager.h>
 #include <QSettings>
 
@@ -31,7 +30,6 @@ private:
     static ApplicationCore* s_instance;
     static QSettings s_settings;
     ProjectManager m_projectManager;
-    GlobalResources m_globalResources;
     DiscoveryManager m_discoveryManager;
     ApplicationWindow* m_applicationWindow;
 

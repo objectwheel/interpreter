@@ -3,12 +3,13 @@
 #include <saveutils.h>
 
 #include <private/qjsengine_p.h>
+#include <private/qquickpopup_p.h>
 
 #include <QQmlContext>
 #include <QDebug>
 #include <QQmlProperty>
 #include <QFileInfo>
-#include <QWindow>
+#include <QQuickWindow>
 #include <QGuiApplication>
 
 QmlApplication::QmlApplication(const QString& projectDirectory, QObject* parent) : QQmlEngine(parent)
@@ -40,10 +41,8 @@ const QString& QmlApplication::projectDirectory() const
 void QmlApplication::setProjectDirectory(const QString& projectDirectory)
 {
     m_projectDirectory = projectDirectory;
-    if (!projectDirectory.isEmpty()) {
-        addImportPath(SaveUtils::toImportsDir(m_projectDirectory));
-        addImportPath(SaveUtils::toGlobalDir(m_projectDirectory));
-    }
+    if (!projectDirectory.isEmpty())
+        addImportPath(SaveUtils::toProjectImportsDir(m_projectDirectory));
 }
 
 void QmlApplication::run()
@@ -80,7 +79,7 @@ void QmlApplication::run()
         m_instanceTree.insert(formPath, formInstance);
 
         for (const QString& childPath : SaveUtils::childrenPaths(formPath)) {
-            const ControlInstance& parentInstance = m_instanceTree.value(SaveUtils::toParentDir(childPath));
+            const ControlInstance& parentInstance = m_instanceTree.value(SaveUtils::toDoubleUp(childPath));
             if (!parentInstance.object)
                 continue;
 
@@ -103,14 +102,48 @@ void QmlApplication::run()
     if (hasErrors)
         emit exit(EXIT_FAILURE);
 }
+QQuickItem* QmlApplication::guiItem(QObject* object)
+{
+    if (!object)
+        return nullptr;
+    if (object->isWindowType())
+        return qobject_cast<QQuickWindow*>(object)->contentItem();
+    else if (object->inherits("QQuickPopup"))
+        return qobject_cast<QQuickPopup*>(object)->popupItem();
+    else
+        return qobject_cast<QQuickItem*>(object);
+}
+
+void QmlApplication::setInstanceParent(QmlApplication::ControlInstance* instance, QObject* parentObject)
+{
+    Q_ASSERT(parentObject);
+    Q_ASSERT(instance->object);
+
+    if (auto item = qobject_cast<QQuickItem*>(instance->object)) {
+        if (item->parentItem())
+            item->setParentItem(nullptr);
+        item->setParentItem(guiItem(parentObject));
+    }
+
+    instance->object->setParent(parentObject);
+
+    QQmlProperty defaultProperty(parentObject);
+    Q_ASSERT(defaultProperty.isValid());
+
+    QQmlListReference childList = defaultProperty.read().value<QQmlListReference>();
+    Q_ASSERT(!qobject_cast<QQuickItem*>(instance->object) || childList.canAppend());
+
+    if (childList.canAppend())
+        childList.append(instance->object);
+}
 
 QmlApplication::ControlInstance QmlApplication::createInstance(const QString& dir,
                                                                const ControlInstance& parentInstance)
 {
     Q_ASSERT_X(SaveUtils::isControlValid(dir), "createInstance", "Owctrl™ structure is corrupted.");
 
-    const QString& url = SaveUtils::toMainQmlFile(dir);
-    const QString& id = SaveUtils::id(dir);
+    const QString& url = SaveUtils::toControlMainQmlFile(dir);
+    const QString& id = SaveUtils::controlId(dir);
 
     Q_ASSERT(!id.isEmpty());
 
@@ -172,15 +205,10 @@ QmlApplication::ControlInstance QmlApplication::createInstance(const QString& di
     instance.object = object;
     instance.component = component;
 
-    if (!SaveUtils::isForm(dir)) {
-        QQmlProperty defaultProperty(parentInstance.object);
-        Q_ASSERT(defaultProperty.isValid());
-        instance.object->setParent(parentInstance.object);
-        QQmlListReference childList = defaultProperty.read().value<QQmlListReference>();
-        childList.append(instance.object);
-    } else {
+    if (!SaveUtils::isForm(dir))
+        setInstanceParent(&instance, parentInstance.object);
+    else
         instance.object->setParent(m_rootObject);
-    }
 
     return instance;
 }

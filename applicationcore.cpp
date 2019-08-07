@@ -1,7 +1,6 @@
 #include <applicationcore.h>
 #include <components.h>
 #include <quicktheme.h>
-#include <saveutils.h>
 #include <qtwebviewfunctions.h>
 #include <applicationwindow.h>
 #include <crossplatform.h>
@@ -27,7 +26,6 @@ ApplicationCore* ApplicationCore::s_instance = nullptr;
 QSettings ApplicationCore::s_settings(ApplicationCore::dataPath() + "/Objectwheel, Inc./interpreter/settings.ini", QSettings::IniFormat); // BUG: FIXME
 
 ApplicationCore::ApplicationCore()
-    : m_globalResources([] { return ProjectManager::projectDirectory(ProjectManager::currentProjectUid()); })
 {
     s_instance = this;
 
@@ -114,8 +112,7 @@ ApplicationCore::ApplicationCore()
                      ProjectManager::instance(), &ProjectManager::importProject);
     QObject::connect(&m_projectManager, &ProjectManager::importProgress,
                      DiscoveryManager::instance(), &DiscoveryManager::sendProgressReport);
-    QObject::connect(&m_projectManager, &ProjectManager::importProgress, m_applicationWindow, [=] (int p)
-    {
+    QObject::connect(&m_projectManager, &ProjectManager::importProgress, m_applicationWindow, [=] (int p) {
         m_applicationWindow->centralWidget()->progressBar()->setValue(67 + p / 3);
         if (p > 90)
             m_applicationWindow->centralWidget()->progressBar()->repaint();
