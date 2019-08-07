@@ -3,6 +3,7 @@
 #include <saveutils.h>
 
 #include <private/qjsengine_p.h>
+#include <private/qquickpopup_p.h>
 
 #include <QQmlContext>
 #include <QDebug>
@@ -10,6 +11,7 @@
 #include <QFileInfo>
 #include <QCoreApplication>
 #include <QQuickItem>
+#include <QQuickWindow>
 
 QmlApplication::QmlApplication(const QString& projectDirectory, QObject* parent) : QQmlEngine(parent)
   , m_rootObject(new QObject)
@@ -102,13 +104,28 @@ void QmlApplication::run()
         emit exit(EXIT_FAILURE);
 }
 
+QQuickItem* QmlApplication::guiItem(QObject* object)
+{
+    if (!object)
+        return nullptr;
+    if (object->isWindowType())
+        return qobject_cast<QQuickWindow*>(object)->contentItem();
+    else if (object->inherits("QQuickPopup"))
+        return qobject_cast<QQuickPopup*>(object)->popupItem();
+    else
+        return qobject_cast<QQuickItem*>(object);
+}
+
 void QmlApplication::setInstanceParent(QmlApplication::ControlInstance* instance, QObject* parentObject)
 {
     Q_ASSERT(parentObject);
     Q_ASSERT(instance->object);
 
-    if (auto item = qobject_cast<QQuickItem*>(instance->object))
-        item->setParentItem(nullptr);
+    if (auto item = qobject_cast<QQuickItem*>(instance->object)) {
+        if (item->parentItem())
+            item->setParentItem(nullptr);
+        item->setParentItem(guiItem(parentObject));
+    }
 
     instance->object->setParent(parentObject);
 

@@ -10,9 +10,9 @@ TARGET   = interpreter
 DEFINES += QT_DEPRECATED_WARNINGS
 DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000
 
-QT += widgets network qml qml-private quick webview websockets gamepad webchannel
-QT += sensors svg scxml purchasing positioning nfc location bluetooth datavisualization
-QT += charts 3dcore 3drender 3dinput 3dlogic 3dextras 3danimation 3dquick multimedia
+QT += widgets network qml qml-private quick quick-private quick-private  quicktemplates2-private charts
+QT += webview websockets gamepad webchannel sensors scxml purchasing positioning nfc location bluetooth
+QT += svg datavisualization 3dcore 3drender 3dinput 3dlogic 3dextras 3danimation 3dquick multimedia
 
 ### Sources
 INCLUDEPATH += $$PWD

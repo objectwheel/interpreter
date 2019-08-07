@@ -3,7 +3,9 @@
 
 #include <QQmlEngine>
 
+class QQuickItem;
 class QmlComponent;
+
 class QmlApplication final : public QQmlEngine
 {
     Q_OBJECT
@@ -27,6 +29,7 @@ public slots:
     void run();
 
 private:
+    QQuickItem* guiItem(QObject* object);
     void setInstanceParent(QmlApplication::ControlInstance* instance, QObject* parentObject);
     ControlInstance createInstance(const QString& dir, const ControlInstance& parentInstance);
 
