@@ -7,11 +7,9 @@
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleExecutable</key>
-    <string>renderer</string>
+    <string>interpreter</string>
 	<key>CFBundleIdentifier</key>
-    <string>com.objectwheel.renderer</string>
-    <key>LSUIElement</key>
-    <string>1</string>
+    <string>com.objectwheel.interpreter</string>
     <key>NSRequiresAquaSystemAppearance</key>
     <string>True</string>
 </dict>
