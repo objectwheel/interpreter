@@ -12,7 +12,7 @@
 
 ApplicationCore::ApplicationCore() : m_qmlApplication(CommandlineParser::projectDirectory())
 {    
-    QApplication::setWindowIcon(QIcon(":/resources/images/owicon.png"));
+    QApplication::setWindowIcon(QIcon(":/resources/images/icon.png"));
 
     // Initialize Web View
     QtWebView::initialize();
