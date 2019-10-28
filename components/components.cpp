@@ -1,5 +1,6 @@
 #include <components.h>
 #include <offlinestorage.h>
+#include <ow.h>
 #include <QQmlEngine>
 
 #ifdef OW_APIAI
@@ -60,6 +61,11 @@ void init()
     qmlRegisterSingletonType<OfflineStorage>("Objectwheel.Core", 1, 0, "OfflineStorage",
                                              [] (QQmlEngine* engine, QJSEngine* /*jsEngine*/) -> QObject* {
         return new OfflineStorage(engine);
+    });
+
+    qmlRegisterSingletonType<Ow>("Objectwheel", 1, 0, "Ow",
+                                 [] (QQmlEngine* engine, QJSEngine* /*jsEngine*/) -> QObject* {
+        return new Ow(engine);
     });
 }
 }
