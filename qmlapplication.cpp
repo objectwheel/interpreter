@@ -130,13 +130,13 @@ void QmlApplication::setInstanceParent(QmlApplication::ControlInstance* instance
     instance->object->setParent(parentObject);
 
     QQmlProperty defaultProperty(parentObject);
-    Q_ASSERT(defaultProperty.isValid());
+    if (defaultProperty.isValid()) {
+        QQmlListReference childList = defaultProperty.read().value<QQmlListReference>();
+        Q_ASSERT(!qobject_cast<QQuickItem*>(instance->object) || childList.canAppend());
 
-    QQmlListReference childList = defaultProperty.read().value<QQmlListReference>();
-    Q_ASSERT(!qobject_cast<QQuickItem*>(instance->object) || childList.canAppend());
-
-    if (childList.canAppend())
-        childList.append(instance->object);
+        if (childList.canAppend())
+            childList.append(instance->object);
+    }
 }
 
 QmlApplication::ControlInstance QmlApplication::createInstance(const QString& dir,
