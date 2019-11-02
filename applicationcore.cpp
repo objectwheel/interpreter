@@ -3,19 +3,16 @@
 #include <commandlineparser.h>
 #include <quicktheme.h>
 #include <saveutils.h>
-#include <qtwebviewfunctions.h>
 
+#include <QtWebView>
+#include <QtWebEngine>
 #include <QApplication>
 #include <QIcon>
-#include <QDebug>
 #include <QTimer>
 
 ApplicationCore::ApplicationCore() : m_qmlApplication(CommandlineParser::projectDirectory())
 {    
     QApplication::setWindowIcon(QIcon(":/resources/images/icon.png"));
-
-    // Initialize Web View
-    QtWebView::initialize();
 
     // Initialize Components
     Components::init();
@@ -50,4 +47,14 @@ void ApplicationCore::prepare()
     qputenv("QML_DISABLE_DISK_CACHE", "true");
     qputenv("QT_QUICK_CONTROLS_CONF",
             SaveUtils::toProjectAssetsDir(CommandlineParser::projectDirectory()).toUtf8());
+
+    // Not needed on desktop platforms since it
+    // is already called by QtWebView::initialize()
+    // QtWebEngine::initialize();
+    // Also we are calling following before
+    // Constructing the QApplication because
+    // It uses QtWebEngine as the backend on
+    // desktop platforms and it must be initialized
+    // before the QApplication constructor
+    QtWebView::initialize();
 }
