@@ -3,25 +3,41 @@
 #include <commandlineparser.h>
 #include <quicktheme.h>
 #include <saveutils.h>
+#include <utilityfunctions.h>
 
 #include <QtWebView>
-#include <QtWebEngine>
 #include <QApplication>
 #include <QIcon>
 #include <QTimer>
 
 ApplicationCore::ApplicationCore() : m_qmlApplication(CommandlineParser::projectDirectory())
-{    
-    QApplication::setWindowIcon(QIcon(":/resources/images/icon.png"));
+{
+    /** Core initialization **/
+    QApplication::setApplicationName(APP_NAME);
+    QApplication::setOrganizationName(APP_CORP);
+    QApplication::setApplicationVersion(APP_VER);
+    QApplication::setOrganizationDomain(APP_DOMAIN);
+    QApplication::setApplicationDisplayName(APP_NAME + QObject::tr(" Interpreter"));
+    QApplication::setWindowIcon(QIcon(":/images/icon.png"));
+
+    /* Load default fonts */
+    const QString fontPath = ":/fonts";
+    for (const QString& fontName : QDir(fontPath).entryList(QDir::Files))
+        QFontDatabase::addApplicationFont(fontPath + '/' + fontName);
+
+    /* Set application ui settings */
+    QApplication::setFont(UtilityFunctions::defaultFont());
+    QApplication::setStyle("fusion");
+    QApplication::setStartDragDistance(8);
 
     // Initialize Components
     Components::init();
 
     // Connections
     QObject::connect(&m_qmlApplication, &QmlApplication::quit,
-            QCoreApplication::instance(), &QCoreApplication::quit, Qt::QueuedConnection);
+                     QCoreApplication::instance(), &QCoreApplication::quit, Qt::QueuedConnection);
     QObject::connect(&m_qmlApplication, &QmlApplication::exit,
-            QCoreApplication::instance(), &QCoreApplication::exit, Qt::QueuedConnection);
+                     QCoreApplication::instance(), &QCoreApplication::exit, Qt::QueuedConnection);
 }
 
 void ApplicationCore::run()
@@ -31,14 +47,7 @@ void ApplicationCore::run()
 
 void ApplicationCore::prepare()
 {
-    // Initialize application
-    QApplication::setOrganizationName("Objectwheel");
-    QApplication::setOrganizationDomain("objectwheel.com");
-    QApplication::setApplicationName("interpreter");
-    QApplication::setApplicationVersion("1.2.0");
-    QApplication::setApplicationDisplayName("Objectwheel Interpreter");
     QuickTheme::setTheme(CommandlineParser::projectDirectory());
-
     if (SaveUtils::projectHdpiScaling(CommandlineParser::projectDirectory())) {
         QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
         QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);

@@ -6,7 +6,7 @@ include($$PWD/resources/resources.pri)
 TEMPLATE = app
 CONFIG  -= app_bundle
 CONFIG  += console c++14 strict_c++
-TARGET   = interpreter
+TARGET   = Interpreter
 DEFINES += QT_DEPRECATED_WARNINGS
 DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000
 
@@ -31,6 +31,7 @@ HEADERS += $$PWD/qmlapplication.h \
            $$PWD/qmlcomponent.h
 
 ### Utils Settings
+include($$PWD/../objectwheel.pri)
 INCLUDEPATH += $$PWD/../utils
 INCLUDEPATH += $$PWD/../utils/components
 LIBS        += -L$$OUT_PWD/../utils -lutils

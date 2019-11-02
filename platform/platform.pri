@@ -3,5 +3,5 @@ windows {
 }
 
 macx {
-    include($$PWD/mac/mac.pri)
+    include($$PWD/macx/macx.pri)
 }
