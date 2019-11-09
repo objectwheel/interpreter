@@ -8,6 +8,8 @@ class ApplicationCore final
 public:
     ApplicationCore();
 
+    static QString modulesPath();
+
     void run();
 
     static void prepare();

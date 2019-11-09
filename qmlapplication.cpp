@@ -1,6 +1,7 @@
 #include <qmlapplication.h>
 #include <qmlcomponent.h>
 #include <saveutils.h>
+#include <applicationcore.h>
 
 #include <private/qjsengine_p.h>
 #include <private/qquickpopup_p.h>
@@ -16,6 +17,7 @@
 QmlApplication::QmlApplication(const QString& projectDirectory, QObject* parent) : QQmlEngine(parent)
   , m_rootObject(new QObject)
 {
+    addImportPath(ApplicationCore::modulesPath());
     setProjectDirectory(projectDirectory);
     QCoreApplication::instance()->setProperty("__qml_using_qqmlapplicationengine", QVariant(true));
     QJSEnginePrivate::addToDebugServer(this);
