@@ -1,5 +1,4 @@
 #include <applicationcore.h>
-#include <components.h>
 #include <commandlineparser.h>
 #include <quicktheme.h>
 #include <saveutils.h>
@@ -29,9 +28,6 @@ ApplicationCore::ApplicationCore() : m_qmlApplication(CommandlineParser::project
     QApplication::setFont(UtilityFunctions::defaultFont());
     QApplication::setStyle("fusion");
     QApplication::setStartDragDistance(8);
-
-    // Initialize Components
-    Components::init();
 
     // Connections
     QObject::connect(&m_qmlApplication, &QmlApplication::quit,
