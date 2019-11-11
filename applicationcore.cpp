@@ -26,7 +26,6 @@ ApplicationCore::ApplicationCore() : m_qmlApplication(CommandlineParser::project
 
     /* Set application ui settings */
     QApplication::setFont(UtilityFunctions::defaultFont());
-    QApplication::setStyle("fusion");
     QApplication::setStartDragDistance(8);
 
     // Connections
