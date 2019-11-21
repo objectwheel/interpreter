@@ -19,13 +19,8 @@ ApplicationCore::ApplicationCore() : m_qmlApplication(CommandlineParser::project
     QApplication::setApplicationDisplayName(APP_NAME + QObject::tr(" Interpreter"));
     QApplication::setWindowIcon(QIcon(":/images/icon.png"));
 
-    /* Load default fonts */
-    const QString fontPath = ":/fonts";
-    for (const QString& fontName : QDir(fontPath).entryList(QDir::Files))
-        QFontDatabase::addApplicationFont(fontPath + '/' + fontName);
-
     /* Set application ui settings */
-    QApplication::setFont(UtilityFunctions::defaultFont());
+    QApplication::setFont(UtilityFunctions::systemDefaultFont());
     QApplication::setStartDragDistance(8);
 
     // Connections
