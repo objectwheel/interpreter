@@ -8,7 +8,6 @@ CONFIG  -= app_bundle
 CONFIG  -= qtquickcompiler
 CONFIG  += console c++14 strict_c++
 TARGET   = Interpreter
-DEFINES += QT_DEPRECATED_WARNINGS
 DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000
 
 QT += widgets network qml quick webview websockets datavisualization
