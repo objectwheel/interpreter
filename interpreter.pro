@@ -48,7 +48,6 @@ HEADERS += $$PWD/qmlapplication.h \
            $$PWD/utilityfunctions.h \
            $$PWD/projectmanager.h \
            $$PWD/progressbar.h \
-           $$PWD/serializeenum.h \
            $$PWD/filesystemutils.h
 
 ios|android {

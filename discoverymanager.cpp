@@ -1,7 +1,6 @@
 #include <discoverymanager.h>
 #include <crossplatform.h>
 #include <applicationcore.h>
-#include <serializeenum.h>
 
 #include <QUdpSocket>
 #include <QTimerEvent>
