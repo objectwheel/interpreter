@@ -1,0 +1,9 @@
+- Handle multiple Objectwheel IDE connection attempts
+- Fix, on iOS title bar and m_connectionStatusWidget are overlapping
+- Add About/Info, Manual Connection, Existing Projects and Settings sections
+
+Attribitions Bölümü ekle ve şunlar için atıf ekle:
+- Built with Qt logosu
+- Thanks Icons8 for providing icons for this app (URL) (LICENSE)
+- Thanks Google for providing Roboto fonts for this app (URL) (LICENSE)
+- Miniz license

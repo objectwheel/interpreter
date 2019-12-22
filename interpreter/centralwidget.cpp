@@ -78,7 +78,7 @@ CentralWidget::CentralWidget(QWidget* parent) : QWidget(parent)
     m_layout->addSpacing(6);
     m_layout->addLayout(m_scrollAreaLayout);
     m_layout->addStretch();
-    // TODO: m_layout->addWidget(m_infoButton, 0, Qt::AlignHCenter);
+    // m_layout->addWidget(m_infoButton, 0, Qt::AlignHCenter);
     m_infoButton->hide();
 
     m_scrollAreaLayout->setSpacing(6);
@@ -90,11 +90,11 @@ CentralWidget::CentralWidget(QWidget* parent) : QWidget(parent)
     m_buttonLayout->setSpacing(10);
     m_buttonLayout->setContentsMargins(0, 0, 0, 0);
     m_buttonLayout->addWidget(m_disableDiscoveryButton);
-    // TODO: m_buttonLayout->addWidget(m_connectManuallyButton);
+    // m_buttonLayout->addWidget(m_connectManuallyButton);
     m_connectManuallyButton->hide();
-    // TODO: m_buttonLayout->addWidget(m_myProjectsButton);
+    // m_buttonLayout->addWidget(m_myProjectsButton);
     m_myProjectsButton->hide();
-    // TODO: m_buttonLayout->addWidget(m_settingsButton);
+    // m_buttonLayout->addWidget(m_settingsButton);
     m_settingsButton->hide();
     m_buttonLayout->addWidget(m_quitButton);
 

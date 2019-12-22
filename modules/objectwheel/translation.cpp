@@ -4,7 +4,6 @@
 #include <QFileInfo>
 #include <QCoreApplication>
 #include <QDir>
-#include <QPointer>
 
 Translation::Translation(QQmlEngine* engine, QObject* parent) : QObject(parent)
   , m_engine(engine)
@@ -18,7 +17,7 @@ void Translation::clear()
 
 void Translation::load(const QString& translationFilePath)
 {
-    static QPointer<QTranslator> translator;
+    static QTranslator* translator = nullptr;
 
     if (translator) {
         QCoreApplication::removeTranslator(translator);
@@ -30,7 +29,7 @@ void Translation::load(const QString& translationFilePath)
     QString filePath = translationFilePath;
     filePath.replace("file://", "");
 
-    if (!translationFilePath.isEmpty() && QFileInfo(filePath).exists()) {
+    if (!translationFilePath.isEmpty() && QFileInfo::exists(filePath)) {
         translator = new QTranslator(this);
         if (translator->load(filePath)) {
             QCoreApplication::installTranslator(translator);

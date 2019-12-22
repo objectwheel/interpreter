@@ -28,7 +28,6 @@ ApplicationWindow::ApplicationWindow(QWidget* parent) : QMainWindow(parent)
     m_view->add(Central, m_centralWidget);
     m_view->show(Central);
 
-    // TODO: Fix, on iOS title bar and m_connectionStatusWidget are overlapping
     connect(m_centralWidget, &CentralWidget::disableDiscoveryButtonClicked,
             DiscoveryManager::instance(), &DiscoveryManager::setDisabled);
     connect(m_centralWidget, &CentralWidget::quitButtonClicked,

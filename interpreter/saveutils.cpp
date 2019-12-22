@@ -59,6 +59,7 @@
 #include <QDataStream>
 #include <QVector>
 #include <QPointF>
+#include <QSizeF>
 
 namespace SaveUtils {
 
@@ -363,6 +364,11 @@ QString controlUid(const QString& controlDir)
 QPointF designPosition(const QString& controlDir)
 {
     return Internal::property(controlDir, DesignPosition).value<QPointF>();
+}
+
+QSizeF designSize(const QString& controlDir)
+{
+    return Internal::property(controlDir, DesignSize).value<QSizeF>();
 }
 
 bool projectHdpiScaling(const QString& projectDir)
