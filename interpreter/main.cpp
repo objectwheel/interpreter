@@ -1,8 +1,6 @@
 #include <applicationcore.h>
 #include <QApplication>
 
-// TODO: Handle multiple Objectwheel IDE connection attempts
-
 int main(int argc, char* argv[])
 {
     // Prepare core
@@ -16,6 +14,7 @@ int main(int argc, char* argv[])
 
     // Run core
     ApplicationCore core;
+    core.run();
 
     // Start main event loop
     return app.exec();

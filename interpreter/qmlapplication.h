@@ -3,8 +3,8 @@
 
 #include <QQmlEngine>
 
-class QmlComponent;
 class QQuickItem;
+class QmlComponent;
 
 class QmlApplication final : public QQmlEngine
 {

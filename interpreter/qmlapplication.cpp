@@ -1,6 +1,7 @@
 #include <qmlapplication.h>
 #include <qmlcomponent.h>
 #include <saveutils.h>
+#include <applicationcore.h>
 
 #include <private/qjsengine_p.h>
 #include <private/qquickpopup_p.h>
@@ -9,12 +10,14 @@
 #include <QDebug>
 #include <QQmlProperty>
 #include <QFileInfo>
-#include <QQuickWindow>
 #include <QGuiApplication>
+#include <QQuickItem>
+#include <QQuickWindow>
 
 QmlApplication::QmlApplication(const QString& projectDirectory, QObject* parent) : QQmlEngine(parent)
   , m_rootObject(new QObject)
 {
+    addImportPath(ApplicationCore::modulesPath());
     setProjectDirectory(projectDirectory);
     QCoreApplication::instance()->setProperty("__qml_using_qqmlapplicationengine", QVariant(true));
     QJSEnginePrivate::addToDebugServer(this);
@@ -102,6 +105,7 @@ void QmlApplication::run()
     if (hasErrors)
         emit exit(EXIT_FAILURE);
 }
+
 QQuickItem* QmlApplication::guiItem(QObject* object)
 {
     if (!object)
@@ -128,13 +132,12 @@ void QmlApplication::setInstanceParent(QmlApplication::ControlInstance* instance
     instance->object->setParent(parentObject);
 
     QQmlProperty defaultProperty(parentObject);
-    Q_ASSERT(defaultProperty.isValid());
-
-    QQmlListReference childList = defaultProperty.read().value<QQmlListReference>();
-    Q_ASSERT(!qobject_cast<QQuickItem*>(instance->object) || childList.canAppend());
-
-    if (childList.canAppend())
-        childList.append(instance->object);
+    if (defaultProperty.isValid()) {
+        QQmlListReference childList = defaultProperty.read().value<QQmlListReference>();
+        // Q_ASSERT(!qobject_cast<QQuickItem*>(instance->object) || childList.canAppend());
+        if (childList.canAppend())
+            childList.append(instance->object);
+    }
 }
 
 QmlApplication::ControlInstance QmlApplication::createInstance(const QString& dir,

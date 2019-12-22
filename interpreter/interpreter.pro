@@ -1,13 +1,19 @@
+### Includes
+include($$PWD/platform/platform.pri)
+include($$PWD/resources/resources.pri)
+include($$PWD/zipasync/zipasync.pri)
+
 ### App Settings
 TEMPLATE = app
-TARGET   = interpreter
-DEFINES += QT_DEPRECATED_WARNINGS
-DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000
+CONFIG  -= qtquickcompiler
 CONFIG  += c++14 strict_c++
+TARGET   = Interpreter
+DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000
 
-QT += widgets network qml qml-private quick-private quicktemplates2-private webview websockets
-QT += sensors svg scxml purchasing positioning nfc location bluetooth datavisualization gamepad
-QT += charts 3dcore 3drender 3dinput 3dlogic 3dextras 3danimation 3dquick multimedia webchannel
+QT += widgets network qml quick webview websockets datavisualization
+QT += sensors svg scxml purchasing positioning nfc location gamepad
+QT += charts multimedia webenginecore webengine webchannel bluetooth
+QT += qml-private quicktemplates2-private quickcontrols2
 
 ### Sources
 INCLUDEPATH += $$PWD
@@ -54,8 +60,3 @@ ios|android {
     SOURCES += $$PWD/quitbutton.cpp
     HEADERS += $$PWD/quitbutton.h
 }
-
-### Includes
-include($$PWD/resources/resources.pri)
-include($$PWD/platform/platform.pri)
-include($$PWD/zipasync/zipasync.pri)
