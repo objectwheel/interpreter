@@ -14,7 +14,7 @@ int main(int argc, char* argv[])
 
     // Run core
     ApplicationCore core;
-    core.run();
+    Q_UNUSED(core)
 
     // Start main event loop
     return app.exec();

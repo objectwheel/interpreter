@@ -1,5 +1,4 @@
 #include <applicationcore.h>
-#include <components.h>
 #include <quicktheme.h>
 #include <qtwebviewfunctions.h>
 #include <applicationwindow.h>
@@ -9,7 +8,6 @@
 #include <progressbar.h>
 
 #include <QApplication>
-#include <QFontDatabase>
 #include <QJsonObject>
 #include <QStandardPaths>
 #include <QMessageBox>
@@ -29,19 +27,7 @@ ApplicationCore::ApplicationCore()
 {
     s_instance = this;
 
-    for (const QString& fontName : QDir(QLatin1String(":/fonts")).entryList(QDir::Files))
-        QFontDatabase::addApplicationFont(QLatin1String(":/fonts/") + fontName);
-
-#if defined(Q_OS_MACOS) || defined(Q_OS_IOS)
-    QFont font(".SF NS Display");
-#elif defined(Q_OS_WIN)
-    QFont font("Segoe UI");
-#else
-    QFont font("Roboto");
-#endif
-    font.setPixelSize(13);
-    font.setStyleStrategy(QFont::PreferAntialias);
-    QApplication::setFont(font);
+    QApplication::setFont(UtilityFunctions::systemDefaultFont());
 
     QSurfaceFormat format(QSurfaceFormat::defaultFormat());
     format.setAlphaBufferSize(8);
@@ -49,9 +35,6 @@ ApplicationCore::ApplicationCore()
 
     // Initialize Web View
     QtWebView::initialize();
-
-    // Initialize Components
-    Components::init();
 
     m_applicationWindow = new ApplicationWindow;
 #if defined(Q_OS_IOS) || defined(Q_OS_ANDROID)
@@ -222,6 +205,12 @@ QSettings* ApplicationCore::settings()
 QString ApplicationCore::dataPath()
 {
     return QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+}
+
+QString ApplicationCore::modulesPath()
+{
+    // TODO : Think about unix and windows versions too
+    return QFileInfo(QApplication::applicationDirPath() + "/../Frameworks/modules").canonicalFilePath();
 }
 
 QString ApplicationCore::deviceUid()

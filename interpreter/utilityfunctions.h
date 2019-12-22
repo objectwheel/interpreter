@@ -49,6 +49,7 @@ void pull(const QByteArray& data, Args&&... args)
 }
 
 QWindow* window(const QWidget* widget);
+QFont systemDefaultFont();
 
 } // UtilityFunctions
 
