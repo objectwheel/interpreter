@@ -18,16 +18,19 @@ public:
 
     static bool locked();
     static void prepare();
-    static QSettings* settings();
-    static QString dataPath();
+
+    static ApplicationCore* instance();
+    static QString appDataLocation();
     static QString modulesPath();
+    static QString settingsPath();
     static QString deviceUid();
+    static QVariantMap deviceInfo();
     static QString recentProjectUid();
     static void setRecentProjectUid(const QString& uid);
-    static QVariantMap deviceInfo();
 
 private:
-    static QSettings s_settings;
+    static ApplicationCore* s_instance;
+    QSettings m_settings;
     ProjectManager m_projectManager;
     DiscoveryManager m_discoveryManager;
     ApplicationWindow* m_applicationWindow;

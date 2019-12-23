@@ -66,7 +66,7 @@ bool activeThemeDiffersFrom(const QString& projectDir)
     QString background_1 = object.value("background").toString();
 
     QString stylev1_2 = qgetenv("QT_QUICK_CONTROLS_1_STYLE");
-    QString stylev2_2 = qgetenv("QT_QUICK_CONTROLS_STYLE");
+    QString stylev2_2 = QQuickStyle::name();
 
     if (stylev1_1.isEmpty())
         stylev1_1 = "Desktop";
@@ -77,7 +77,7 @@ bool activeThemeDiffersFrom(const QString& projectDir)
     if (stylev2_2.isEmpty())
         stylev2_2 = "Default";
 
-    if (stylev1_1 != stylev1_2 || stylev2_1 != stylev2_2)
+    if (stylev1_1 != stylev1_2 || QString::compare(stylev2_1, stylev2_2, Qt::CaseInsensitive) != 0)
         return true;
 
     QString theme_2;
@@ -86,7 +86,7 @@ bool activeThemeDiffersFrom(const QString& projectDir)
     QString foreground_2;
     QString background_2;
 
-    if (stylev2_2 == "Material") {
+    if (QString::compare("Material", stylev2_2, Qt::CaseInsensitive) == 0) {
         theme_2 = qgetenv("QT_QUICK_CONTROLS_MATERIAL_THEME");
         accent_2 = qgetenv("QT_QUICK_CONTROLS_MATERIAL_ACCENT");
         primary_2 = qgetenv("QT_QUICK_CONTROLS_MATERIAL_PRIMARY");
@@ -97,7 +97,7 @@ bool activeThemeDiffersFrom(const QString& projectDir)
                 || primary_1 != primary_2
                 || foreground_1 != foreground_2
                 || background_1 != background_2;
-    } else if (stylev2_2 == "Universal") {
+    } else if (QString::compare("Universal", stylev2_2, Qt::CaseInsensitive) == 0) {
         theme_2 = qgetenv("QT_QUICK_CONTROLS_UNIVERSAL_THEME");
         accent_2 = qgetenv("QT_QUICK_CONTROLS_UNIVERSAL_ACCENT");
         foreground_2 = qgetenv("QT_QUICK_CONTROLS_UNIVERSAL_FOREGROUND");

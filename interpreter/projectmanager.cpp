@@ -49,7 +49,7 @@ QString ProjectManager::currentProjectUid()
 
 QString ProjectManager::projectDirectory(const QString& uid)
 {
-    return ApplicationCore::dataPath() + "/projects/" + uid;
+    return ApplicationCore::appDataLocation() + "/Projects/" + uid;
 }
 
 void ProjectManager::importProject(const QString& uid, const QString& sourceZipPath)

@@ -1,6 +1,11 @@
 - Handle multiple Objectwheel IDE connection attempts
 - Fix, on iOS title bar and m_connectionStatusWidget are overlapping
 - Add About/Info, Manual Connection, Existing Projects and Settings sections
+- If user clicks the "restart" option due to changed theme, the project should
+    run after the restart without needing user to click run. But what about
+    Objectwheel IDE <-> Interpreter connection and all the debug output
+    transmission? Ya da en azından kullanıcı "projeyi yeniden çalıştırın" vs
+    şeklinde bir uyarı mesajı ile uyarılsın.
 
 Attribitions Bölümü ekle ve şunlar için atıf ekle:
 - Built with Qt logosu

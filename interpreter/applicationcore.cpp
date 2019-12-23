@@ -20,10 +20,12 @@
 #include <quitbutton.h>
 #endif
 
-QSettings ApplicationCore::s_settings(ApplicationCore::dataPath() + "/Objectwheel, Inc./interpreter/settings.ini", QSettings::IniFormat); // BUG: FIXME
+ApplicationCore* ApplicationCore::s_instance = nullptr;
 
-ApplicationCore::ApplicationCore()
+ApplicationCore::ApplicationCore() : m_settings(ApplicationCore::settingsPath(), QSettings::IniFormat)
 {
+    s_instance = this;
+
     /** Core initialization **/
     QApplication::setApplicationDisplayName(APP_NAME);
     QApplication::setWindowIcon(QIcon(":/images/icon.png"));
@@ -155,6 +157,7 @@ ApplicationCore::~ApplicationCore()
     delete m_quitButton;
 #endif
     delete m_applicationWindow;
+    s_instance = nullptr;
 }
 
 void ApplicationCore::prepare()
@@ -183,6 +186,11 @@ void ApplicationCore::prepare()
     QtWebView::initialize();
 }
 
+ApplicationCore* ApplicationCore::instance()
+{
+    return s_instance;
+}
+
 bool ApplicationCore::locked()
 {
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
@@ -201,12 +209,7 @@ bool ApplicationCore::locked()
     return false;
 }
 
-QSettings* ApplicationCore::settings()
-{
-    return &s_settings;
-}
-
-QString ApplicationCore::dataPath()
+QString ApplicationCore::appDataLocation()
 {
     return QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
 }
@@ -217,27 +220,24 @@ QString ApplicationCore::modulesPath()
     return QFileInfo(QApplication::applicationDirPath() + "/../Frameworks/modules").canonicalFilePath();
 }
 
+QString ApplicationCore::settingsPath()
+{
+    return appDataLocation() + "/Settings.ini";
+}
+
 QString ApplicationCore::deviceUid()
 {
+    Q_ASSERT(s_instance);
+    if (s_instance == 0)
+        return QString();
     static QString uidKey(QStringLiteral("DeviceInfo/DeviceUid"));
-    static QString uid(s_settings.value(uidKey).toString());
+    static QString uid(s_instance->m_settings.value(uidKey).toString());
     if (uid.isEmpty()) {
         uid = HashFactory::generate();
-        s_settings.setValue(uidKey, uid);
+        s_instance->m_settings.setValue(uidKey, uid);
     }
+
     return uid;
-}
-
-QString ApplicationCore::recentProjectUid()
-{
-    static QString uidKey(QStringLiteral("DeviceInfo/RecentProjectUid"));
-    return s_settings.value(uidKey).toString();
-}
-
-void ApplicationCore::setRecentProjectUid(const QString& uid)
-{
-    static QString uidKey(QStringLiteral("DeviceInfo/RecentProjectUid"));
-    s_settings.setValue(uidKey, uid);
 }
 
 QVariantMap ApplicationCore::deviceInfo()
@@ -251,8 +251,22 @@ QVariantMap ApplicationCore::deviceInfo()
         {"isEmulator", CrossPlatform::isEmulator()},
         {"deviceName", CrossPlatform::deviceName()},
         {"deviceUid", deviceUid()},
-        {"interpreterVersion", APP_VER}
+        {"version", APP_VER}
     };
 
     return info.toVariantMap();
+}
+
+QString ApplicationCore::recentProjectUid()
+{
+    const QSettings settings(settingsPath(), QSettings::IniFormat);
+    return settings.value(QStringLiteral("DeviceInfo/RecentProjectUid")).toString();
+}
+
+void ApplicationCore::setRecentProjectUid(const QString& uid)
+{
+    Q_ASSERT(s_instance);
+    if (s_instance == 0)
+        return;
+    s_instance->m_settings.setValue(QStringLiteral("DeviceInfo/RecentProjectUid"), uid);
 }
