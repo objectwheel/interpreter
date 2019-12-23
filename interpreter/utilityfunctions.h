@@ -3,6 +3,7 @@
 
 #include <utility>
 #include <QDataStream>
+#include <QMessageBox>
 
 class QWindow;
 class QWidget;
@@ -27,7 +28,6 @@ void pullHelper(QDataStream& stream, Arg&& arg, Args&&... args)
     stream >> std::forward<Arg>(arg);
     pullHelper(stream, std::forward<Args>(args)...);
 }
-
 } // Internal
 
 template <typename... Args>
@@ -50,7 +50,11 @@ void pull(const QByteArray& data, Args&&... args)
 
 QWindow* window(const QWidget* widget);
 QFont systemDefaultFont();
-
+QMessageBox::StandardButton showMessage(QWidget* parent, const QString& title, const QString& text,
+                                        QMessageBox::Icon icon = QMessageBox::Warning,
+                                        QMessageBox::StandardButtons buttons = QMessageBox::Ok,
+                                        QMessageBox::StandardButton defaultButton = QMessageBox::Ok,
+                                        bool modal = true);
 } // UtilityFunctions
 
 #endif // UTILITYFUNCTIONS_H

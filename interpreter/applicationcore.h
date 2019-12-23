@@ -25,10 +25,8 @@ public:
     static QString recentProjectUid();
     static void setRecentProjectUid(const QString& uid);
     static QVariantMap deviceInfo();
-    static ApplicationCore* instance();
 
 private:
-    static ApplicationCore* s_instance;
     static QSettings s_settings;
     ProjectManager m_projectManager;
     DiscoveryManager m_discoveryManager;

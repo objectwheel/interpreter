@@ -116,11 +116,11 @@ CentralWidget::CentralWidget(QWidget* parent) : QWidget(parent)
     QFont font;
     font.setPixelSize(16);
     m_titleLabel->setFont(font);
-    m_titleLabel->setText(tr("Objectwheel Interpreter"));
+    m_titleLabel->setText(APP_NAME);
 
     font.setPixelSize(13);
     m_versionLabel->setFont(font);
-    m_versionLabel->setText("v2.9");
+    m_versionLabel->setText("v" + QStringLiteral(APP_VER) + " (" APP_GITHASH ")");
 
     m_progressBar->hide();
 

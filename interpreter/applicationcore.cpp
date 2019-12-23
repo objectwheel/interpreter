@@ -20,21 +20,15 @@
 #include <quitbutton.h>
 #endif
 
-ApplicationCore* ApplicationCore::s_instance = nullptr;
 QSettings ApplicationCore::s_settings(ApplicationCore::dataPath() + "/Objectwheel, Inc./interpreter/settings.ini", QSettings::IniFormat); // BUG: FIXME
 
 ApplicationCore::ApplicationCore()
 {
-    s_instance = this;
-
+    /** Core initialization **/
+    QApplication::setApplicationDisplayName(APP_NAME);
+    QApplication::setWindowIcon(QIcon(":/images/icon.png"));
     QApplication::setFont(UtilityFunctions::systemDefaultFont());
-
-    QSurfaceFormat format(QSurfaceFormat::defaultFormat());
-    format.setAlphaBufferSize(8);
-    QSurfaceFormat::setDefaultFormat(format);
-
-    // Initialize Web View
-    QtWebView::initialize();
+    QApplication::setStartDragDistance(8);
 
     m_applicationWindow = new ApplicationWindow;
 #if defined(Q_OS_IOS) || defined(Q_OS_ANDROID)
@@ -161,22 +155,32 @@ ApplicationCore::~ApplicationCore()
     delete m_quitButton;
 #endif
     delete m_applicationWindow;
-    s_instance = nullptr;
 }
 
 void ApplicationCore::prepare()
 {
-    // Initialize application
-    QApplication::setOrganizationName("Objectwheel, Inc.");
-    QApplication::setOrganizationDomain("objectwheel.com");
-    QApplication::setApplicationName("interpreter");
-    QApplication::setApplicationVersion("2.9");
-    QApplication::setApplicationDisplayName("Objectwheel Interpreter");
+    // Set those here, needed by QStandardPaths
+    QApplication::setApplicationName(APP_NAME);
+    QApplication::setOrganizationName(APP_CORP);
+    QApplication::setApplicationVersion(APP_VER);
+    QApplication::setOrganizationDomain(APP_DOMAIN);
 
     if (!recentProjectUid().isEmpty())
         QuickTheme::setTheme(ProjectManager::projectDirectory(recentProjectUid()));
     QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
+
+    qputenv("QML_DISABLE_DISK_CACHE", "true");
+
+    // Not needed on desktop platforms since it
+    // is already called by QtWebView::initialize()
+    // QtWebEngine::initialize();
+    // Also we are calling following before
+    // Constructing the QApplication because
+    // It uses QtWebEngine as the backend on
+    // desktop platforms and it must be initialized
+    // before the QApplication constructor
+    QtWebView::initialize();
 }
 
 bool ApplicationCore::locked()
@@ -187,9 +191,9 @@ bool ApplicationCore::locked()
         sharedMemory->attach();
         sharedMemory->detach();
         if(!sharedMemory->create(1)) {
-            QMessageBox::warning(nullptr,
-                                 QObject::tr("Quitting"),
-                                 QObject::tr("Another instance is already running."));
+            UtilityFunctions::showMessage(nullptr,
+                                          QObject::tr("Quitting"),
+                                          QObject::tr("Another instance is already running."));
             return true;
         }
     }
@@ -238,9 +242,6 @@ void ApplicationCore::setRecentProjectUid(const QString& uid)
 
 QVariantMap ApplicationCore::deviceInfo()
 {
-    if (!s_instance)
-        return QVariantMap();
-
     static const QJsonObject info = {
         {"currentCpuArchitecture", QSysInfo::currentCpuArchitecture()},
         {"kernelType", QSysInfo::kernelType()},
@@ -250,13 +251,8 @@ QVariantMap ApplicationCore::deviceInfo()
         {"isEmulator", CrossPlatform::isEmulator()},
         {"deviceName", CrossPlatform::deviceName()},
         {"deviceUid", deviceUid()},
-        {"interpreterVersion", "2.9"}
+        {"interpreterVersion", APP_VER}
     };
 
     return info.toVariantMap();
-}
-
-ApplicationCore* ApplicationCore::instance()
-{
-    return s_instance;
 }

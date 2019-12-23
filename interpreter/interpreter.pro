@@ -1,4 +1,5 @@
 ### Includes
+include($$PWD/../objectwheel.pri)
 include($$PWD/platform/platform.pri)
 include($$PWD/resources/resources.pri)
 include($$PWD/zipasync/zipasync.pri)

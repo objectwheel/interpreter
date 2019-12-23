@@ -18,7 +18,7 @@ ApplicationWindow::ApplicationWindow(QWidget* parent) : QMainWindow(parent)
   , m_connectionStatusWidget(new ConnectionStatusWidget(m_view))
   , m_centralWidget(new CentralWidget(m_view))
 {
-    setWindowTitle(tr("Objectwheel Interpreter"));
+    setWindowTitle(APP_NAME);
     setCentralWidget(m_view);
 
 #if defined(Q_OS_IOS)
