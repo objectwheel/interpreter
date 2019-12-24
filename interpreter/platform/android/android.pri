@@ -1,8 +1,14 @@
 QT += androidextras
 
-DISTFILES += $$PWD/AndroidManifest.xml \
+DISTFILES += $$PWD/src/com/objectwheel/deviceinfo/DeviceInfo.java \
+             $$PWD/AndroidManifest.xml \
              $$PWD/res/values/libs.xml \
-             $$PWD/src/com/objectwheel/deviceinfo/DeviceInfo.java
+             $$PWD/res/mipmap-ldpi/ic_launcher.png \
+             $$PWD/res/mipmap-mdpi/ic_launcher.png \
+             $$PWD/res/mipmap-hdpi/ic_launcher.png \
+             $$PWD/res/mipmap-xhdpi/ic_launcher.png \
+             $$PWD/res/mipmap-xxhdpi/ic_launcher.png \
+             $$PWD/res/mipmap-xxxhdpi/ic_launcher.png
 
 ANDROID_PACKAGE_SOURCE_DIR = $$PWD
 

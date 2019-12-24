@@ -18,6 +18,21 @@ QmlApplication::QmlApplication(const QString& projectDirectory, QObject* parent)
   , m_rootObject(new QObject)
 {
     addImportPath(ApplicationCore::modulesPath());
+#if defined(Q_OS_ANDROID)
+    // Since there is no executable concept in Android
+    // C++ apps are compiled and linked as libraries
+    // and apps are called by Qt's Android wrapper Java
+    // classes via using JNI. First main .so file of
+    // the application is loaded and then the code flow
+    // is left to the C++ program. So applicationDirPath
+    // is where actual libraries are stored on Android.
+    // Because our application is also a library in this
+    // scenerio. QLibraryInfo doesn't return proper
+    // library and plugin locations for some reason, so
+    // we use this solution for now.
+    addPluginPath(QCoreApplication::applicationDirPath());
+#endif
+
     setProjectDirectory(projectDirectory);
     QCoreApplication::instance()->setProperty("__qml_using_qqmlapplicationengine", QVariant(true));
     QJSEnginePrivate::addToDebugServer(this);

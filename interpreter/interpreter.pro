@@ -14,8 +14,9 @@ DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000
 
 QT += widgets network qml quick webview websockets datavisualization
 QT += sensors svg scxml purchasing positioning nfc location gamepad
-QT += charts multimedia webenginecore webengine webchannel bluetooth
-QT += qml-private quicktemplates2-private quickcontrols2
+QT += multimedia webchannel bluetooth quickcontrols2 qml-private
+QT += quicktemplates2-private charts
+!android:!ios: QT += webenginecore webengine
 
 ### Sources
 INCLUDEPATH += $$PWD

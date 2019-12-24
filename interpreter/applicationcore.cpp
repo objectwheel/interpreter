@@ -217,7 +217,11 @@ QString ApplicationCore::appDataLocation()
 QString ApplicationCore::modulesPath()
 {
     // TODO : Think about unix and windows versions too
-    return QFileInfo(QApplication::applicationDirPath() + "/../Frameworks/modules").canonicalFilePath();
+#if defined(Q_OS_ANDROID)
+    return QStringLiteral("assets:/Modules");
+#else
+    return QFileInfo(QApplication::applicationDirPath() + "/../Frameworks/Modules").canonicalFilePath();
+#endif
 }
 
 QString ApplicationCore::settingsPath()

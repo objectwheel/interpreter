@@ -10,6 +10,8 @@
 - Eğer projede değişiklik yoksa yeniden upload olmasın.
 - Hatta projelerin her dosyası ayrı ayrı kontrol edilip sadece değişen dosyalar
   yeniden upload edilsin
+- Eğer tema değişiminde NO ya tıklanırsa aktif tema ile proje çalıştırılsın
+- Tema değişim mesajına program açık olduğu sürece tekrar sorma gibi bişey eklenebilir
 
 Attribitions Bölümü ekle ve şunlar için atıf ekle:
 - Built with Qt logosu
