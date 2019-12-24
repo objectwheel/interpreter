@@ -24,7 +24,7 @@ signals:
     void settingsButtonClicked();
     void myProjectsButtonClicked();
     void connectManuallyButtonClicked();
-    void disableDiscoveryButtonClicked(bool disabled);
+    void stopBroadcastingButtonClicked(bool disabled);
 
 private:
     QVBoxLayout* m_layout;
@@ -35,7 +35,7 @@ private:
     QHBoxLayout* m_scrollAreaLayout;
     QScrollArea* m_buttonsScrollArea;
     QVBoxLayout* m_buttonLayout;
-    QPushButton* m_disableDiscoveryButton;
+    QPushButton* m_stopBroadcastingButton;
     QPushButton* m_connectManuallyButton;
     QPushButton* m_myProjectsButton;
     QPushButton* m_settingsButton;

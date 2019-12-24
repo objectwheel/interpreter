@@ -17,7 +17,7 @@ public:
     enum State {
         Disabled,
         Connected,
-        Searching,
+        Broadcasting,
     };
 
 public:

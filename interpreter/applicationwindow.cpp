@@ -2,7 +2,7 @@
 #include <view.h>
 #include <centralwidget.h>
 #include <connectionstatuswidget.h>
-#include <discoverymanager.h>
+#include <broadcastingmanager.h>
 #include <projectmanager.h>
 #include <quicktheme.h>
 
@@ -28,8 +28,8 @@ ApplicationWindow::ApplicationWindow(QWidget* parent) : QMainWindow(parent)
     m_view->add(Central, m_centralWidget);
     m_view->show(Central);
 
-    connect(m_centralWidget, &CentralWidget::disableDiscoveryButtonClicked,
-            DiscoveryManager::instance(), &DiscoveryManager::setDisabled);
+    connect(m_centralWidget, &CentralWidget::stopBroadcastingButtonClicked,
+            BroadcastingManager::instance(), &BroadcastingManager::setDisabled);
     connect(m_centralWidget, &CentralWidget::quitButtonClicked,
             QApplication::instance(), &QApplication::quit, Qt::QueuedConnection);
 }

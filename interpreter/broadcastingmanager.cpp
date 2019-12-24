@@ -1,4 +1,4 @@
-#include <discoverymanager.h>
+#include <broadcastingmanager.h>
 #include <crossplatform.h>
 #include <applicationcore.h>
 
@@ -8,31 +8,31 @@
 
 using namespace UtilityFunctions;
 
-DiscoveryManager* DiscoveryManager::s_instance = nullptr;
-QBasicTimer DiscoveryManager::s_emulatorTimer;
-QUdpSocket* DiscoveryManager::s_broadcastSocket = nullptr;
-QWebSocket* DiscoveryManager::s_webSocket = nullptr;
-QTemporaryFile* DiscoveryManager::s_cacheFile = nullptr;
-QString DiscoveryManager::s_address;
-bool DiscoveryManager::s_connected = false;
+BroadcastingManager* BroadcastingManager::s_instance = nullptr;
+QBasicTimer BroadcastingManager::s_emulatorTimer;
+QUdpSocket* BroadcastingManager::s_broadcastSocket = nullptr;
+QWebSocket* BroadcastingManager::s_webSocket = nullptr;
+QTemporaryFile* BroadcastingManager::s_cacheFile = nullptr;
+QString BroadcastingManager::s_address;
+bool BroadcastingManager::s_connected = false;
 
-DiscoveryManager::DiscoveryManager(QObject* parent) : QObject(parent)
+BroadcastingManager::BroadcastingManager(QObject* parent) : QObject(parent)
 {
     s_instance = this;
     s_broadcastSocket = new QUdpSocket(this);
     s_webSocket = new QWebSocket(QStringLiteral(), QWebSocketProtocol::VersionLatest, this);
 
     connect(s_broadcastSocket, &QUdpSocket::readyRead,
-            this, &DiscoveryManager::onBroadcastReadyRead);
+            this, &BroadcastingManager::onBroadcastReadyRead);
     connect(s_broadcastSocket, QOverload<QAbstractSocket::SocketError>::of(&QUdpSocket::error),
             this, [=] (QAbstractSocket::SocketError socketError) {
-        qWarning() << "DiscoveryManager: Broadcast socket error" << socketError;
+        qWarning() << "BroadcastingManager: Broadcast socket error" << socketError;
     });
     connect(s_webSocket, QOverload<QAbstractSocket::SocketError>::of(&QWebSocket::error),
             this, [=] (QAbstractSocket::SocketError socketError) {
-        qWarning() << "DiscoveryManager: Server error" << socketError;
+        qWarning() << "BroadcastingManager: Server error" << socketError;
     });
-    connect(s_webSocket, &QWebSocket::disconnected, this, &DiscoveryManager::start);
+    connect(s_webSocket, &QWebSocket::disconnected, this, &BroadcastingManager::start);
     connect(s_webSocket, &QWebSocket::disconnected, this, [=] {
         cleanExecutionCache();
         s_connected = false;
@@ -46,17 +46,17 @@ DiscoveryManager::DiscoveryManager(QObject* parent) : QObject(parent)
         emit connected();
     });
     connect(s_webSocket, &QWebSocket::binaryMessageReceived,
-            this, &DiscoveryManager::onBinaryMessageReceived);
+            this, &BroadcastingManager::onBinaryMessageReceived);
 
     start();
 }
 
-DiscoveryManager::~DiscoveryManager()
+BroadcastingManager::~BroadcastingManager()
 {
     s_instance = nullptr;
 }
 
-QUrl DiscoveryManager::hostAddressToUrl(const QHostAddress& address, int port)
+QUrl BroadcastingManager::hostAddressToUrl(const QHostAddress& address, int port)
 {
     if (address.protocol() == QAbstractSocket::IPv6Protocol)
         return QString("ws://[%1]:%2").arg(address.toString()).arg(port);
@@ -65,7 +65,7 @@ QUrl DiscoveryManager::hostAddressToUrl(const QHostAddress& address, int port)
 }
 
 template<typename... Args>
-void DiscoveryManager::send(DiscoveryManager::DiscoveryCommands command, Args&&... args)
+void BroadcastingManager::send(BroadcastingManager::Commands command, Args&&... args)
 {
     using namespace UtilityFunctions;
     if (!isConnected()) {
@@ -75,22 +75,22 @@ void DiscoveryManager::send(DiscoveryManager::DiscoveryCommands command, Args&&.
     s_webSocket->sendBinaryMessage(push(command, push(std::forward<Args>(args)...)));
 }
 
-DiscoveryManager* DiscoveryManager::instance()
+BroadcastingManager* BroadcastingManager::instance()
 {
     return s_instance;
 }
 
-bool DiscoveryManager::isConnected()
+bool BroadcastingManager::isConnected()
 {
     return s_connected;
 }
 
-QString DiscoveryManager::address()
+QString BroadcastingManager::address()
 {
     return s_address;
 }
 
-void DiscoveryManager::setDisabled(bool disabled)
+void BroadcastingManager::setDisabled(bool disabled)
 {
     if (!instance())
         return;
@@ -104,39 +104,39 @@ void DiscoveryManager::setDisabled(bool disabled)
     }
 }
 
-void DiscoveryManager::cleanExecutionCache()
+void BroadcastingManager::cleanExecutionCache()
 {
     if (s_cacheFile)
         delete s_cacheFile;
     s_cacheFile = nullptr;
 }
 
-void DiscoveryManager::sendStartReport(const QString& projectDirectory)
+void BroadcastingManager::sendStartReport(const QString& projectDirectory)
 {
-    send(DiscoveryManager::StartReport, projectDirectory);
+    send(BroadcastingManager::StartReport, projectDirectory);
 }
 
-void DiscoveryManager::sendFinishReport(int exitCode, bool crashExit)
+void BroadcastingManager::sendFinishReport(int exitCode, bool crashExit)
 {
-    send(DiscoveryManager::FinishReport, exitCode, crashExit);
+    send(BroadcastingManager::FinishReport, exitCode, crashExit);
 }
 
-void DiscoveryManager::sendProgressReport(int progress)
+void BroadcastingManager::sendProgressReport(int progress)
 {
-    send(DiscoveryManager::ProgressReport, progress);
+    send(BroadcastingManager::ProgressReport, progress);
 }
 
-void DiscoveryManager::sendOutputReport(const QString& output)
+void BroadcastingManager::sendOutputReport(const QString& output)
 {
-    send(DiscoveryManager::OutputReport, output);
+    send(BroadcastingManager::OutputReport, output);
 }
 
-void DiscoveryManager::sendErrorReport(const QString& errorString)
+void BroadcastingManager::sendErrorReport(const QString& errorString)
 {
-    send(DiscoveryManager::ErrorReport, errorString);
+    send(BroadcastingManager::ErrorReport, errorString);
 }
 
-void DiscoveryManager::start()
+void BroadcastingManager::start()
 {
     if (CrossPlatform::isAndroidEmulator())
         s_emulatorTimer.start(1000, this);
@@ -144,7 +144,7 @@ void DiscoveryManager::start()
         s_broadcastSocket->bind(BROADCAST_PORT, QUdpSocket::ShareAddress);
 }
 
-void DiscoveryManager::stop()
+void BroadcastingManager::stop()
 {
     if (CrossPlatform::isAndroidEmulator())
         s_emulatorTimer.stop();
@@ -152,7 +152,7 @@ void DiscoveryManager::stop()
         s_broadcastSocket->abort();
 }
 
-void DiscoveryManager::timerEvent(QTimerEvent* event)
+void BroadcastingManager::timerEvent(QTimerEvent* event)
 {
     if (event->timerId() == s_emulatorTimer.timerId()) {
         s_address = "10.0.2.2";
@@ -162,11 +162,11 @@ void DiscoveryManager::timerEvent(QTimerEvent* event)
     }
 }
 
-void DiscoveryManager::onBroadcastReadyRead()
+void BroadcastingManager::onBroadcastReadyRead()
 {
     QByteArray datagram;
     QHostAddress address;
-    DiscoveryCommands command;
+    Commands command;
     while (s_broadcastSocket->hasPendingDatagrams()) {
         datagram.resize(int(s_broadcastSocket->pendingDatagramSize()));
         s_broadcastSocket->readDatagram(datagram.data(), datagram.size(), &address);
@@ -179,10 +179,10 @@ void DiscoveryManager::onBroadcastReadyRead()
     }
 }
 
-void DiscoveryManager::onBinaryMessageReceived(const QByteArray& incomingData)
+void BroadcastingManager::onBinaryMessageReceived(const QByteArray& incomingData)
 {
     QByteArray data;
-    DiscoveryCommands command;
+    Commands command;
     pull(incomingData, command, data);
 
     switch (command) {
@@ -241,7 +241,7 @@ void DiscoveryManager::onBinaryMessageReceived(const QByteArray& incomingData)
 
     default:
         cleanExecutionCache();
-        qWarning("DiscoveryManager: Unrecognized command has arrived");
+        qWarning("BroadcastingManager: Unrecognized command has arrived");
         break;
     }
 }

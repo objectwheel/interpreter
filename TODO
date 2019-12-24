@@ -12,6 +12,13 @@
   yeniden upload edilsin
 - Eğer tema değişiminde NO ya tıklanırsa aktif tema ile proje çalıştırılsın
 - Tema değişim mesajına program açık olduğu sürece tekrar sorma gibi bişey eklenebilir
+- Exit butonu çok çirkin
+- Font bütüklükleri masaüstü ve mobil için farklı olacak, geliştirilecek
+- Uygulama ismini değiştir, interpreter yerine bişey bul (debugger vs gibi)
+- Program açılışta kullanıcılara sistemin nasıl çalıştığına dair ufak bir bilgilendirme
+  ekranı göstersin ve bu ekran ayarlardan vs istenildiği zaman açılabilsin. Ayrıca
+  "eğer bağlantı kurmakta güçlük çekiyorsanız şunları şunları kontrol ediniz" diye
+  açık güvenlik duvarı gibi engelleyici faktörler ile ilgili yönergeler bulunsun.
 
 Attribitions Bölümü ekle ve şunlar için atıf ekle:
 - Built with Qt logosu

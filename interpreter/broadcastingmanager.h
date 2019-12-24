@@ -1,5 +1,5 @@
-#ifndef DISCOVERYMANAGER_H
-#define DISCOVERYMANAGER_H
+#ifndef BROADCASTINGMANAGER_H
+#define BROADCASTINGMANAGER_H
 
 #include <QObject>
 #include <QBasicTimer>
@@ -12,10 +12,10 @@ class QWebSocket;
 class QHostAddress;
 class QTemporaryFile;
 
-class DiscoveryManager final : public QObject
+class BroadcastingManager final : public QObject
 {
     Q_OBJECT
-    Q_DISABLE_COPY(DiscoveryManager)
+    Q_DISABLE_COPY(BroadcastingManager)
 
     friend class ApplicationCore;
 
@@ -25,7 +25,7 @@ class DiscoveryManager final : public QObject
     };
 
 public:
-    enum DiscoveryCommands : quint32 {
+    enum Commands : quint32 {
         Broadcast = 0x1100,
         Execute,
         Terminate,
@@ -39,7 +39,7 @@ public:
     };
 
 public:
-    static DiscoveryManager* instance();
+    static BroadcastingManager* instance();
     static bool isConnected();
     static QString address();
     static void setDisabled(bool disabled);
@@ -61,14 +61,14 @@ private slots:
 private:
     QUrl hostAddressToUrl(const QHostAddress& address, int port);
     template<typename... Args>
-    static void send(DiscoveryCommands command, Args&&... args);
+    static void send(Commands command, Args&&... args);
 
 protected:
     void timerEvent(QTimerEvent* event) override;
 
 private:
-    explicit DiscoveryManager(QObject* parent = nullptr);
-    ~DiscoveryManager() override;
+    explicit BroadcastingManager(QObject* parent = nullptr);
+    ~BroadcastingManager() override;
 
 signals:
     void connected();
@@ -80,7 +80,7 @@ signals:
     void downloadProgress(int progress);
 
 private:
-    static DiscoveryManager* s_instance;
+    static BroadcastingManager* s_instance;
     static QBasicTimer s_emulatorTimer;
     static QUdpSocket* s_broadcastSocket;
     static QWebSocket* s_webSocket;
@@ -89,4 +89,4 @@ private:
     static bool s_connected;
 };
 
-#endif // DISCOVERYMANAGER_H
+#endif // BROADCASTINGMANAGER_H

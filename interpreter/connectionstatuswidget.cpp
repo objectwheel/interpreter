@@ -1,5 +1,5 @@
 #include <connectionstatuswidget.h>
-#include <discoverymanager.h>
+#include <broadcastingmanager.h>
 
 #include <QVBoxLayout>
 #include <QLabel>
@@ -20,9 +20,9 @@ ConnectionStatusWidget::ConnectionStatusWidget(QWidget* parent) : QWidget(parent
     m_layout->setSpacing(8);
     m_layout->addWidget(m_label, 0, Qt::AlignCenter);
 
-    connect(DiscoveryManager::instance(), &DiscoveryManager::connected,
+    connect(BroadcastingManager::instance(), &BroadcastingManager::connected,
             this, &ConnectionStatusWidget::onConnect);
-    connect(DiscoveryManager::instance(), &DiscoveryManager::disconnected,
+    connect(BroadcastingManager::instance(), &BroadcastingManager::disconnected,
             this, &ConnectionStatusWidget::onDisconnect);
 
     m_animation->setDuration(600);
@@ -51,7 +51,7 @@ void ConnectionStatusWidget::onConnect()
     palette.setColor(QPalette::Window, "#16a085");
     setPalette(palette);
 
-    m_label->setText(tr("Connected to ") + DiscoveryManager::address());
+    m_label->setText(tr("Connected to ") + BroadcastingManager::address());
 
     if (y() != 0) {
         if (m_animation->state() == QAbstractAnimation::Running) {
@@ -74,12 +74,12 @@ void ConnectionStatusWidget::onDisconnect()
     palette.setColor(QPalette::Window, "#c0392b");
     setPalette(palette);
 
-    m_label->setText(tr("Disconnected from ") + DiscoveryManager::address());
+    m_label->setText(tr("Disconnected from ") + BroadcastingManager::address());
 
     static QTimer timer;
     static auto connection = connect(&timer, &QTimer::timeout, this, [=] {
         timer.stop();
-        if (!DiscoveryManager::isConnected()) {
+        if (!BroadcastingManager::isConnected()) {
 #if defined(Q_OS_IOS)
             m_animation->setStartValue(QPoint(0, 20));
 #else

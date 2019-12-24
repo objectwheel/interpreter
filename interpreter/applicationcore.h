@@ -2,7 +2,7 @@
 #define APPLICATIONCORE_H
 
 #include <projectmanager.h>
-#include <discoverymanager.h>
+#include <broadcastingmanager.h>
 #include <QSettings>
 
 #if defined(Q_OS_IOS) || defined(Q_OS_ANDROID)
@@ -32,7 +32,7 @@ private:
     static ApplicationCore* s_instance;
     QSettings m_settings;
     ProjectManager m_projectManager;
-    DiscoveryManager m_discoveryManager;
+    BroadcastingManager m_broadcastingManager;
     ApplicationWindow* m_applicationWindow;
 
 #if defined(Q_OS_IOS) || defined(Q_OS_ANDROID)

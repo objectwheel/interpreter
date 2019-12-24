@@ -1,6 +1,6 @@
 #include <centralwidget.h>
 #include <connectivitywidget.h>
-#include <discoverymanager.h>
+#include <broadcastingmanager.h>
 #include <progressbar.h>
 
 #include <QVBoxLayout>
@@ -61,7 +61,7 @@ CentralWidget::CentralWidget(QWidget* parent) : QWidget(parent)
   , m_scrollAreaLayout(new QHBoxLayout)
   , m_buttonsScrollArea(new QScrollArea(this))
   , m_buttonLayout(new QVBoxLayout(new QWidget(m_buttonsScrollArea)))
-  , m_disableDiscoveryButton(new QPushButton(this))
+  , m_stopBroadcastingButton(new QPushButton(this))
   , m_connectManuallyButton(new QPushButton(this))
   , m_myProjectsButton(new QPushButton(this))
   , m_settingsButton(new QPushButton(this))
@@ -89,7 +89,7 @@ CentralWidget::CentralWidget(QWidget* parent) : QWidget(parent)
 
     m_buttonLayout->setSpacing(10);
     m_buttonLayout->setContentsMargins(0, 0, 0, 0);
-    m_buttonLayout->addWidget(m_disableDiscoveryButton);
+    m_buttonLayout->addWidget(m_stopBroadcastingButton);
     // m_buttonLayout->addWidget(m_connectManuallyButton);
     m_connectManuallyButton->hide();
     // m_buttonLayout->addWidget(m_myProjectsButton);
@@ -124,40 +124,40 @@ CentralWidget::CentralWidget(QWidget* parent) : QWidget(parent)
 
     m_progressBar->hide();
 
-    m_connectivityWidget->setState(ConnectivityWidget::Searching);
-    connect(DiscoveryManager::instance(), &DiscoveryManager::connected, this, [=] {
+    m_connectivityWidget->setState(ConnectivityWidget::Broadcasting);
+    connect(BroadcastingManager::instance(), &BroadcastingManager::connected, this, [=] {
         m_connectivityWidget->setState(ConnectivityWidget::Connected);
     });
-    connect(DiscoveryManager::instance(), &DiscoveryManager::disconnected, this, [=] {
-        const bool isDisabled = m_disableDiscoveryButton->isChecked();
+    connect(BroadcastingManager::instance(), &BroadcastingManager::disconnected, this, [=] {
+        const bool isDisabled = m_stopBroadcastingButton->isChecked();
         if (!isDisabled)
-            m_connectivityWidget->setState(ConnectivityWidget::Searching);
+            m_connectivityWidget->setState(ConnectivityWidget::Broadcasting);
     });
 
     font.setPixelSize(14);
     font.setWeight(QFont::Light);
 
-    m_disableDiscoveryButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-    m_disableDiscoveryButton->setStyleSheet(g_buttonStyleSheet);
-    m_disableDiscoveryButton->setFont(font);
-    m_disableDiscoveryButton->setCursor(Qt::PointingHandCursor);
-    m_disableDiscoveryButton->setFixedHeight(32);
-    m_disableDiscoveryButton->setIconSize(QSize(16, 16));
-    m_disableDiscoveryButton->setIcon(QIcon(":/images/locked.svg"));
-    m_disableDiscoveryButton->setText(tr("Disable Discovery"));
-    m_disableDiscoveryButton->setCheckable(true);
-    connect(m_disableDiscoveryButton, &QPushButton::clicked, this, [=] {
-        const bool isDisabled = m_disableDiscoveryButton->isChecked();
+    m_stopBroadcastingButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    m_stopBroadcastingButton->setStyleSheet(g_buttonStyleSheet);
+    m_stopBroadcastingButton->setFont(font);
+    m_stopBroadcastingButton->setCursor(Qt::PointingHandCursor);
+    m_stopBroadcastingButton->setFixedHeight(32);
+    m_stopBroadcastingButton->setIconSize(QSize(16, 16));
+    m_stopBroadcastingButton->setIcon(QIcon(":/images/locked.svg"));
+    m_stopBroadcastingButton->setText(tr("Stop Broadcasting"));
+    m_stopBroadcastingButton->setCheckable(true);
+    connect(m_stopBroadcastingButton, &QPushButton::clicked, this, [=] {
+        const bool isDisabled = m_stopBroadcastingButton->isChecked();
         if (isDisabled) {
             m_connectivityWidget->setState(ConnectivityWidget::Disabled);
-            m_disableDiscoveryButton->setIcon(QIcon(":/images/unlocked.svg"));
-            m_disableDiscoveryButton->setText(tr("Enable Discovery"));
+            m_stopBroadcastingButton->setIcon(QIcon(":/images/unlocked.svg"));
+            m_stopBroadcastingButton->setText(tr("Start Broadcasting"));
         } else {
-            m_connectivityWidget->setState(ConnectivityWidget::Searching);
-            m_disableDiscoveryButton->setIcon(QIcon(":/images/locked.svg"));
-            m_disableDiscoveryButton->setText(tr("Disable Discovery"));
+            m_connectivityWidget->setState(ConnectivityWidget::Broadcasting);
+            m_stopBroadcastingButton->setIcon(QIcon(":/images/locked.svg"));
+            m_stopBroadcastingButton->setText(tr("Stop Broadcasting"));
         }
-        emit disableDiscoveryButtonClicked(isDisabled);
+        emit stopBroadcastingButtonClicked(isDisabled);
     });
 
     m_connectManuallyButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);

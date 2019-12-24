@@ -54,62 +54,62 @@ ApplicationCore::ApplicationCore() : m_settings(ApplicationCore::settingsPath(),
 
     QObject::connect(qApp, &QApplication::lastWindowClosed,
                      std::bind(&ProjectManager::terminateProject, 0, false, false));
-    QObject::connect(&m_discoveryManager, &DiscoveryManager::internalTermination,
+    QObject::connect(&m_broadcastingManager, &BroadcastingManager::internalTermination,
                      m_applicationWindow, &ApplicationWindow::show);
 #if defined(Q_OS_IOS) || defined(Q_OS_ANDROID)
-    QObject::connect(&m_discoveryManager, &DiscoveryManager::internalTermination,
+    QObject::connect(&m_broadcastingManager, &BroadcastingManager::internalTermination,
                      m_quitButton, &QuitButton::hide, Qt::QueuedConnection);
 #endif
-    QObject::connect(&m_discoveryManager, &DiscoveryManager::internalTermination,
+    QObject::connect(&m_broadcastingManager, &BroadcastingManager::internalTermination,
                      &m_projectManager, &ProjectManager::cancelImport);
-    QObject::connect(&m_discoveryManager, &DiscoveryManager::internalTermination,
+    QObject::connect(&m_broadcastingManager, &BroadcastingManager::internalTermination,
                      std::bind(&ProjectManager::terminateProject, 0, false, true));
-    QObject::connect(&m_discoveryManager, &DiscoveryManager::terminate,
+    QObject::connect(&m_broadcastingManager, &BroadcastingManager::terminate,
                      &m_projectManager, &ProjectManager::cancelImport);
-    QObject::connect(&m_discoveryManager, &DiscoveryManager::terminate,
+    QObject::connect(&m_broadcastingManager, &BroadcastingManager::terminate,
                      std::bind(&ProjectManager::terminateProject, 0, true, false));
-    QObject::connect(&m_discoveryManager, &DiscoveryManager::terminate, m_applicationWindow, [=] {
+    QObject::connect(&m_broadcastingManager, &BroadcastingManager::terminate, m_applicationWindow, [=] {
         if (m_applicationWindow->centralWidget()->progressBar()->isVisible()) {
-            DiscoveryManager::sendStartReport({});
-            DiscoveryManager::sendFinishReport(0, true);
+            BroadcastingManager::sendStartReport({});
+            BroadcastingManager::sendFinishReport(0, true);
             m_applicationWindow->centralWidget()->progressBar()->hide();
         }
     });
-    QObject::connect(&m_discoveryManager, &DiscoveryManager::downloadStarted,
+    QObject::connect(&m_broadcastingManager, &BroadcastingManager::downloadStarted,
                      m_applicationWindow->centralWidget()->progressBar(), &ProgressBar::show);
-    QObject::connect(&m_discoveryManager, &DiscoveryManager::downloadProgress, m_applicationWindow, [=] (int p)
+    QObject::connect(&m_broadcastingManager, &BroadcastingManager::downloadProgress, m_applicationWindow, [=] (int p)
     { m_applicationWindow->centralWidget()->progressBar()->setValue(p * 0.66); });
     QObject::connect(&m_projectManager, &ProjectManager::finished,
-                     DiscoveryManager::instance(), &DiscoveryManager::sendFinishReport);
+                     BroadcastingManager::instance(), &BroadcastingManager::sendFinishReport);
     QObject::connect(&m_projectManager, &ProjectManager::finished,
                      m_applicationWindow, &ApplicationWindow::show);
 #if defined(Q_OS_IOS) || defined(Q_OS_ANDROID)
     QObject::connect(&m_projectManager, &ProjectManager::finished,
                      m_quitButton, &QuitButton::hide, Qt::QueuedConnection);
 #endif
-    QObject::connect(&m_discoveryManager, &DiscoveryManager::execute,
+    QObject::connect(&m_broadcastingManager, &BroadcastingManager::execute,
                      ProjectManager::instance(), &ProjectManager::importProject);
     QObject::connect(&m_projectManager, &ProjectManager::importProgress,
-                     DiscoveryManager::instance(), &DiscoveryManager::sendProgressReport);
+                     BroadcastingManager::instance(), &BroadcastingManager::sendProgressReport);
     QObject::connect(&m_projectManager, &ProjectManager::importProgress, m_applicationWindow, [=] (int p) {
         m_applicationWindow->centralWidget()->progressBar()->setValue(67 + p / 3);
         if (p > 90)
             m_applicationWindow->centralWidget()->progressBar()->repaint();
     });
-    QObject::connect(&m_discoveryManager, &DiscoveryManager::disconnected,
+    QObject::connect(&m_broadcastingManager, &BroadcastingManager::disconnected,
                      &m_projectManager, &ProjectManager::cancelImport);
-    QObject::connect(&m_discoveryManager, &DiscoveryManager::disconnected,
+    QObject::connect(&m_broadcastingManager, &BroadcastingManager::disconnected,
                      m_applicationWindow->centralWidget()->progressBar(), &ProgressBar::hide);
     QObject::connect(&m_projectManager, &ProjectManager::readyOutput,
-                     DiscoveryManager::instance(), &DiscoveryManager::sendOutputReport);
+                     BroadcastingManager::instance(), &BroadcastingManager::sendOutputReport);
     QObject::connect(&m_projectManager, &ProjectManager::importError,
                      m_applicationWindow->centralWidget()->progressBar(), &ProgressBar::hide);
     QObject::connect(&m_projectManager, &ProjectManager::importError,
-                     DiscoveryManager::instance(), &DiscoveryManager::cleanExecutionCache);
+                     BroadcastingManager::instance(), &BroadcastingManager::cleanExecutionCache);
     QObject::connect(&m_projectManager, &ProjectManager::importError,
-                      DiscoveryManager::instance(), &DiscoveryManager::sendErrorReport);
+                      BroadcastingManager::instance(), &BroadcastingManager::sendErrorReport);
     QObject::connect(&m_projectManager, &ProjectManager::imported,
-                     DiscoveryManager::instance(), &DiscoveryManager::cleanExecutionCache);
+                     BroadcastingManager::instance(), &BroadcastingManager::cleanExecutionCache);
     QObject::connect(&m_projectManager, &ProjectManager::imported,
                      &ApplicationCore::setRecentProjectUid);
     QObject::connect(&m_projectManager, &ProjectManager::imported, [=] (const QString& uid) {
@@ -117,8 +117,8 @@ ApplicationCore::ApplicationCore() : m_settings(ApplicationCore::settingsPath(),
         m_applicationWindow->activateWindow(); // Make qml window activated after the app window hidden
         m_applicationWindow->raise();
         if (m_applicationWindow->mightThemeChange(uid)) {
-            DiscoveryManager::sendStartReport({});
-            DiscoveryManager::sendFinishReport(0, false);
+            BroadcastingManager::sendStartReport({});
+            BroadcastingManager::sendFinishReport(0, false);
             QTimer::singleShot(1500, &CrossPlatform::restart);
 #if !defined(Q_OS_IOS)
             QMessageBox::information(m_applicationWindow, QObject::tr("Restarting"),
@@ -130,7 +130,7 @@ ApplicationCore::ApplicationCore() : m_settings(ApplicationCore::settingsPath(),
         m_projectManager.startProject(uid);
     });
     QObject::connect(&m_projectManager, &ProjectManager::aboutToStart,
-                     DiscoveryManager::instance(), &DiscoveryManager::sendStartReport);
+                     BroadcastingManager::instance(), &BroadcastingManager::sendStartReport);
 
 #if defined(Q_OS_IOS) || defined(Q_OS_ANDROID)
     QObject::connect(&m_projectManager, &ProjectManager::aboutToStart, m_quitButton, [=] {

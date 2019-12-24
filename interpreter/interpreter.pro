@@ -30,7 +30,7 @@ SOURCES += $$PWD/main.cpp \
            $$PWD/hashfactory.cpp \
            $$PWD/quicktheme.cpp \
            $$PWD/applicationwindow.cpp \
-           $$PWD/discoverymanager.cpp \
+           $$PWD/broadcastingmanager.cpp \
            $$PWD/view.cpp \
            $$PWD/centralwidget.cpp \
            $$PWD/radarwidget.cpp \
@@ -48,7 +48,7 @@ HEADERS += $$PWD/qmlapplication.h \
            $$PWD/hashfactory.h \
            $$PWD/quicktheme.h \
            $$PWD/applicationwindow.h \
-           $$PWD/discoverymanager.h \
+           $$PWD/broadcastingmanager.h \
            $$PWD/view.h \
            $$PWD/centralwidget.h \
            $$PWD/radarwidget.h \

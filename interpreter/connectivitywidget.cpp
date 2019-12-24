@@ -80,8 +80,8 @@ void ConnectivityWidget::setState(ConnectivityWidget::State state)
         m_statusLabel->setText(tr("Disabled"));
     else if (m_state == Connected)
         m_statusLabel->setText(tr("Ready"));
-    else if (m_state == Searching)
-        m_statusLabel->setText(tr("Searching..."));
+    else if (m_state == Broadcasting)
+        m_statusLabel->setText(tr("Broadcasting..."));
 
     if (m_state == m_oldState)
         return;
