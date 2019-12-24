@@ -33,7 +33,7 @@ ApplicationCore::ApplicationCore() : m_qmlApplication(CommandlineParser::project
 QString ApplicationCore::modulesPath()
 {
     // TODO : Think about unix and windows versions too
-    return QFileInfo(QApplication::applicationDirPath() + "/../Frameworks/modules").canonicalFilePath();
+    return QFileInfo(QApplication::applicationDirPath() + "/../Frameworks/Modules").canonicalFilePath();
 }
 
 void ApplicationCore::run()
@@ -50,8 +50,6 @@ void ApplicationCore::prepare()
     }
 
     qputenv("QML_DISABLE_DISK_CACHE", "true");
-    qputenv("QT_QUICK_CONTROLS_CONF",
-            SaveUtils::toProjectAssetsDir(CommandlineParser::projectDirectory()).toUtf8());
 
     // Not needed on desktop platforms since it
     // is already called by QtWebView::initialize()
