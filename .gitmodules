@@ -2,3 +2,6 @@
 [submodule "zipasync"]
 	path = interpreter/zipasync
 	url = https://github.com/omergoktas/zipasync
+[submodule "modules"]
+	path = modules
+	url = ../modules
