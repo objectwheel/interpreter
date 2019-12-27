@@ -1,6 +1,5 @@
 #include <projectmanager.h>
 #include <filemanager.h>
-#include <zipper.h>
 
 #include <QByteArray>
 #include <QStandardPaths>

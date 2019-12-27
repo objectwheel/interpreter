@@ -2,7 +2,6 @@ TEMPLATE = app
 QT += gui widgets network qml qml-private quick
 
 SOURCES += $$PWD/main.cpp \
-           $$PWD/zipper.cpp \
            $$PWD/executer.cpp \
            $$PWD/projectmanager.cpp \
            $$PWD/filemanager.cpp \
@@ -10,8 +9,7 @@ SOURCES += $$PWD/main.cpp \
            $$PWD/saveutils.cpp \
            $$PWD/hashfactory.cpp
 
-HEADERS += $$PWD/zipper.h \
-           $$PWD/executer.h \
+HEADERS += $$PWD/executer.h \
            $$PWD/projectmanager.h \
            $$PWD/filemanager.h \
            $$PWD/qmlcomponent.h \
