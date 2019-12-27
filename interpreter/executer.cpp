@@ -1,5 +1,4 @@
 #include <executer.h>
-#include <filemanager.h>
 #include <qmlcomponent.h>
 #include <projectmanager.h>
 #include <saveutils.h>

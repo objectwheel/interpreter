@@ -1,6 +1,4 @@
 #include <projectmanager.h>
-#include <filemanager.h>
-
 #include <QByteArray>
 #include <QStandardPaths>
 #include <QCoreApplication>

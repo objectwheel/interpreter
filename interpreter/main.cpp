@@ -1,6 +1,4 @@
 #include <executer.h>
-#include <components.h>
-#include <filemanager.h>
 #include <projectmanager.h>
 #include <saveutils.h>
 
@@ -53,7 +51,7 @@ int main(int argc, char* argv[])
     QApplication::setFont(font);
 
     // Init Components
-    Components::init();
+    // Components::init();
 
     // Initialize Web View
 #if defined(QT_WEBVIEW_LIB)

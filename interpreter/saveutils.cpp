@@ -1,388 +1,557 @@
+/****************************************************************************
+**  THE CONTROL MODEL
+**
+**    users
+**        a95db34f1234 // user 1
+**        f9713917f242 // user 2
+**        52078796f7be // user 3
+**            projects
+**                906e6f1f676a // project1
+**                a0d66c014b35 // project2
+**                    build
+**                        build.json
+**                    meta
+**                        project.meta
+**                    imports
+**                        Assets
+**                            qmldir
+**                            assets.qml
+**                            form1.js
+**                            form2.js
+**                            form3.js
+**                            ... // other resources
+**                    designs
+**                        fcdb1a5d095d // form1
+**                        1ad2135d47fc // form2
+**                        4cbcd2ef095d // form3
+**                            t
+**                                main.qml
+**                            m
+**                                control.meta
+**                            c
+**                                63e9fc09515d // child control 1
+**                                510c11157413 // child control 2
+**                                    t
+**                                        main.qml
+**                                    m
+**                                        control.meta
+**                                    c
+**                                        2aaa80a57c91 // child control 1
+**                                        85024917dacc // child control 2
+**                                        ae4ab544d4bc // child control 3
+**                                            t
+**                                                main.qml
+**                                            m
+**                                                control.meta
+**            meta
+**                user.meta
+**                user.icon
+**
+****************************************************************************/
+
 #include <saveutils.h>
-#include <filemanager.h>
-#include <hashfactory.h>
+#include <QSaveFile>
+#include <QDir>
+#include <QDateTime>
+#include <QDataStream>
+#include <QVector>
+#include <QPointF>
+#include <QSizeF>
 
-#include <QJsonArray>
-#include <QJsonDocument>
-#include <QJsonObject>
+namespace SaveUtils {
 
-/******************************************************************/
-/**          D A T A B A S E  I N F R A S T R U C T U R E        **/
-/******************************************************************/
-/** POPERTIES:                                                   **/
-/*  Elements: Main-form(master), Ordinary-form(master),           */
-/*            Child-item(master), Child-item(non-master)          */
-/*  Types:    Quick, Non-gui, Window                              */
-/*                                                                */
-/** RULES:                                                       **/
-/* - Non-gui elements can not be master (or form)                 */
-/* - Main form has to be window type                              */
-/* - Other forms could be quick item or window type (not non-gui) */
-/* - Children could be non-gui or quick item type (not window)    */
-/* - A form has to be master item                                 */
-/******************************************************************/
+using ControlMetaHash = QHash<ControlProperties, QVariant>;
+using DesignMetaHash = QHash<DesignProperties, QVariant>;
+using ProjectMetaHash = QHash<ProjectProperties, QVariant>;
+using UserMetaHash = QHash<UserProperties, QVariant>;
 
-void SaveUtils::setProperty(QByteArray& propertyData, const QString& property, const QJsonValue& value)
+namespace Internal {
+
+QByteArray readFile(const QString& filePath)
 {
-    if (propertyData.isEmpty())
-        return;
-
-    auto jobj = QJsonDocument::fromJson(propertyData).object();
-    jobj[property] = value;
-    propertyData = QJsonDocument(jobj).toJson();
+    QByteArray data;
+    QFile file(filePath);
+    if (!file.open(QFile::ReadOnly)) {
+        qWarning("SaveUtils: Failed to read file, %s", filePath.toUtf8().constData());
+        return data;
+    }
+    data = file.readAll();
+    file.close();
+    return data;
 }
 
-QJsonValue SaveUtils::property(const QByteArray& propertyData, const QString& property)
+bool writeFile(const QString& filePath, const QByteArray& data)
 {
-    if (propertyData.isEmpty())
-        return QJsonValue();
-
-    const auto& jobj = QJsonDocument::fromJson(propertyData).object();
-    return jobj.value(property);
+    QFile file(filePath);
+    if (!file.open(QFile::WriteOnly)) {
+        qWarning("SaveUtils: Failed to open file, %s", filePath.toUtf8().constData());
+        return false;
+    }
+    if (file.write(data) != data.size()) {
+        qWarning("SaveUtils: Failed to write file, %s", filePath.toUtf8().constData());
+        return false;
+    }
+    file.close();
+    return true;
 }
 
-void SaveUtils::setX(const QString& rootPath, qreal x)
+template <typename MetaHash>
+MetaHash readMetaHash(const QString& metaFilePath)
 {
-    const auto& propertyPath = rootPath + separator() + DIR_THIS + separator() + FILE_PROPERTIES;
-    auto propertyData = rdfile(propertyPath);
-    setProperty(propertyData, TAG_X, x);
-    wrfile(propertyPath, propertyData);
+    MetaHash hash;
+    QFile file(metaFilePath);
+    if (!file.open(QFile::ReadOnly)) {
+#if defined(VERBOSE_READ)
+        qWarning("SaveUtils: Failed to read meta file, %s", metaFilePath.toUtf8().constData());
+#endif
+        return hash;
+    }
+    QDataStream in(&file);
+    in.setVersion(QDataStream::Qt_5_12);
+    in >> hash;
+    file.close();
+    return hash;
 }
 
-void SaveUtils::setY(const QString& rootPath, qreal y)
+template <typename MetaHash>
+bool saveMetaHash(const MetaHash& hash, const QString& metaFilePath)
 {
-    const auto& propertyPath = rootPath + separator() + DIR_THIS + separator() + FILE_PROPERTIES;
-    auto propertyData = rdfile(propertyPath);
-    setProperty(propertyData, TAG_Y, y);
-    wrfile(propertyPath, propertyData);
+    QSaveFile file(metaFilePath);
+    if (!file.open(QSaveFile::WriteOnly)) {
+        qWarning("SaveUtils: Failed to open meta file, %s", metaFilePath.toUtf8().constData());
+        return false;
+    }
+    QDataStream out(&file);
+    out.setVersion(QDataStream::Qt_5_12);
+    out << hash;
+    if (!file.commit()) {
+        qWarning("SaveUtils: Failed to save meta file, %s", metaFilePath.toUtf8().constData());
+        return false;
+    }
+    return true;
 }
 
-void SaveUtils::flushId(const QString& topPath, const QString& id)
+double version()
 {
-    const auto& propertyPath = topPath + separator() + DIR_THIS + separator() + FILE_PROPERTIES;
-    auto propertyData = rdfile(propertyPath);
-    setProperty(propertyData, TAG_ID, id);
-    wrfile(propertyPath, propertyData);
+    return 3.0;
 }
 
-void SaveUtils::flushSuid(const QString& topPath, const QString& suid)
+QString controlSignature()
 {
-    const auto& fromUid = SaveUtils::suid(topPath);
-    if (!fromUid.isEmpty()) {
-        for (const auto& path : fps(FILE_PROPERTIES, topPath)) {
-            if (SaveUtils::suid(dname(dname(path))) == fromUid) {
-                auto propertyData = rdfile(path);
-                setProperty(propertyData, TAG_SUID, suid);
-                wrfile(path, propertyData);
-            }
-        }
+    return QStringLiteral("b3djdHJs");
+}
+
+QString designSignature()
+{
+    return QStringLiteral("b3dkc2du");
+}
+
+QString projectSignature()
+{
+    return QStringLiteral("b3dwcmp0");
+}
+
+QString userSignature()
+{
+    return QStringLiteral("b3d1c2Vy");
+}
+
+QString controlMetaFileName()
+{
+    return QStringLiteral("control.meta");
+}
+
+QString designMetaFileName()
+{
+    return QStringLiteral("design.meta");
+}
+
+QString projectMetaFileName()
+{
+    return QStringLiteral("project.meta");
+}
+
+QString userIconFileName()
+{
+    return QStringLiteral("user.icon");
+}
+
+QString userMetaFileName()
+{
+    return QStringLiteral("user.meta");
+}
+
+QString toControlMetaDir(const QString& controlDir)
+{
+    return controlDir + QStringLiteral("/m");
+}
+
+QString toProjectMetaDir(const QString& projectDir)
+{
+    return projectDir + QStringLiteral("/meta");
+}
+
+QString toUserMetaDir(const QString& userDir)
+{
+    return userDir + QStringLiteral("/meta");
+}
+
+QString toControlMetaFile(const QString& controlDir)
+{
+    return toControlMetaDir(controlDir) + '/' + controlMetaFileName();
+}
+
+QString toDesignMetaFile(const QString& controlDir)
+{
+    return toControlMetaDir(controlDir) + '/' + designMetaFileName();
+}
+
+QString toProjectMetaFile(const QString& projectDir)
+{
+    return toProjectMetaDir(projectDir) + '/' + projectMetaFileName();
+}
+
+QString toUserIconFile(const QString& userDir)
+{
+    return toUserMetaDir(userDir) + '/' + userIconFileName();
+}
+
+QString toUserMetaFile(const QString& userDir)
+{
+    return toUserMetaDir(userDir) + '/' + userMetaFileName();
+}
+
+ControlMetaHash controlMetaHash(const QString& controlDir)
+{
+    return readMetaHash<ControlMetaHash>(toControlMetaFile(controlDir));
+}
+
+DesignMetaHash designMetaHash(const QString& controlDir)
+{
+    return readMetaHash<DesignMetaHash>(toDesignMetaFile(controlDir));
+}
+
+ProjectMetaHash projectMetaHash(const QString& projectDir)
+{
+    return readMetaHash<ProjectMetaHash>(toProjectMetaFile(projectDir));
+}
+
+UserMetaHash userMetaHash(const QString& userDir)
+{
+    return readMetaHash<UserMetaHash>(toUserMetaFile(userDir));
+}
+
+QVariant property(const QString& controlDir, ControlProperties property)
+{
+    return controlMetaHash(controlDir).value(property);
+}
+
+QVariant property(const QString& controlDir, DesignProperties property)
+{
+    return designMetaHash(controlDir).value(property);
+}
+
+QVariant property(const QString& projectDir, ProjectProperties property)
+{
+    return projectMetaHash(projectDir).value(property);
+}
+
+QVariant property(const QString& userDir, UserProperties property)
+{
+    if (property == UserIcon)
+        return readFile(toUserIconFile(userDir));
+    else
+        return userMetaHash(userDir).value(property);
+}
+
+} // Internal
+
+QString controlMainQmlFileName()
+{
+    return QStringLiteral("main.qml");
+}
+
+QString toControlThisDir(const QString& controlDir)
+{
+    return controlDir + QStringLiteral("/t");
+}
+
+QString toControlChildrenDir(const QString& controlDir)
+{
+    return controlDir + QStringLiteral("/c");
+}
+
+QString toProjectDesignsDir(const QString& projectDir)
+{
+    return projectDir + QStringLiteral("/designs");
+}
+
+QString toProjectImportsDir(const QString& projectDir)
+{
+    return projectDir + QStringLiteral("/imports");
+}
+
+QString toProjectAssetsDir(const QString& projectDir)
+{
+    return toProjectImportsDir(projectDir) + QStringLiteral("/Assets");
+}
+
+QString toUserProjectsDir(const QString& userDir)
+{
+    return userDir + QStringLiteral("/projects");
+}
+
+QString toControlMainQmlFile(const QString& controlDir)
+{
+    return toControlThisDir(controlDir) + '/' + controlMainQmlFileName();
+}
+
+QString toDoubleUp(const QString& path)
+{
+    Q_ASSERT(QFileInfo::exists(path));
+    QDir dir(QFileInfo(path).dir());
+    dir.cdUp();
+    return dir.path();
+}
+
+bool isForm(const QString& controlDir)
+{
+    QDir dir(controlDir);
+    dir.cdUp();
+    return dir.dirName() == QLatin1String("designs");
+}
+
+bool isControlValid(const QString& controlDir)
+{
+    return Internal::property(controlDir, ControlSignature).toString() == Internal::controlSignature()
+            && !controlUid(controlDir).isEmpty();
+}
+
+bool isDesignValid(const QString& controlDir)
+{
+    return Internal::property(controlDir, DesignSignature).toString() == Internal::designSignature();
+}
+
+bool isProjectValid(const QString& projectDir)
+{
+    return Internal::property(projectDir, ProjectSignature).toString() == Internal::projectSignature()
+            && !projectUid(projectDir).isEmpty();
+}
+
+bool isUserValid(const QString& userDir)
+{
+    return Internal::property(userDir, UserSignature).toString() == Internal::userSignature();
+}
+
+quint32 controlIndex(const QString& controlDir)
+{
+    return Internal::property(controlDir, ControlIndex).value<quint32>();
+}
+
+QString controlId(const QString& controlDir)
+{
+    return Internal::property(controlDir, ControlId).value<QString>();
+}
+
+QString controlUid(const QString& controlDir)
+{
+    return Internal::property(controlDir, ControlUid).value<QString>();
+}
+
+QPointF designPosition(const QString& controlDir)
+{
+    return Internal::property(controlDir, DesignPosition).value<QPointF>();
+}
+
+QSizeF designSize(const QString& controlDir)
+{
+    return Internal::property(controlDir, DesignSize).value<QSizeF>();
+}
+
+bool projectHdpiScaling(const QString& projectDir)
+{
+    return Internal::property(projectDir, ProjectHdpiScaling).value<bool>();
+}
+
+qint64 projectSize(const QString& projectDir)
+{
+    return Internal::property(projectDir, ProjectSize).value<qint64>();
+}
+
+QString projectUid(const QString& projectDir)
+{
+    return Internal::property(projectDir, ProjectUid).value<QString>();
+}
+
+QString projectName(const QString& projectDir)
+{
+    return Internal::property(projectDir, ProjectName).value<QString>();
+}
+
+QString projectDescription(const QString& projectDir)
+{
+    return Internal::property(projectDir, ProjectDescription).value<QString>();
+}
+
+QDateTime projectCreationDate(const QString& projectDir)
+{
+    return Internal::property(projectDir, ProjectCreationDate).value<QDateTime>();
+}
+
+QDateTime projectModificationDate(const QString& projectDir)
+{
+    return Internal::property(projectDir, ProjectModificationDate).value<QDateTime>();
+}
+
+QByteArray projectTheme(const QString& projectDir)
+{
+    return Internal::property(projectDir, ProjectTheme).value<QByteArray>();
+}
+
+quint32 userPlan(const QString& userDir)
+{
+    return Internal::property(userDir, UserPlan).value<quint32>();
+}
+
+QString userEmail(const QString& userDir)
+{
+    return Internal::property(userDir, UserEmail).value<QString>();
+}
+
+QString userFirst(const QString& userDir)
+{
+    return Internal::property(userDir, UserFirst).value<QString>();
+}
+
+QString userLast(const QString& userDir)
+{
+    return Internal::property(userDir, UserLast).value<QString>();
+}
+
+QString userCountry(const QString& userDir)
+{
+    return Internal::property(userDir, UserCountry).value<QString>();
+}
+
+QString userCompany(const QString& userDir)
+{
+    return Internal::property(userDir, UserCompany).value<QString>();
+}
+
+QString userTitle(const QString& userDir)
+{
+    return Internal::property(userDir, UserTitle).value<QString>();
+}
+
+QString userPhone(const QString& userDir)
+{
+    return Internal::property(userDir, UserPhone).value<QString>();
+}
+
+QDateTime userLastOnlineDate(const QString& userDir)
+{
+    return Internal::property(userDir, UserLastOnlineDate).value<QDateTime>();
+}
+
+QDateTime userRegistrationDate(const QString& userDir)
+{
+    return Internal::property(userDir, UserRegistrationDate).value<QDateTime>();
+}
+
+QByteArray userPassword(const QString& userDir)
+{
+    return Internal::property(userDir, UserPassword).value<QByteArray>();
+}
+
+QByteArray userIcon(const QString& userDir)
+{
+    return Internal::property(userDir, UserIcon).value<QByteArray>();
+}
+
+bool setProperty(const QString& controlDir, ControlProperties property, const QVariant& value)
+{
+    ControlMetaHash hash(Internal::controlMetaHash(controlDir));
+    hash.insert(property, value);
+    return Internal::saveMetaHash(hash, Internal::toControlMetaFile(controlDir));
+}
+
+bool setProperty(const QString& controlDir, DesignProperties property, const QVariant& value)
+{
+    DesignMetaHash hash(Internal::designMetaHash(controlDir));
+    hash.insert(property, value);
+    return Internal::saveMetaHash(hash, Internal::toDesignMetaFile(controlDir));
+}
+
+bool setProperty(const QString& projectDir, ProjectProperties property, const QVariant& value)
+{
+    ProjectMetaHash hash(Internal::projectMetaHash(projectDir));
+    hash.insert(property, value);
+    hash.insert(ProjectModificationDate, QDateTime::currentDateTime());
+    return Internal::saveMetaHash(hash, Internal::toProjectMetaFile(projectDir));
+}
+
+bool setProperty(const QString& userDir, UserProperties property, const QVariant& value)
+{
+    if (property == UserIcon) {
+        if (value.toByteArray().isEmpty())
+            return true;
+        else
+            return Internal::writeFile(Internal::toUserIconFile(userDir), value.toByteArray());
     } else {
-        const auto& propertyPath = topPath + separator() + DIR_THIS + separator() + FILE_PROPERTIES;
-        auto propertyData = rdfile(propertyPath);
-        setProperty(propertyData, TAG_SUID, suid);
-        wrfile(propertyPath, propertyData);
+        UserMetaHash hash(Internal::userMetaHash(userDir));
+        hash.insert(property, value);
+        return Internal::saveMetaHash(hash, Internal::toUserMetaFile(userDir));
     }
 }
 
-bool SaveUtils::isOwctrl(const QByteArray& propertyData)
+QVector<QString> formPaths(const QString& projectDir)
 {
-    const auto& sign = property(propertyData, TAG_OWCTRL_SIGN).toString();
-    const auto& uid = property(propertyData, TAG_UID).toString();
-    return (sign == SIGN_OWCTRL && !uid.isEmpty());
+    if (!isProjectValid(projectDir)) {
+        qWarning("SaveUtils: Invalid project dir has given");
+        return {};
+    }
+
+    QVector<QString> paths;
+    const QString& designsDir = toProjectDesignsDir(projectDir);
+    for (const QString& formDirName : QDir(designsDir).entryList(QDir::AllDirs | QDir::NoDotAndDotDot)) {
+        const QString& formDir = designsDir + '/' + formDirName;
+        if (isControlValid(formDir))
+            paths.append(formDir);
+    }
+
+    std::sort(paths.begin(), paths.end(), [] (const QString& left, const QString& right) {
+        return controlIndex(left) < controlIndex(right);
+    });
+
+    return paths;
 }
 
-bool SaveUtils::isOwctrl(const QString& rootPath)
+QVector<QString> childrenPaths(const QString& controlDir, bool recursive)
 {
-    const auto& propertyPath = rootPath + separator() + DIR_THIS + separator() + FILE_PROPERTIES;
-    const auto& propertyData = rdfile(propertyPath);
-    return isOwctrl(propertyData);
-}
+    if (!isControlValid(controlDir)) {
+        qWarning("SaveUtils: Invalid control dir has given");
+        return {};
+    }
 
-bool SaveUtils::isOwprj(const QByteArray& propertyData)
-{
-    const auto& sign = property(propertyData, PTAG_OWPRJ_SIGN).toString();
-    return sign == SIGN_OWPRJ;
-}
+    QVector<QString> paths;
+    const QString& childrenDir = toControlChildrenDir(controlDir);
+    for (const QString& childDirName : QDir(childrenDir).entryList(QDir::AllDirs | QDir::NoDotAndDotDot)) {
+        const QString& childControlDir = childrenDir + '/' + childDirName;
+        if (isControlValid(childControlDir))
+            paths.append(childControlDir);
+    }
 
-bool SaveUtils::isOwprj(const QString& projectDir)
-{
-    const auto& propertyPath = projectDir + separator() + FILE_PROJECT;
-    const auto& propertyData = rdfile(propertyPath);
-    return isOwprj(propertyData);
-}
+    std::sort(paths.begin(), paths.end(), [] (const QString& left, const QString& right) {
+        return controlIndex(left) < controlIndex(right);
+    });
 
-// Searches for all controls paths, starting from topPath.
-// Returns all control paths (rootPaths) within given topPath.
-QStringList SaveUtils::controlPaths(const QString& topPath)
-{
-    QStringList paths;
-
-    if (topPath.isEmpty())
-        return paths;
-
-    for (const auto& path : fps(FILE_PROPERTIES, topPath)) {
-        const auto& propertyData = rdfile(path);
-        if (isOwctrl(propertyData))
-            paths << dname(dname(path));
+    if (recursive) {
+        const int SIBLINGS_COUNT = paths.size();
+        for (int i = 0; i < SIBLINGS_COUNT; ++i)
+            paths.append(childrenPaths(paths.at(i), true));
     }
 
     return paths;
 }
 
-// Update all matching 'from's to 'to's within given file
-void SaveUtils::updateFile(const QString& filePath, const QString& from, const QString& to)
-{
-    auto data = rdfile(filePath);
-    data.replace(from.toUtf8(), to.toUtf8());
-    wrfile(filePath, data);
-}
-
-// Recalculates all uids belongs to given control and its children (all).
-// Both database and in-memory data are updated.
-void SaveUtils::recalculateUids(const QString& topPath)
-{
-    if (topPath.isEmpty())
-        return;
-
-    QStringList paths, properties;
-
-    properties << fps(FILE_PROPERTIES, topPath);
-    paths << properties;
-
-    for (auto pfile : properties) {
-        auto propertyData = rdfile(pfile);
-
-        if (!SaveUtils::isOwctrl(propertyData))
-            continue;
-
-        auto uid = SaveUtils::property(propertyData, TAG_UID).toString();
-        auto newUid = HashFactory::generate();
-
-        for (auto file : paths)
-            SaveUtils::updateFile(file, uid, newUid);
-    }
-}
-
-// Returns biggest number from integer named dirs.
-// If no integer named dir exists, 0 returned.
-// If no dir exists or dirs are smaller than zero, 0 returned.
-int SaveUtils::biggestDir(const QString& basePath)
-{
-    int num = 0;
-    for (const auto& dir : lsdir(basePath))
-        if (dir.toInt() > num)
-            num = dir.toInt();
-    return num;
-}
-
-QStringList SaveUtils::formPaths(const QString& projectDir)
-{
-    QStringList paths;
-    if (projectDir.isEmpty())
-        return paths;
-
-    auto baseDir = projectDir + separator() + DIR_OWDB;
-
-    for (auto dir : lsdir(baseDir)) {
-        auto propertyPath = baseDir + separator() + dir + separator() +
-                DIR_THIS + separator() + FILE_PROPERTIES;
-        auto propertyData = rdfile(propertyPath);
-
-        if (isOwctrl(propertyData))
-            paths << dname(dname(propertyPath));
-    }
-
-    return paths;
-}
-
-// Returns all children paths (rootPath) within given root path.
-// Returns children only if they have match between their and given suid.
-// If given suid is empty then rootPath's uid is taken.
-QStringList SaveUtils::childrenPaths(const QString& rootPath, QString suid)
-{
-    QStringList paths;
-
-    if (rootPath.isEmpty())
-        return paths;
-
-    if (suid.isEmpty()) {
-        const auto& propertyPath = rootPath + separator() + DIR_THIS + separator() + FILE_PROPERTIES;
-        const auto& propertyData = rdfile(propertyPath);
-        suid = property(propertyData, TAG_UID).toString();
-    }
-
-    const auto& childrenPath = rootPath + separator() + DIR_CHILDREN;
-    for (const auto& dir : lsdir(childrenPath)) {
-        const auto& propertyPath = childrenPath + separator() + dir + separator() + DIR_THIS + separator() + FILE_PROPERTIES;
-        const auto& propertyData = rdfile(propertyPath);
-
-        if (isOwctrl(propertyData) && property(propertyData, TAG_SUID).toString() == suid) {
-            paths << dname(dname(propertyPath));
-            paths << childrenPaths(dname(dname(propertyPath)), suid);
-        }
-    }
-
-    return paths;
-}
-
-QStringList SaveUtils::masterPaths(const QString& topPath)
-{
-    QStringList paths;
-    const auto& ctrlPaths = controlPaths(topPath);
-
-    QStringList foundSuids;
-    for (const auto& path : ctrlPaths) {
-        const auto& _suid = suid(path);
-        if (!_suid.isEmpty() && !foundSuids.contains(_suid))
-            foundSuids << _suid;
-    }
-
-    for (const auto& path : ctrlPaths) {
-        if (foundSuids.contains(uid(path)))
-            paths << path;
-    }
-
-    std::sort(paths.begin(), paths.end(),
-    [](const QString& a, const QString& b)
-    { return a.size() > b.size(); });
-
-    if (paths.isEmpty() && isForm(topPath))
-        paths << topPath;
-
-    return paths;
-}
-
-bool SaveUtils::isForm(const QString& rootPath)
-{
-    return DIR_OWDB == fname(dname(rootPath));
-}
-
-// Returns true if given path belongs to main form
-// It doesn't check whether rootPath belong to a form or not.
-bool SaveUtils::isMain(const QString& rootPath)
-{
-    return (fname(rootPath) == DIR_MAINFORM);
-}
-
-qreal SaveUtils::x(const QString& rootPath)
-{
-    const auto& propertyPath = rootPath + separator() + DIR_THIS + separator() + FILE_PROPERTIES;
-    const auto& propertyData = rdfile(propertyPath);
-    return property(propertyData, TAG_X).toDouble();
-}
-
-qreal SaveUtils::y(const QString& rootPath)
-{
-    const auto& propertyPath = rootPath + separator() + DIR_THIS + separator() + FILE_PROPERTIES;
-    const auto& propertyData = rdfile(propertyPath);
-    return property(propertyData, TAG_Y).toDouble();
-}
-
-QString SaveUtils::id(const QString& rootPath)
-{
-    const auto& propertyPath = rootPath + separator() + DIR_THIS + separator() + FILE_PROPERTIES;
-    const auto& propertyData = rdfile(propertyPath);
-    return property(propertyData, TAG_ID).toString();
-}
-
-QString SaveUtils::uid(const QString& rootPath)
-{
-    const auto& propertyPath = rootPath + separator() + DIR_THIS + separator() + FILE_PROPERTIES;
-    const auto& propertyData = rdfile(propertyPath);
-    return property(propertyData, TAG_UID).toString();
-}
-
-QString SaveUtils::suid(const QString& rootPath)
-{
-    const auto& propertyPath = rootPath + separator() + DIR_THIS + separator() + FILE_PROPERTIES;
-    const auto& propertyData = rdfile(propertyPath);
-    return property(propertyData, TAG_SUID).toString();
-}
-
-QString SaveUtils::toolName(const QString& toolRootPath)
-{
-    const auto& propertyPath = toolRootPath + separator() + DIR_THIS + separator() + FILE_PROPERTIES;
-    const auto& propertyData = rdfile(propertyPath);
-    return property(propertyData, TAG_NAME).toString();
-}
-
-QString SaveUtils::toolCategory(const QString& toolRootPath)
-{
-    const auto& propertyPath = toolRootPath + separator() + DIR_THIS + separator() + FILE_PROPERTIES;
-    const auto& propertyData = rdfile(propertyPath);
-    return property(propertyData, TAG_CATEGORY).toString();
-}
-
-QString SaveUtils::hash(const QString& projectDir)
-{
-    const auto& propertyPath = projectDir + separator() + FILE_PROJECT;
-    const auto& propertyData = rdfile(propertyPath);
-    return property(propertyData, PTAG_HASH).toString();
-}
-
-QString SaveUtils::projectName(const QString& projectDir)
-{
-    const auto& propertyPath = projectDir + separator() + FILE_PROJECT;
-    const auto& propertyData = rdfile(propertyPath);
-    return property(propertyData, PTAG_PROJECTNAME).toString();
-}
-
-QString SaveUtils::description(const QString& projectDir)
-{
-    const auto& propertyPath = projectDir + separator() + FILE_PROJECT;
-    const auto& propertyData = rdfile(propertyPath);
-    return property(propertyData, PTAG_DESCRIPTION).toString();
-}
-
-QString SaveUtils::owner(const QString& projectDir)
-{
-    const auto& propertyPath = projectDir + separator() + FILE_PROJECT;
-    const auto& propertyData = rdfile(propertyPath);
-    return property(propertyData, PTAG_OWNER).toString();
-}
-
-QString SaveUtils::crDate(const QString& projectDir)
-{
-    const auto& propertyPath = projectDir + separator() + FILE_PROJECT;
-    const auto& propertyData = rdfile(propertyPath);
-    return property(propertyData, PTAG_CRDATE).toString();
-}
-
-QString SaveUtils::mfDate(const QString& projectDir)
-{
-    const auto& propertyPath = projectDir + separator() + FILE_PROJECT;
-    const auto& propertyData = rdfile(propertyPath);
-    return property(propertyData, PTAG_MFDATE).toString();
-}
-
-QString SaveUtils::size(const QString& projectDir)
-{
-    const auto& propertyPath = projectDir + separator() + FILE_PROJECT;
-    const auto& propertyData = rdfile(propertyPath);
-    return property(propertyData, PTAG_SIZE).toString();
-}
-
-QString SaveUtils::scaling(const QString& projectDir)
-{
-    const auto& propertyPath = projectDir + separator() + FILE_PROJECT;
-    const auto& propertyData = rdfile(propertyPath);
-    return property(propertyData, PTAG_SCALING).toString();
-}
-
-QJsonValue SaveUtils::theme(const QString& projectDir)
-{
-    const auto& propertyPath = projectDir + separator() + FILE_PROJECT;
-    const auto& propertyData = rdfile(propertyPath);
-    return property(propertyData, PTAG_THEME);
-}
-
-void SaveUtils::setProjectProperty(const QString& projectDir, const QString& property, const QJsonValue& value)
-{
-    if (projectDir.isEmpty() || !isOwprj(projectDir))
-        return;
-
-    const auto& propertyPath = projectDir + separator() + FILE_PROJECT;
-    auto propertyData = rdfile(propertyPath);
-    setProperty(propertyData, property, value);
-    wrfile(propertyPath, propertyData);
-}
+} // SaveUtils

@@ -1,21 +1,25 @@
-TEMPLATE = app
-QT += gui widgets network qml qml-private quick
+TEMPLATE = lib
+CONFIG  += plugin c++14 strict_c++
+TARGET   = interpreter
+DESTDIR  = ../Modules/Objectwheel
+QT += widgets network qml qml-private quick
+DEFINES += QT_QML_DEBUG_NO_WARNING
+DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000
+
+INCLUDEPATH += $$PWD
+DEPENDPATH  += $$PWD
 
 SOURCES += $$PWD/main.cpp \
            $$PWD/executer.cpp \
            $$PWD/projectmanager.cpp \
-           $$PWD/filemanager.cpp \
            $$PWD/qmlcomponent.cpp \
-           $$PWD/saveutils.cpp \
-           $$PWD/hashfactory.cpp
+           $$PWD/saveutils.cpp
 
 HEADERS += $$PWD/executer.h \
            $$PWD/projectmanager.h \
-           $$PWD/filemanager.h \
            $$PWD/qmlcomponent.h \
            $$PWD/qmlcomponent_p.h \
-           $$PWD/saveutils.h \
-           $$PWD/hashfactory.h
+           $$PWD/saveutils.h
 
 android {
     DISTFILES += $$PWD/android/AndroidManifest.xml \
@@ -24,6 +28,3 @@ android {
 }
 
 include($$PWD/app.pri)
-include($$PWD/miniz/miniz.pri)
-include($$PWD/resources/resources.pri)
-include($$PWD/components/components.pri)
