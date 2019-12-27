@@ -99,12 +99,6 @@ bool setProperty(const QString& controlDir, DesignProperties property, const QVa
 bool setProperty(const QString& projectDir, ProjectProperties property, const QVariant& value);
 bool setProperty(const QString& userDir, UserProperties property, const QVariant& value);
 
-bool initControlMeta(const QString& controlDir);
-bool initDesignMeta(const QString& controlDir);
-bool initProjectMeta(const QString& projectDir);
-bool initUserMeta(const QString& userDir);
-void regenerateUids(const QString& topPath);
-
 QVector<QString> formPaths(const QString& projectDir);
 QVector<QString> childrenPaths(const QString& controlDir, bool recursive = true);
 

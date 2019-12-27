@@ -50,9 +50,6 @@
 ****************************************************************************/
 
 #include <saveutils.h>
-#include <filesystemutils.h>
-#include <hashfactory.h>
-
 #include <QSaveFile>
 #include <QDir>
 #include <QDateTime>
@@ -504,81 +501,6 @@ bool setProperty(const QString& userDir, UserProperties property, const QVariant
         UserMetaHash hash(Internal::userMetaHash(userDir));
         hash.insert(property, value);
         return Internal::saveMetaHash(hash, Internal::toUserMetaFile(userDir));
-    }
-}
-
-bool initControlMeta(const QString& controlDir)
-{
-    if (QFileInfo::exists(Internal::toControlMetaFile(controlDir)))
-        return true;
-
-    if (!QDir(Internal::toControlMetaDir(controlDir)).mkpath(QStringLiteral(".")))
-        return false;
-
-    ControlMetaHash hash;
-    hash.insert(ControlSignature, Internal::controlSignature());
-    hash.insert(ControlVersion, Internal::version());
-    hash.insert(ControlUid, HashFactory::generate());
-
-    return Internal::saveMetaHash(hash, Internal::toControlMetaFile(controlDir));
-}
-
-bool initDesignMeta(const QString& controlDir)
-{
-    if (QFileInfo::exists(Internal::toDesignMetaFile(controlDir)))
-        return true;
-
-    if (!QDir(Internal::toControlMetaDir(controlDir)).mkpath(QStringLiteral(".")))
-        return false;
-
-    DesignMetaHash hash;
-    hash.insert(DesignSignature, Internal::designSignature());
-    hash.insert(DesignVersion, Internal::version());
-
-    return Internal::saveMetaHash(hash, Internal::toDesignMetaFile(controlDir));
-}
-
-bool initProjectMeta(const QString& projectDir)
-{
-    if (QFileInfo::exists(Internal::toProjectMetaFile(projectDir)))
-        return true;
-
-    if (!QDir(Internal::toProjectMetaDir(projectDir)).mkpath(QStringLiteral(".")))
-        return false;
-
-    ProjectMetaHash hash;
-    hash.insert(ProjectSignature, Internal::projectSignature());
-    hash.insert(ProjectVersion, Internal::version());
-    hash.insert(ProjectUid, HashFactory::generate());
-    hash.insert(ProjectHdpiScaling, true);
-
-    return Internal::saveMetaHash(hash, Internal::toProjectMetaFile(projectDir));
-}
-
-bool initUserMeta(const QString& userDir)
-{
-    if (QFileInfo::exists(Internal::toUserMetaFile(userDir)))
-        return true;
-
-    if (!QDir(Internal::toUserMetaDir(userDir)).mkpath(QStringLiteral(".")))
-        return false;
-
-    UserMetaHash hash;
-    hash.insert(UserSignature, Internal::userSignature());
-    hash.insert(UserVersion, Internal::version());
-    return Internal::saveMetaHash(hash, Internal::toUserMetaFile(userDir));
-}
-
-void regenerateUids(const QString& topPath)
-{
-    for (const QString& controlFilePath
-         : FileSystemUtils::searchFiles(Internal::controlMetaFileName(), topPath)) {
-        const QString& controlDir = toDoubleUp(controlFilePath);
-        if (!isControlValid(controlDir)) {
-            Q_ASSERT(Internal::property(controlDir, ControlSignature).toString() != Internal::controlSignature());
-            continue;
-        }
-        setProperty(controlDir, ControlUid, HashFactory::generate());
     }
 }
 

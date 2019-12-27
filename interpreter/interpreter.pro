@@ -38,8 +38,7 @@ SOURCES += $$PWD/main.cpp \
            $$PWD/connectivitywidget.cpp \
            $$PWD/utilityfunctions.cpp \
            $$PWD/projectmanager.cpp \
-           $$PWD/progressbar.cpp \
-           $$PWD/filesystemutils.cpp
+           $$PWD/progressbar.cpp
 
 HEADERS += $$PWD/qmlapplication.h \
            $$PWD/applicationcore.h \
@@ -56,8 +55,7 @@ HEADERS += $$PWD/qmlapplication.h \
            $$PWD/connectivitywidget.h \
            $$PWD/utilityfunctions.h \
            $$PWD/projectmanager.h \
-           $$PWD/progressbar.h \
-           $$PWD/filesystemutils.h
+           $$PWD/progressbar.h
 
 ios|android {
     SOURCES += $$PWD/quitbutton.cpp
