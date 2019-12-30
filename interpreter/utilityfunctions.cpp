@@ -1,5 +1,7 @@
 #include <utilityfunctions.h>
 #include <QOperatingSystemVersion>
+#include <QFont>
+#include <QWindow>
 
 namespace UtilityFunctions {
 
@@ -16,6 +18,16 @@ QFont systemDefaultFont()
 #endif
     font.setPixelSize(13);
     return font;
+}
+
+bool isAnyChildWindowFullScreen(QObject* parentObject)
+{
+    const QList<QWindow*>& children = parentObject->findChildren<QWindow*>();
+    for (QWindow* window : children) {
+        if (window->windowState() & Qt::WindowFullScreen)
+            return true;
+    }
+    return false;
 }
 
 } // UtilityFunctions

@@ -2,27 +2,50 @@
 #include <quicktheme.h>
 #include <utilityfunctions.h>
 #include <saveutils.h>
+#include <qmlapplication.h>
 
 #include <QApplication>
 #include <QStandardPaths>
+#include <QFont>
+#include <QTimer>
+
+#if defined(Q_OS_ANDROID)
+#include <QtAndroid>
+#endif
 
 #if defined(QT_WEBVIEW_LIB)
 #include <QtWebView>
 #endif
 
-ApplicationCore::ApplicationCore()
+ApplicationCore::ApplicationCore() : m_qmlApplication(new QmlApplication(projectPath()))
 {
     /** Core initialization **/
     QApplication::setApplicationDisplayName(APP_NAME);
-    QApplication::setWindowIcon(QIcon(":/images/icon.png"));
+    // TODO: QApplication::setWindowIcon(QIcon(":/images/icon.png"));
     QApplication::setFont(UtilityFunctions::systemDefaultFont());
     QApplication::setStartDragDistance(8);
 
-    // Init Components
-    // Components::init();
+    QObject::connect(m_qmlApplication, &QmlApplication::quit,
+                     QApplication::instance(), &QApplication::quit, Qt::QueuedConnection);
+    QObject::connect(m_qmlApplication, &QmlApplication::exit,
+                     QApplication::instance(), &QApplication::exit, Qt::QueuedConnection);
+    m_qmlApplication->run();
 
-    // Start
-    QTimer::singleShot(0, &Executer::exec);
+#if defined(Q_OS_ANDROID)
+    const bool isFullScreen = UtilityFunctions::isAnyChildWindowFullScreen(m_qmlApplication->rootObject());
+    QTimer::singleShot(1000, [=] {
+        QtAndroid::hideSplashScreen(500);
+        QTimer::singleShot(600, [=] {
+            if (!isFullScreen)
+                QtAndroid::androidActivity().callMethod<void>("setFullScreen", "(Z)V", false);
+        });
+    });
+#endif
+}
+
+ApplicationCore::~ApplicationCore()
+{
+    delete m_qmlApplication;
 }
 
 void ApplicationCore::prepare()
@@ -55,11 +78,6 @@ void ApplicationCore::prepare()
 #endif
 }
 
-ApplicationCore* ApplicationCore::instance()
-{
-    return s_instance;
-}
-
 QString ApplicationCore::appDataPath()
 {
     return QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
@@ -77,8 +95,9 @@ QString ApplicationCore::modulesPath()
 
 QString ApplicationCore::projectPath()
 {
+    // TODO : Think about other versions too
 #if defined(Q_OS_ANDROID)
-    return QStringLiteral("assets:");
+    return QStringLiteral("assets:/Project");
 #elif defined(Q_OS_IOS)
     return QStandardPaths::standardLocations(QStandardPaths::DataLocation).value(0);
 #else

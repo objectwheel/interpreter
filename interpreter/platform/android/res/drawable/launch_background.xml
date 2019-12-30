@@ -11,6 +11,6 @@
         </shape>
     </item>
     <item>
-        <nine-patch android:src="@drawable/ic_splash"/>
+        <nine-patch android:src="@drawable/splash"/>
     </item>
 </layer-list>

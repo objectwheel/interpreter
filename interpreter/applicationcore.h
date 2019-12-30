@@ -2,16 +2,22 @@
 #define APPLICATIONCORE_H
 
 class QString;
+class QmlApplication;
+
 class ApplicationCore final
 {
 public:
     ApplicationCore();
+    ~ApplicationCore();
 
     static void prepare();
 
     static QString appDataPath();
     static QString modulesPath();
     static QString projectPath();
+
+private:
+    QmlApplication* m_qmlApplication;
 
 public:
     ApplicationCore(const ApplicationCore&) = delete;
