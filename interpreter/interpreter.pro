@@ -18,10 +18,13 @@ SOURCES += $$PWD/main.cpp \
            $$PWD/executer.cpp \
            $$PWD/projectmanager.cpp \
            $$PWD/qmlcomponent.cpp \
-           $$PWD/saveutils.cpp
+           $$PWD/saveutils.cpp \
+           $$PWD/quicktheme.cpp
 
 HEADERS += $$PWD/executer.h \
            $$PWD/projectmanager.h \
            $$PWD/qmlcomponent.h \
            $$PWD/qmlcomponent_p.h \
-           $$PWD/saveutils.h
+           $$PWD/saveutils.h \
+           $$PWD/quicktheme.h
+
