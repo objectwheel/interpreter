@@ -5,7 +5,7 @@
 
 class QmlComponentPrivate;
 
-class QmlComponent : public QQmlComponent
+class QmlComponent final : public QQmlComponent
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QmlComponent)
@@ -14,6 +14,7 @@ class QmlComponent : public QQmlComponent
 public:
     using QQmlComponent::QQmlComponent;
     QObject* beginCreate(QQmlContext* publicContext) override;
+    bool isCompletePending() const;
 };
 
 #endif // QMLCOMPONENT_H
