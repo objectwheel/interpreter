@@ -22,8 +22,27 @@ HEADERS += $$PWD/executer.h \
            $$PWD/saveutils.h
 
 android {
+    QT += androidextras
     DISTFILES += $$PWD/android/AndroidManifest.xml \
-                 $$PWD/android/res/values/libs.xml
+                 $$PWD/android/res/values/libs.xml \
+                 $$PWD/android/res/values/styles.xml \
+                 $$PWD/android/res/drawable/launch_background.xml \
+                 $$PWD/android/res/drawable/normal_background.xml \
+                 $$PWD/android/res/drawable/ic_splash.9.png \
+                 $$PWD/android/res/drawable-ldpi/ic_splash.9.png \
+                 $$PWD/android/res/drawable-mdpi/ic_splash.9.png \
+                 $$PWD/android/res/drawable-hdpi/ic_splash.9.png \
+                 $$PWD/android/res/drawable-xhdpi/ic_splash.9.png \
+                 $$PWD/android/res/drawable-xxhdpi/ic_splash.9.png \
+                 $$PWD/android/res/drawable-xxxhdpi/ic_splash.9.png \
+                 $$PWD/android/res/drawable-ldpi/icon.png \
+                 $$PWD/android/res/drawable-mdpi/icon.png \
+                 $$PWD/android/res/drawable-hdpi/icon.png \
+                 $$PWD/android/res/drawable-xhdpi/icon.png \
+                 $$PWD/android/res/drawable-xxhdpi/icon.png \
+                 $$PWD/android/res/drawable-xxxhdpi/icon.png \
+                 $$PWD/android/src/com/objectwheel/interpreter/InterpreterActivity.java
+
     ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
 }
 
