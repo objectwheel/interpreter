@@ -19,6 +19,7 @@
   ekranı göstersin ve bu ekran ayarlardan vs istenildiği zaman açılabilsin. Ayrıca
   "eğer bağlantı kurmakta güçlük çekiyorsanız şunları şunları kontrol ediniz" diye
   açık güvenlik duvarı gibi engelleyici faktörler ile ilgili yönergeler bulunsun.
+- Splash screen ekle
 
 Attribitions Bölümü ekle ve şunlar için atıf ekle:
 - Built with Qt logosu
