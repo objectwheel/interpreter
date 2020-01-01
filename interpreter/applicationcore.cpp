@@ -34,11 +34,9 @@ ApplicationCore::ApplicationCore() : m_qmlApplication(new QmlApplication(project
 #if defined(Q_OS_ANDROID)
     const bool isFullScreen = UtilityFunctions::isAnyChildWindowFullScreen(m_qmlApplication->rootObject());
     QTimer::singleShot(1000, [=] {
-        QtAndroid::hideSplashScreen(500);
-        QTimer::singleShot(600, [=] {
-            if (!isFullScreen)
-                QtAndroid::androidActivity().callMethod<void>("setFullScreen", "(Z)V", false);
-        });
+        QtAndroid::hideSplashScreen(300);
+        if (!isFullScreen)
+            QtAndroid::androidActivity().callMethod<void>("setFullScreen", "(Z)V", false);
     });
 #endif
 }
