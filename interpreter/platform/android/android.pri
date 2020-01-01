@@ -24,5 +24,5 @@ DISTFILES += $$PWD/AndroidManifest.xml \
 ANDROID_PACKAGE_SOURCE_DIR = $$PWD
 
 ANDROID_EXTRA_LIBS = \
-    $$PWD/libs/$$ANDROID_TARGET_ARCH/libssl.so \
-    $$PWD/libs/$$ANDROID_TARGET_ARCH/libcrypto.so
+    $$PWD/libs/$$ANDROID_TARGET_ARCH/libssl_1_1.so \
+    $$PWD/libs/$$ANDROID_TARGET_ARCH/libcrypto_1_1.so
