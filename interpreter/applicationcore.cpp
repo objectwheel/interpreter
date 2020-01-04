@@ -8,6 +8,8 @@
 #include <QStandardPaths>
 #include <QFont>
 #include <QTimer>
+#include <QResource>
+#include <QFileInfo>
 
 #if defined(Q_OS_ANDROID)
 #include <QtAndroid>
@@ -54,6 +56,8 @@ void ApplicationCore::prepare()
     QApplication::setApplicationVersion(APP_VER);
     QApplication::setOrganizationDomain(APP_DOMAIN);
 
+    QResource::registerResource(projectResourcePath(), projectPath());
+
     // FIXME: NEED THIS?
     // QApplication::setAttribute(Qt::AA_UseSoftwareOpenGL); // For webview tooltips
 
@@ -93,9 +97,14 @@ QString ApplicationCore::modulesPath()
 
 QString ApplicationCore::projectPath()
 {
+    return QStringLiteral(":/T2JqZWN0d2hlZWxQcm9qZWN0");
+}
+
+QString ApplicationCore::projectResourcePath()
+{
     // TODO : Think about other versions too
 #if defined(Q_OS_ANDROID)
-    return QStringLiteral("assets:/Project");
+    return QStringLiteral("assets:/Project.rcc");
 #elif defined(Q_OS_IOS)
     return QStandardPaths::standardLocations(QStandardPaths::DataLocation).value(0);
 #else

@@ -15,6 +15,7 @@ public:
     static QString appDataPath();
     static QString modulesPath();
     static QString projectPath();
+    static QString projectResourcePath();
 
 private:
     QmlApplication* m_qmlApplication;

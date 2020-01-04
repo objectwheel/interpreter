@@ -513,7 +513,7 @@ QVector<QString> formPaths(const QString& projectDir)
 
     QVector<QString> paths;
     const QString& designsDir = toProjectDesignsDir(projectDir);
-    for (const QString& formDirName : QDir(designsDir).entryList(QDir::AllDirs | QDir::NoDotAndDotDot)) {
+    foreach (const QString& formDirName, QDir(designsDir).entryList(QDir::Dirs | QDir::NoDotAndDotDot)) {
         const QString& formDir = designsDir + '/' + formDirName;
         if (isControlValid(formDir))
             paths.append(formDir);
@@ -535,7 +535,7 @@ QVector<QString> childrenPaths(const QString& controlDir, bool recursive)
 
     QVector<QString> paths;
     const QString& childrenDir = toControlChildrenDir(controlDir);
-    for (const QString& childDirName : QDir(childrenDir).entryList(QDir::AllDirs | QDir::NoDotAndDotDot)) {
+    foreach (const QString& childDirName, QDir(childrenDir).entryList(QDir::Dirs | QDir::NoDotAndDotDot)) {
         const QString& childControlDir = childrenDir + '/' + childDirName;
         if (isControlValid(childControlDir))
             paths.append(childControlDir);
