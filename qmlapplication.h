@@ -17,6 +17,13 @@ class QmlApplication final : public QQmlEngine
         QmlComponent* component = nullptr;
     };
 
+    struct InitInfo {
+        // Form paths
+        QVector<QString> forms;
+        // Form path, Child paths
+        QHash<QString, QVector<QString>> children;
+    };
+
 public:
     explicit QmlApplication(const QString& projectDirectory, QObject* parent = nullptr);
     explicit QmlApplication(QObject* parent = nullptr);
@@ -24,6 +31,8 @@ public:
 
     const QString& projectDirectory() const;
     void setProjectDirectory(const QString& projectDirectory);
+
+    QObject* rootObject() const;
 
 public slots:
     void run();
