@@ -108,6 +108,6 @@ QString ApplicationCore::projectResourcePath()
 #elif defined(Q_OS_IOS)
     return QStandardPaths::standardLocations(QStandardPaths::DataLocation).value(0);
 #else
-    return QCoreApplication::applicationDirPath();
+    return "/Users/omergoktas/Desktop/Project.rcc";
 #endif
 }
