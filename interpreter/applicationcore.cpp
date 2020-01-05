@@ -209,7 +209,7 @@ bool ApplicationCore::locked()
     return false;
 }
 
-QString ApplicationCore::appDataLocation()
+QString ApplicationCore::appDataPath()
 {
     return QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
 }
@@ -226,7 +226,7 @@ QString ApplicationCore::modulesPath()
 
 QString ApplicationCore::settingsPath()
 {
-    return appDataLocation() + "/Settings.ini";
+    return appDataPath() + "/Settings.ini";
 }
 
 QString ApplicationCore::deviceUid()

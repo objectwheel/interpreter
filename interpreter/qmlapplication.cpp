@@ -7,7 +7,6 @@
 #include <private/qquickpopup_p.h>
 
 #include <QQmlContext>
-#include <QDebug>
 #include <QQmlProperty>
 #include <QFileInfo>
 #include <QGuiApplication>
@@ -45,7 +44,7 @@ QmlApplication::QmlApplication(QObject* parent) : QmlApplication(QString(), pare
 QmlApplication::~QmlApplication()
 {
     QJSEnginePrivate::removeFromDebugServer(this);
-    for (auto instance : m_instanceTree)
+    for (const ControlInstance& instance : qAsConst(m_instanceTree))
         instance.object->disconnect(this);
     m_rootObject->disconnect(this);
     delete m_rootObject;
@@ -85,9 +84,14 @@ void QmlApplication::run()
 
     // TODO: Apply other Ow™ kinda checks for project consistency
 
+    InitInfo initInfo;
+    initInfo.forms = SaveUtils::formPaths(m_projectDirectory);
+    for (const QString& formPath : qAsConst(initInfo.forms))
+        initInfo.children.insert(formPath, SaveUtils::childrenPaths(formPath));
+
     // Create instances, handle parent-child relationship, set ids, save form instances
     bool hasErrors = false;
-    for (const QString& formPath : SaveUtils::formPaths(m_projectDirectory)) {
+    for (const QString& formPath : qAsConst(initInfo.forms)) {
         const ControlInstance& formInstance = createInstance(formPath, ControlInstance());
         if (!formInstance.object) {
             hasErrors = true;
@@ -96,12 +100,13 @@ void QmlApplication::run()
 
         m_instanceTree.insert(formPath, formInstance);
 
-        for (const QString& childPath : SaveUtils::childrenPaths(formPath)) {
+        foreach (const QString& childPath, initInfo.children.value(formPath)) {
             const ControlInstance& parentInstance = m_instanceTree.value(SaveUtils::toDoubleUp(childPath));
             if (!parentInstance.object)
                 continue;
 
             const ControlInstance& childInstance = createInstance(childPath, parentInstance);
+
             if (!childInstance.object) {
                 hasErrors = true;
                 continue;
@@ -111,10 +116,21 @@ void QmlApplication::run()
         }
     }
 
-    for (ControlInstance& instance : m_instanceTree) {
-        instance.component->completeCreate();
-        instance.component->deleteLater();
-        instance.component = nullptr;
+    for (const QString& formPath : qAsConst(initInfo.forms)) {
+        ControlInstance& formInstance = m_instanceTree[formPath];
+        if (formInstance.component) {
+            formInstance.component->completeCreate();
+            formInstance.component->deleteLater();
+            formInstance.component = nullptr;
+        }
+        foreach (const QString& childPath, initInfo.children.value(formPath)) {
+            ControlInstance& childInstance = m_instanceTree[childPath];
+            if (childInstance.component) {
+                childInstance.component->completeCreate();
+                childInstance.component->deleteLater();
+                childInstance.component = nullptr;
+            }
+        }
     }
 
     if (hasErrors)
@@ -180,7 +196,7 @@ QmlApplication::ControlInstance QmlApplication::createInstance(const QString& di
     QObject* object = component->beginCreate(instance.context);
 
     if (component->isError()) {
-        for (auto error : component->errors())
+        foreach (const QQmlError& error, component->errors())
             qWarning().noquote() << error.toString();
         if (component->isCompletePending())
             component->completeCreate();
@@ -229,4 +245,9 @@ QmlApplication::ControlInstance QmlApplication::createInstance(const QString& di
         instance.object->setParent(m_rootObject);
 
     return instance;
+}
+
+QObject* QmlApplication::rootObject() const
+{
+    return m_rootObject;
 }

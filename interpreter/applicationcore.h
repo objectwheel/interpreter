@@ -20,7 +20,7 @@ public:
     static void prepare();
 
     static ApplicationCore* instance();
-    static QString appDataLocation();
+    static QString appDataPath();
     static QString modulesPath();
     static QString settingsPath();
     static QString deviceUid();
