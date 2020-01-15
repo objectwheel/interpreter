@@ -3,6 +3,8 @@ DEFINES += APP_VER='"\\\"$$VERSION\\\""' \
            APP_CORP='"\\\"Objectwheel, Inc.\\\""' \
            APP_DOMAIN='"\\\"objectwheel.com\\\""'
 
+touch(applicationcore.cpp, interpreter.pri)
+
 #Copy modules
 macx {
     modules.files = $$OUT_PWD/../modules/Modules

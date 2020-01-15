@@ -8,6 +8,9 @@ CONFIG  += c++14 strict_c++
 TARGET   = Interpreter
 DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000
 QT += svg widgets network qml quick quickcontrols2 qml-private quicktemplates2-private
+### QT += qtModules
+
+OTHER_FILES += $$PWD/server.json
 
 INCLUDEPATH += $$PWD
 DEPENDPATH  += $$PWD
