@@ -3,25 +3,25 @@
         "interpreter.pro" : {
             "qtModules" : {
                 "before" : "### QT += qtModules",
-                "after" : "QT += @@@₺@@@"
+                "after" : "QT += ₺₺₺₺₺"
             }
         },
-        "interpreter.pri" : {
+        "app.json" : {
             "versionCode" : {
-                "before" : "APP_VER='\"\\\\\\\"$$VERSION\\\\\\\"\"'",
-                "after" : "APP_VER='\"\\\\\\\"@@@₺@@@\\\\\\\"\"'"
+                "before" : "3.0",
+                "after" : "₺₺₺₺₺"
             },
             "label" : {
-                "before" : "APP_NAME='\"\\\\\\\"$$TARGET\\\\\\\"\"'",
-                "after" : "APP_NAME='\"\\\\\\\"@@@₺@@@\\\\\\\"\"'"
+                "before" : "Objectwheel Interpreter",
+                "after" : "₺₺₺₺₺"
             },
             "organization" : {
-                "before" : "APP_CORP='\"\\\\\\\"Objectwheel, Inc.\\\\\\\"\"'",
-                "after" : "APP_CORP='\"\\\\\\\"@@@₺@@@\\\\\\\"\"'"
+                "before" : "Objectwheel, Inc.",
+                "after" : "₺₺₺₺₺"
             },
             "domain" : {
-                "before" : "APP_DOMAIN='\"\\\\\\\"objectwheel.com\\\\\\\"\"'",
-                "after" : "APP_DOMAIN='\"\\\\\\\"@@@₺@@@\\\\\\\"\"'"
+                "before" : "objectwheel.com",
+                "after" : "₺₺₺₺₺"
             }
         }
     },
@@ -29,35 +29,35 @@
         "platform/android/AndroidManifest.xml" : {
             "package" : {
                 "before" : "package=\"com.objectwheel.interpreter\"",
-                "after" : "package=\"@@@₺@@@\""
+                "after" : "package=\"₺₺₺₺₺\""
             },
             "minSdkVersion" : {
                 "before" : "minSdkVersion=\"21\"",
-                "after" : "minSdkVersion=\"@@@₺@@@\""
+                "after" : "minSdkVersion=\"₺₺₺₺₺\""
             },
             "targetSdkVersion" : {
                 "before" : "targetSdkVersion=\"23\"",
-                "after" : "targetSdkVersion=\"@@@₺@@@\""
+                "after" : "targetSdkVersion=\"₺₺₺₺₺\""
             },
             "versionName" : {
                 "before" : "versionName=\"-- %%INSERT_VERSION_NAME%% --\"",
-                "after" : "versionName=\"@@@₺@@@\""
+                "after" : "versionName=\"₺₺₺₺₺\""
             },
             "versionCode" : {
                 "before" : "versionCode=\"-- %%INSERT_VERSION_CODE%% --\"",
-                "after" : "versionCode=\"@@@₺@@@\""
+                "after" : "versionCode=\"₺₺₺₺₺\""
             },
             "label" : {
                 "before" : "label=\"-- %%INSERT_APP_NAME%% --\"",
-                "after" : "label=\"@@@₺@@@\""
+                "after" : "label=\"₺₺₺₺₺\""
             },
             "screenOrientation" : {
                 "before" : "screenOrientation=\"unspecified\"",
-                "after" : "screenOrientation=\"@@@₺@@@\""
+                "after" : "screenOrientation=\"₺₺₺₺₺\""
             },
             "permissions" : {
                 "before" : "<!-- #permissions -->",
-                "after" : "@@@₺@@@"
+                "after" : "₺₺₺₺₺"
             }
         }
     }

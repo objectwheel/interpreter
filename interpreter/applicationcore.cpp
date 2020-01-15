@@ -10,6 +10,8 @@
 #include <QTimer>
 #include <QResource>
 #include <QFileInfo>
+#include <QJsonDocument>
+#include <QJsonObject>
 
 #if defined(Q_OS_ANDROID)
 #include <QtAndroid>
@@ -22,7 +24,7 @@
 ApplicationCore::ApplicationCore() : m_qmlApplication(new QmlApplication(projectPath()))
 {
     /** Core initialization **/
-    QApplication::setApplicationDisplayName(APP_NAME);
+    QApplication::setApplicationDisplayName(appInfo().value("label"));
     // TODO: QApplication::setWindowIcon(QIcon(":/images/icon.png"));
     QApplication::setFont(UtilityFunctions::systemDefaultFont());
     QApplication::setStartDragDistance(8);
@@ -51,10 +53,10 @@ ApplicationCore::~ApplicationCore()
 void ApplicationCore::prepare()
 {
     // Set those here, needed by QStandardPaths
-    QApplication::setApplicationName(APP_NAME);
-    QApplication::setOrganizationName(APP_CORP);
-    QApplication::setApplicationVersion(APP_VER);
-    QApplication::setOrganizationDomain(APP_DOMAIN);
+    QApplication::setApplicationName(appInfo().value("label"));
+    QApplication::setOrganizationName(appInfo().value("organization"));
+    QApplication::setApplicationVersion(appInfo().value("versionCode"));
+    QApplication::setOrganizationDomain(appInfo().value("domain"));
 
     QResource::registerResource(projectResourcePath(), projectPath());
 
@@ -78,6 +80,22 @@ void ApplicationCore::prepare()
     // before the QApplication constructor
     QtWebView::initialize();
 #endif
+}
+
+ApplicationCore::AppInfo ApplicationCore::appInfo()
+{
+    static AppInfo info;
+    if (info.isEmpty()) {
+        QFile file(":/T2JqZWN0d2hlZWxBcHBJbmZv/app.json");
+        if (!file.open(QFile::ReadOnly)) {
+            qFatal("Fatal error, cannot open app.json file");
+            return {};
+        }
+        const QVariantMap& map = QJsonDocument::fromJson(file.readAll()).object().toVariantMap();
+        foreach (const QString& key, map.keys())
+            info[key] = map[key].toString();
+    }
+    return info;
 }
 
 QString ApplicationCore::appDataPath()

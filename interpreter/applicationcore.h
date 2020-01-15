@@ -1,17 +1,20 @@
 #ifndef APPLICATIONCORE_H
 #define APPLICATIONCORE_H
 
-class QString;
-class QmlApplication;
+#include <QMap>
 
+class QmlApplication;
 class ApplicationCore final
 {
+    using AppInfo = QMap<QString, QString>;
+
 public:
     ApplicationCore();
     ~ApplicationCore();
 
     static void prepare();
 
+    static AppInfo appInfo();
     static QString appDataPath();
     static QString modulesPath();
     static QString projectPath();

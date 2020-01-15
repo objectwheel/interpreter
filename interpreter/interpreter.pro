@@ -10,22 +10,24 @@ DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000
 QT += svg widgets network qml quick quickcontrols2 qml-private quicktemplates2-private
 ### QT += qtModules
 
-OTHER_FILES += $$PWD/server.json
-
 INCLUDEPATH += $$PWD
 DEPENDPATH  += $$PWD
 
-SOURCES += $$PWD/main.cpp \
-           $$PWD/qmlapplication.cpp \
-           $$PWD/applicationcore.cpp \
-           $$PWD/qmlcomponent.cpp \
-           $$PWD/saveutils.cpp \
-           $$PWD/quicktheme.cpp \
-           $$PWD/utilityfunctions.cpp
+SOURCES     += $$PWD/main.cpp \
+               $$PWD/qmlapplication.cpp \
+               $$PWD/applicationcore.cpp \
+               $$PWD/qmlcomponent.cpp \
+               $$PWD/saveutils.cpp \
+               $$PWD/quicktheme.cpp \
+               $$PWD/utilityfunctions.cpp
 
-HEADERS += $$PWD/qmlapplication.h \
-           $$PWD/applicationcore.h \
-           $$PWD/qmlcomponent.h \
-           $$PWD/saveutils.h \
-           $$PWD/quicktheme.h \
-           $$PWD/utilityfunctions.h
+HEADERS     += $$PWD/qmlapplication.h \
+               $$PWD/applicationcore.h \
+               $$PWD/qmlcomponent.h \
+               $$PWD/saveutils.h \
+               $$PWD/quicktheme.h \
+               $$PWD/utilityfunctions.h
+
+RESOURCES   += $$PWD/resource.qrc
+
+OTHER_FILES += $$PWD/server.json
