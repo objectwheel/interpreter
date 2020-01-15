@@ -82,8 +82,6 @@ void QmlApplication::run()
         return;
     }
 
-    // TODO: Apply other Ow™ kinda checks for project consistency
-
     InitInfo initInfo;
     initInfo.forms = SaveUtils::formPaths(m_projectDirectory);
     for (const QString& formPath : qAsConst(initInfo.forms))

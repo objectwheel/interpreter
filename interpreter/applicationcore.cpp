@@ -105,8 +105,8 @@ QString ApplicationCore::projectResourcePath()
     // TODO : Think about other versions too
 #if defined(Q_OS_ANDROID)
     return QStringLiteral("assets:/Project.rcc");
-#elif defined(Q_OS_IOS)
-    return QStandardPaths::standardLocations(QStandardPaths::DataLocation).value(0);
+#elif defined(Q_OS_IOS) || defined(Q_OS_MACOS)
+    return QStandardPaths::standardLocations(QStandardPaths::AppDataLocation).last() + QStringLiteral("/Project.rcc");
 #else
     return "/Users/omergoktas/Desktop/Project.rcc";
 #endif

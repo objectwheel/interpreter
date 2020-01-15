@@ -3,11 +3,9 @@ include($$PWD/interpreter.pri)
 include($$PWD/platform/platform.pri)
 
 ### App Settings
-TEMPLATE = app
 CONFIG  -= qtquickcompiler
 CONFIG  += c++14 strict_c++
 TARGET   = Interpreter
-DEFINES += QT_QML_DEBUG_NO_WARNING
 DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000
 QT += svg widgets network qml quick quickcontrols2 qml-private quicktemplates2-private
 
