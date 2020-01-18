@@ -12,12 +12,12 @@
 ApplicationCore::ApplicationCore() : m_qmlApplication(CommandlineParser::projectDirectory())
 {
     /** Core initialization **/
-    QApplication::setApplicationName(APP_NAME);
-    QApplication::setOrganizationName(APP_CORP);
-    QApplication::setApplicationVersion(APP_VER);
-    QApplication::setOrganizationDomain(APP_DOMAIN);
-    QApplication::setApplicationDisplayName(APP_NAME + QObject::tr(" Interpreter"));
-    QApplication::setWindowIcon(QIcon(":/images/icon.png"));
+    QApplication::setApplicationName(QStringLiteral(APP_NAME));
+    QApplication::setOrganizationName(QStringLiteral(APP_CORP));
+    QApplication::setApplicationVersion(QStringLiteral(APP_VER));
+    QApplication::setOrganizationDomain(QStringLiteral(APP_DOMAIN));
+    QApplication::setApplicationDisplayName(QStringLiteral(APP_NAME) + QObject::tr(" Interpreter"));
+    QApplication::setWindowIcon(QIcon(QStringLiteral(":/images/icon.png")));
 
     /* Set application ui settings */
     QApplication::setFont(UtilityFunctions::systemDefaultFont());
@@ -33,7 +33,7 @@ ApplicationCore::ApplicationCore() : m_qmlApplication(CommandlineParser::project
 QString ApplicationCore::modulesPath()
 {
     // TODO : Think about unix and windows versions too
-    return QFileInfo(QApplication::applicationDirPath() + "/../Frameworks/Modules").canonicalFilePath();
+    return QFileInfo("../Frameworks/Modules").canonicalFilePath();
 }
 
 void ApplicationCore::run()
