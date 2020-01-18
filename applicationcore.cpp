@@ -33,7 +33,7 @@ ApplicationCore::ApplicationCore() : m_qmlApplication(CommandlineParser::project
 QString ApplicationCore::modulesPath()
 {
     // TODO : Think about unix and windows versions too
-    return QFileInfo("../Resources/Modules").canonicalFilePath();
+    return QFileInfo(QCoreApplication::applicationDirPath() + QStringLiteral("/../Resources/Modules")).canonicalFilePath();
 }
 
 void ApplicationCore::run()
