@@ -10,7 +10,7 @@ public class InterpreterActivity extends QtActivity {
     @Override
     public void onCreate(Bundle bundle)
     {
-        setTheme(R.style.NormalTheme);
+        setTheme(getResources().getIdentifier("NormalTheme", "style", getPackageName()));
         super.onCreate(bundle);
         setFullScreen(true);
     }
