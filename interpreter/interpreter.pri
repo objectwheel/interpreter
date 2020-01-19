@@ -14,14 +14,9 @@ exists($$PWD/Project.rcc) {
         project.path = Contents/Resources
         QMAKE_BUNDLE_DATA += project
     } else:android {
-        ASSETS = $$PWD/platform/android/assets
-        mkpath($$ASSETS)
-        DESTINATION_DIR = $$shell_quote($$shell_path($$ASSETS))
-        FILES_TO_COPY = $$PWD/Project.rcc
-        for (FILE, FILES_TO_COPY) {
-            FILE_PATH = $$shell_quote($$shell_path($$FILE))
-            QMAKE_POST_LINK += $$QMAKE_COPY $$FILE_PATH $$DESTINATION_DIR $$escape_expand(\n\t)
-        }
+        project.files = $$PWD/Project.rcc
+        project.path = /assets
+        INSTALLS += project
     }
 } else {
     warning("Unable to find project file!!!")
