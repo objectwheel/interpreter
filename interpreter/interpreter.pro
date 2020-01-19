@@ -28,6 +28,8 @@ HEADERS     += $$PWD/qmlapplication.h \
                $$PWD/quicktheme.h \
                $$PWD/utilityfunctions.h
 
-RESOURCES   += $$PWD/resource.qrc
-
 OTHER_FILES += $$PWD/server.json
+
+### NOTE: If we add qrc files, qmlimportscanner and androiddeployqt
+### cannot properly detect qml imports based on the user project we
+### inject into the current directory (called Project directory)

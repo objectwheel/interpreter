@@ -6,22 +6,22 @@
                 "after" : "QT += ₺₺₺₺₺"
             }
         },
-        "app.json" : {
+        "applicationcore.cpp" : {
             "versionCode" : {
-                "before" : "3.0",
-                "after" : "₺₺₺₺₺"
+                "before" : "QStringLiteral(\"3.0\")",
+                "after" : "QStringLiteral(R\"oWsO(₺₺₺₺₺)oWsO\")"
             },
             "label" : {
-                "before" : "Objectwheel Interpreter",
-                "after" : "₺₺₺₺₺"
+                "before" : "QStringLiteral(\"Objectwheel Interpreter\")",
+                "after" : "QStringLiteral(R\"oWsO(₺₺₺₺₺)oWsO\")"
             },
             "organization" : {
-                "before" : "Objectwheel, Inc.",
-                "after" : "₺₺₺₺₺"
+                "before" : "QStringLiteral(\"Objectwheel, Inc.\")",
+                "after" : "QStringLiteral(R\"oWsO(₺₺₺₺₺)oWsO\")"
             },
             "domain" : {
-                "before" : "objectwheel.com",
-                "after" : "₺₺₺₺₺"
+                "before" : "QStringLiteral(\"objectwheel.com\")",
+                "after" : "QStringLiteral(R\"oWsO(₺₺₺₺₺)oWsO\")"
             }
         }
     },
