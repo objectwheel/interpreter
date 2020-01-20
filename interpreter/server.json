@@ -3,29 +3,29 @@
         "interpreter.pro" : {
             "qtModules" : {
                 "before" : "### QT += qtModules",
-                "after" : "QT += ₺₺₺₺₺"
+                "after" : "QT += @@@@@@"
             }
         },
         "applicationcore.cpp" : {
             "versionName" : {
                 "default" : "1.0",
                 "before" : "QStringLiteral(\"3.0\")",
-                "after" : "QStringLiteral(R\"oWsO(₺₺₺₺₺)oWsO\")"
+                "after" : "QStringLiteral(R\"oWsO(@@@@@@)oWsO\")"
             },
             "label" : {
                 "default" : "My Application",
                 "before" : "QStringLiteral(\"Objectwheel Interpreter\")",
-                "after" : "QStringLiteral(R\"oWsO(₺₺₺₺₺)oWsO\")"
+                "after" : "QStringLiteral(R\"oWsO(@@@@@@)oWsO\")"
             },
             "organization" : {
                 "default" : "My Example Org, Inc.",
                 "before" : "QStringLiteral(\"Objectwheel, Inc.\")",
-                "after" : "QStringLiteral(R\"oWsO(₺₺₺₺₺)oWsO\")"
+                "after" : "QStringLiteral(R\"oWsO(@@@@@@)oWsO\")"
             },
             "domain" : {
                 "default" : "example.com",
                 "before" : "QStringLiteral(\"objectwheel.com\")",
-                "after" : "QStringLiteral(R\"oWsO(₺₺₺₺₺)oWsO\")"
+                "after" : "QStringLiteral(R\"oWsO(@@@@@@)oWsO\")"
             }
         }
     },
@@ -34,38 +34,38 @@
             "package" : {
                 "default" : "com.example.myapplication",
                 "before" : "package=\"com.objectwheel.interpreter\"",
-                "after" : "package=\"₺₺₺₺₺\""
+                "after" : "package=\"@@@@@@\""
             },
             "minSdkVersion" : {
                 "before" : "minSdkVersion=\"21\"",
-                "after" : "minSdkVersion=\"₺₺₺₺₺\""
+                "after" : "minSdkVersion=\"@@@@@@\""
             },
             "targetSdkVersion" : {
                 "before" : "targetSdkVersion=\"23\"",
-                "after" : "targetSdkVersion=\"₺₺₺₺₺\""
+                "after" : "targetSdkVersion=\"@@@@@@\""
             },
             "versionName" : {
                 "default" : "1.0",
                 "before" : "versionName=\"3.0\"",
-                "after" : "versionName=\"₺₺₺₺₺\""
+                "after" : "versionName=\"@@@@@@\""
             },
             "versionCode" : {
                 "default" : "1",
                 "before" : "versionCode=\"3\"",
-                "after" : "versionCode=\"₺₺₺₺₺\""
+                "after" : "versionCode=\"@@@@@@\""
             },
             "label" : {
                 "default" : "My Application",
                 "before" : "label=\"-- %%INSERT_APP_NAME%% --\"",
-                "after" : "label=\"₺₺₺₺₺\""
+                "after" : "label=\"@@@@@@\""
             },
             "screenOrientation" : {
                 "before" : "screenOrientation=\"unspecified\"",
-                "after" : "screenOrientation=\"₺₺₺₺₺\""
+                "after" : "screenOrientation=\"@@@@@@\""
             },
             "permissions" : {
                 "before" : "<!-- #permissions -->",
-                "after" : "<uses-permission android:name=\"₺₺₺₺₺\"/>"
+                "after" : "<uses-permission android:name=\"@@@@@@\"/>"
             }
         }
     }
