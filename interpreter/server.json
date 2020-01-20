@@ -7,19 +7,23 @@
             }
         },
         "applicationcore.cpp" : {
-            "versionCode" : {
+            "versionName" : {
+                "default" : "1.0",
                 "before" : "QStringLiteral(\"3.0\")",
                 "after" : "QStringLiteral(R\"oWsO(₺₺₺₺₺)oWsO\")"
             },
             "label" : {
+                "default" : "My Application",
                 "before" : "QStringLiteral(\"Objectwheel Interpreter\")",
                 "after" : "QStringLiteral(R\"oWsO(₺₺₺₺₺)oWsO\")"
             },
             "organization" : {
+                "default" : "My Example Org, Inc.",
                 "before" : "QStringLiteral(\"Objectwheel, Inc.\")",
                 "after" : "QStringLiteral(R\"oWsO(₺₺₺₺₺)oWsO\")"
             },
             "domain" : {
+                "default" : "example.com",
                 "before" : "QStringLiteral(\"objectwheel.com\")",
                 "after" : "QStringLiteral(R\"oWsO(₺₺₺₺₺)oWsO\")"
             }
@@ -28,6 +32,7 @@
     "android" : {
         "platform/android/AndroidManifest.xml" : {
             "package" : {
+                "default" : "com.example.myapplication",
                 "before" : "package=\"com.objectwheel.interpreter\"",
                 "after" : "package=\"₺₺₺₺₺\""
             },
@@ -40,14 +45,17 @@
                 "after" : "targetSdkVersion=\"₺₺₺₺₺\""
             },
             "versionName" : {
-                "before" : "versionName=\"-- %%INSERT_VERSION_NAME%% --\"",
+                "default" : "1.0",
+                "before" : "versionName=\"3.0\"",
                 "after" : "versionName=\"₺₺₺₺₺\""
             },
             "versionCode" : {
-                "before" : "versionCode=\"-- %%INSERT_VERSION_CODE%% --\"",
+                "default" : "1",
+                "before" : "versionCode=\"3\"",
                 "after" : "versionCode=\"₺₺₺₺₺\""
             },
             "label" : {
+                "default" : "My Application",
                 "before" : "label=\"-- %%INSERT_APP_NAME%% --\"",
                 "after" : "label=\"₺₺₺₺₺\""
             },
@@ -57,7 +65,7 @@
             },
             "permissions" : {
                 "before" : "<!-- #permissions -->",
-                "after" : "₺₺₺₺₺"
+                "after" : "<uses-permission android:name=\"₺₺₺₺₺\"/>"
             }
         }
     }
