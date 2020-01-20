@@ -6,7 +6,6 @@ include($$PWD/resources/resources.pri)
 include($$PWD/zipasync/zipasync.pri)
 
 ### App Settings
-TEMPLATE = app
 CONFIG  -= qtquickcompiler
 CONFIG  += c++14 strict_c++
 TARGET   = Interpreter

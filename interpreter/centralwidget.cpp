@@ -116,11 +116,12 @@ CentralWidget::CentralWidget(QWidget* parent) : QWidget(parent)
     QFont font;
     font.setPixelSize(16);
     m_titleLabel->setFont(font);
-    m_titleLabel->setText(APP_NAME);
+    m_titleLabel->setText(QStringLiteral(APP_NAME));
 
     font.setPixelSize(13);
     m_versionLabel->setFont(font);
-    m_versionLabel->setText("v" + QStringLiteral(APP_VER) + " (" APP_GITHASH ")");
+    m_versionLabel->setText(QStringLiteral("v") + QStringLiteral(APP_VER) +
+                            QStringLiteral(" (") + QStringLiteral(APP_GITHASH) + QStringLiteral(")"));
 
     m_progressBar->hide();
 

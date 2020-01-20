@@ -27,8 +27,8 @@ ApplicationCore::ApplicationCore() : m_settings(ApplicationCore::settingsPath(),
     s_instance = this;
 
     /** Core initialization **/
-    QApplication::setApplicationDisplayName(APP_NAME);
-    QApplication::setWindowIcon(QIcon(":/images/icon.png"));
+    QApplication::setApplicationDisplayName(QStringLiteral(APP_NAME));
+    QApplication::setWindowIcon(QIcon(QStringLiteral(":/images/icon.png")));
     QApplication::setFont(UtilityFunctions::systemDefaultFont());
     QApplication::setStartDragDistance(8);
 
@@ -163,10 +163,10 @@ ApplicationCore::~ApplicationCore()
 void ApplicationCore::prepare()
 {
     // Set those here, needed by QStandardPaths
-    QApplication::setApplicationName(APP_NAME);
-    QApplication::setOrganizationName(APP_CORP);
-    QApplication::setApplicationVersion(APP_VER);
-    QApplication::setOrganizationDomain(APP_DOMAIN);
+    QApplication::setApplicationName(QStringLiteral(APP_NAME));
+    QApplication::setOrganizationName(QStringLiteral(APP_CORP));
+    QApplication::setApplicationVersion(QStringLiteral(APP_VER));
+    QApplication::setOrganizationDomain(QStringLiteral(APP_DOMAIN));
 
     if (!recentProjectUid().isEmpty())
         QuickTheme::setTheme(ProjectManager::projectDirectory(recentProjectUid()));
@@ -247,17 +247,16 @@ QString ApplicationCore::deviceUid()
 QVariantMap ApplicationCore::deviceInfo()
 {
     static const QJsonObject info = {
-        {"currentCpuArchitecture", QSysInfo::currentCpuArchitecture()},
-        {"kernelType", QSysInfo::kernelType()},
-        {"kernelVersion", QSysInfo::kernelVersion()},
-        {"prettyProductName", QSysInfo::prettyProductName()},
-        {"productType", QSysInfo::productType()},
-        {"isEmulator", CrossPlatform::isEmulator()},
-        {"deviceName", CrossPlatform::deviceName()},
-        {"deviceUid", deviceUid()},
-        {"version", APP_VER}
+        {QStringLiteral("currentCpuArchitecture"), QSysInfo::currentCpuArchitecture()},
+        {QStringLiteral("kernelType"), QSysInfo::kernelType()},
+        {QStringLiteral("kernelVersion"), QSysInfo::kernelVersion()},
+        {QStringLiteral("prettyProductName"), QSysInfo::prettyProductName()},
+        {QStringLiteral("productType"), QSysInfo::productType()},
+        {QStringLiteral("deviceName"), CrossPlatform::deviceName()},
+        {QStringLiteral("deviceUid"), deviceUid()},
+        {QStringLiteral("version"), QLatin1String(APP_VER)},
+        {QStringLiteral("isEmulator"), CrossPlatform::isEmulator()}
     };
-
     return info.toVariantMap();
 }
 
