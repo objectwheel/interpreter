@@ -63,6 +63,10 @@
                 "before" : "screenOrientation=\"unspecified\"",
                 "after" : "screenOrientation=\"@@@@@@\""
             },
+            "icon" : {
+                "before" : "<application",
+                "after" : "<application android:icon=\"@drawable/icon\""
+            },
             "permissions" : {
                 "before" : "<!-- #permissions -->",
                 "after" : "<uses-permission android:name=\"@@@@@@\"/>"
