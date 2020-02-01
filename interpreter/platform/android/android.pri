@@ -13,5 +13,5 @@ DISTFILES += $$PWD/src/com/objectwheel/deviceinfo/DeviceInfo.java \
 ANDROID_PACKAGE_SOURCE_DIR = $$PWD
 
 ANDROID_EXTRA_LIBS = \
-    $$PWD/libs/$$ANDROID_TARGET_ARCH/libssl_1_1.so \
-    $$PWD/libs/$$ANDROID_TARGET_ARCH/libcrypto_1_1.so
+    $$PWD/lib/$$ANDROID_TARGET_ARCH/libssl_1_1.so \
+    $$PWD/lib/$$ANDROID_TARGET_ARCH/libcrypto_1_1.so
