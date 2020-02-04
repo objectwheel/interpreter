@@ -4,7 +4,7 @@
 #include <saveutils.h>
 #include <qmlapplication.h>
 
-#include <QApplication>
+#include <QGuiApplication>
 #include <QStandardPaths>
 #include <QFont>
 #include <QTimer>
@@ -24,14 +24,13 @@
 ApplicationCore::ApplicationCore() : m_qmlApplication(new QmlApplication(projectPath()))
 {
     /** Core initialization **/
-    // TODO: QApplication::setWindowIcon(QIcon(":/images/icon.png"));
-    QApplication::setFont(UtilityFunctions::systemDefaultFont());
-    QApplication::setStartDragDistance(8);
+    // TODO: QGuiApplication::setWindowIcon(QIcon(":/images/icon.png"));
+    QGuiApplication::setFont(UtilityFunctions::systemDefaultFont());
 
     QObject::connect(m_qmlApplication, &QmlApplication::quit,
-                     QApplication::instance(), &QApplication::quit, Qt::QueuedConnection);
+                     QGuiApplication::instance(), &QGuiApplication::quit, Qt::QueuedConnection);
     QObject::connect(m_qmlApplication, &QmlApplication::exit,
-                     QApplication::instance(), &QApplication::exit, Qt::QueuedConnection);
+                     QGuiApplication::instance(), &QGuiApplication::exit, Qt::QueuedConnection);
     m_qmlApplication->run();
 
 #if defined(Q_OS_ANDROID)
@@ -51,22 +50,15 @@ ApplicationCore::~ApplicationCore()
 
 void ApplicationCore::prepare()
 {
-    // Set those here, needed by QStandardPaths
-    QApplication::setApplicationName(QStringLiteral("Objectwheel Interpreter"));
-    QApplication::setOrganizationName(QStringLiteral("Objectwheel, Inc."));
-    QApplication::setApplicationVersion(QStringLiteral("3.0"));
-    QApplication::setOrganizationDomain(QStringLiteral("objectwheel.com"));
-    QApplication::setApplicationDisplayName(QStringLiteral("Objectwheel Interpreter"));
-
     QResource::registerResource(projectResourcePath(), projectPath());
 
     // FIXME: NEED THIS?
-    // QApplication::setAttribute(Qt::AA_UseSoftwareOpenGL); // For webview tooltips
+    // QGuiApplication::setAttribute(Qt::AA_UseSoftwareOpenGL); // For webview tooltips
 
     QuickTheme::setTheme(projectPath());
     if (SaveUtils::projectHdpiScaling(projectPath())) {
-        QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-        QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
+        QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+        QGuiApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
     }
 
 #if defined(QT_WEBVIEW_LIB)
@@ -74,10 +66,10 @@ void ApplicationCore::prepare()
     // is already called by QtWebView::initialize()
     // QtWebEngine::initialize();
     // Also we are calling following before
-    // Constructing the QApplication because
+    // Constructing the QGuiApplication because
     // It uses QtWebEngine as the backend on
     // desktop platforms and it must be initialized
-    // before the QApplication constructor
+    // before the QGuiApplication constructor
     QtWebView::initialize();
 #endif
 }
@@ -93,7 +85,7 @@ QString ApplicationCore::modulesPath()
 #if defined(Q_OS_ANDROID)
     return QStringLiteral("assets:/Modules");
 #else
-    return QFileInfo(QApplication::applicationDirPath() + "/../Frameworks/Modules").canonicalFilePath();
+    return QFileInfo(QGuiApplication::applicationDirPath() + "/../Frameworks/Modules").canonicalFilePath();
 #endif
 }
 

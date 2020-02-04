@@ -6,7 +6,7 @@
                 "after" : "QT += @@@@@@"
             }
         },
-        "applicationcore.cpp" : {
+        "main.cpp" : {
             "versionName" : {
                 "default" : "1.0",
                 "before" : "QStringLiteral(\"3.0\")",
@@ -26,6 +26,10 @@
                 "default" : "example.com",
                 "before" : "QStringLiteral(\"objectwheel.com\")",
                 "after" : "QStringLiteral(R\"oWsO(@@@@@@)oWsO\")"
+            },
+            "useGuiApplication" : {
+                "before" : "QApplication",
+                "after" : "QGuiApplication"
             }
         }
     },
