@@ -30,7 +30,6 @@ ApplicationCore::ApplicationCore() : m_settings(ApplicationCore::settingsPath(),
     QApplication::setApplicationDisplayName(QStringLiteral(APP_NAME));
     QApplication::setWindowIcon(QIcon(QStringLiteral(":/images/icon.png")));
     QApplication::setFont(UtilityFunctions::systemDefaultFont());
-    QApplication::setStartDragDistance(8);
 
     m_applicationWindow = new ApplicationWindow;
 #if defined(Q_OS_IOS) || defined(Q_OS_ANDROID)
