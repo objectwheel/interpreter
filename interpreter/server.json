@@ -1,6 +1,10 @@
 {
     "all" : {
         "interpreter.pro" : {
+            "useGuiApplication" : {
+                "before" : "QT += widgets ##RemoveIfNotDesktopTheme",
+                "after" : ""
+            },
             "qtModules" : {
                 "before" : "### QT += qtModules",
                 "after" : "QT += @@@@@@"
