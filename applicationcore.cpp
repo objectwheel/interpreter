@@ -21,7 +21,6 @@ ApplicationCore::ApplicationCore() : m_qmlApplication(CommandlineParser::project
 
     /* Set application ui settings */
     QApplication::setFont(UtilityFunctions::systemDefaultFont());
-    QApplication::setStartDragDistance(8);
 
     // Connections
     QObject::connect(&m_qmlApplication, &QmlApplication::quit,
