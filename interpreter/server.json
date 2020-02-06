@@ -16,7 +16,7 @@
                 "before" : "QStringLiteral(\"3.0\")",
                 "after" : "QStringLiteral(R\"oWsO(@@@@@@)oWsO\")"
             },
-            "label" : {
+            "name" : {
                 "default" : "My Application",
                 "before" : "QStringLiteral(\"Objectwheel Interpreter\")",
                 "after" : "QStringLiteral(R\"oWsO(@@@@@@)oWsO\")"
@@ -62,7 +62,7 @@
                 "before" : "versionCode=\"3\"",
                 "after" : "versionCode=\"@@@@@@\""
             },
-            "label" : {
+            "name" : {
                 "default" : "My Application",
                 "before" : "label=\"-- %%INSERT_APP_NAME%% --\"",
                 "after" : "label=\"@@@@@@\""
