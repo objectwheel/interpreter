@@ -44,11 +44,11 @@
                 "before" : "package=\"com.objectwheel.interpreter\"",
                 "after" : "package=\"@@@@@@\""
             },
-            "minSdkVersion" : {
+            "minApiLevel" : {
                 "before" : "minSdkVersion=\"21\"",
                 "after" : "minSdkVersion=\"@@@@@@\""
             },
-            "targetSdkVersion" : {
+            "targetApiLevel" : {
                 "before" : "targetSdkVersion=\"23\"",
                 "after" : "targetSdkVersion=\"@@@@@@\""
             },
