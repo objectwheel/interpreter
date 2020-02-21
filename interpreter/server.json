@@ -12,7 +12,7 @@
         },
         "main.cpp" : {
             "versionName" : {
-                "default" : "1.0",
+                "default" : "Version 1.0",
                 "before" : "QStringLiteral(\"3.0\")",
                 "after" : "QStringLiteral(R\"oWsO(@@@@@@)oWsO\")"
             },
@@ -22,7 +22,7 @@
                 "after" : "QStringLiteral(R\"oWsO(@@@@@@)oWsO\")"
             },
             "organization" : {
-                "default" : "My Example Org, Inc.",
+                "default" : "Organization, Inc.",
                 "before" : "QStringLiteral(\"Objectwheel, Inc.\")",
                 "after" : "QStringLiteral(R\"oWsO(@@@@@@)oWsO\")"
             },
@@ -53,7 +53,7 @@
                 "after" : "targetSdkVersion=\"@@@@@@\""
             },
             "versionName" : {
-                "default" : "1.0",
+                "default" : "Version 1.0",
                 "before" : "versionName=\"3.0\"",
                 "after" : "versionName=\"@@@@@@\""
             },
