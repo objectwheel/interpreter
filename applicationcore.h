@@ -1,6 +1,7 @@
 #ifndef APPLICATIONCORE_H
 #define APPLICATIONCORE_H
 
+#include <cleanexit.h>
 #include <qmlapplication.h>
 
 class ApplicationCore final
@@ -15,6 +16,7 @@ public:
     static void prepare();
 
 private:
+    CleanExit m_cleanExit;
     QmlApplication m_qmlApplication;
 
 public:
