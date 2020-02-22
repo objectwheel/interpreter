@@ -1,6 +1,8 @@
 #ifndef APPLICATIONCORE_H
 #define APPLICATIONCORE_H
 
+#include <cleanexit.h>
+
 class QString;
 class QmlApplication;
 
@@ -18,6 +20,7 @@ public:
     static QString projectResourcePath();
 
 private:
+    CleanExit m_cleanExit;
     QmlApplication* m_qmlApplication;
 
 public:

@@ -22,7 +22,8 @@ SOURCES     += $$PWD/main.cpp \
                $$PWD/quicktheme.cpp \
                $$PWD/utilityfunctions.cpp
 
-HEADERS     += $$PWD/qmlapplication.h \
+HEADERS     += $$PWD/cleanexit.h \
+               $$PWD/qmlapplication.h \
                $$PWD/applicationcore.h \
                $$PWD/qmlcomponent.h \
                $$PWD/saveutils.h \
