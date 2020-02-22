@@ -39,7 +39,8 @@ SOURCES += $$PWD/main.cpp \
            $$PWD/projectmanager.cpp \
            $$PWD/progressbar.cpp
 
-HEADERS += $$PWD/qmlapplication.h \
+HEADERS += $$PWD/cleanexit.h \
+           $$PWD/qmlapplication.h \
            $$PWD/applicationcore.h \
            $$PWD/qmlcomponent.h \
            $$PWD/saveutils.h \
