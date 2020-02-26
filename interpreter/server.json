@@ -7,29 +7,34 @@
             },
             "qtModules" : {
                 "before" : "### QT += qtModules",
-                "after" : "QT += @@@@@@"
+                "after" : "QT += @@@@@@",
+                "validator" : "^[a-z0-9-]{2,50}$"
             }
         },
         "main.cpp" : {
-            "versionName" : {
-                "default" : "Version 1.0",
-                "before" : "QStringLiteral(\"3.0\")",
-                "after" : "QStringLiteral(R\"oWsO(@@@@@@)oWsO\")"
-            },
             "name" : {
                 "default" : "My Application",
                 "before" : "QStringLiteral(\"Objectwheel Interpreter\")",
-                "after" : "QStringLiteral(R\"oWsO(@@@@@@)oWsO\")"
+                "after" : "QStringLiteral(R\"oWsO(@@@@@@)oWsO\")",
+                "validator" : "^((?!\\)oWsO).){1,255}$"
+            },
+            "versionName" : {
+                "default" : "Version 1.0",
+                "before" : "QStringLiteral(\"3.0\")",
+                "after" : "QStringLiteral(R\"oWsO(@@@@@@)oWsO\")",
+                "validator" : "^((?!\\)oWsO).){1,255}$"
             },
             "organization" : {
                 "default" : "Organization, Inc.",
                 "before" : "QStringLiteral(\"Objectwheel, Inc.\")",
-                "after" : "QStringLiteral(R\"oWsO(@@@@@@)oWsO\")"
+                "after" : "QStringLiteral(R\"oWsO(@@@@@@)oWsO\")",
+                "validator" : "^((?!\\)oWsO).){1,255}$"
             },
             "domain" : {
                 "default" : "example.com",
                 "before" : "QStringLiteral(\"objectwheel.com\")",
-                "after" : "QStringLiteral(R\"oWsO(@@@@@@)oWsO\")"
+                "after" : "QStringLiteral(R\"oWsO(@@@@@@)oWsO\")",
+                "validator" : "^((?!\\)oWsO).){1,255}$"
             },
             "useGuiApplication" : {
                 "before" : "QApplication",
@@ -39,45 +44,53 @@
     },
     "android" : {
         "platform/android/AndroidManifest.xml" : {
+            "name" : {
+                "default" : "My Application",
+                "before" : "label=\"-- %%INSERT_APP_NAME%% --\"",
+                "after" : "label=\"@@@@@@\"",
+                "validator" : "^[^@<&\\?\\\"]{1,50}$"
+            },
             "package" : {
                 "default" : "com.example.myapplication",
                 "before" : "package=\"com.objectwheel.interpreter\"",
-                "after" : "package=\"@@@@@@\""
-            },
-            "minApiLevel" : {
-                "before" : "minSdkVersion=\"21\"",
-                "after" : "minSdkVersion=\"@@@@@@\""
-            },
-            "targetApiLevel" : {
-                "before" : "targetSdkVersion=\"23\"",
-                "after" : "targetSdkVersion=\"@@@@@@\""
+                "after" : "package=\"@@@@@@\"",
+                "validator" : "^[a-zA-Z0-9_\\.]{1,255}$"
             },
             "versionName" : {
                 "default" : "Version 1.0",
                 "before" : "versionName=\"3.0\"",
-                "after" : "versionName=\"@@@@@@\""
+                "after" : "versionName=\"@@@@@@\"",
+                "validator" : "^[^@<&\\?\\\"]{1,255}$"
             },
             "versionCode" : {
                 "default" : "1",
                 "before" : "versionCode=\"3\"",
-                "after" : "versionCode=\"@@@@@@\""
+                "after" : "versionCode=\"@@@@@@\"",
+                "validator" : "^[0-9]{1,10}$"
             },
-            "name" : {
-                "default" : "My Application",
-                "before" : "label=\"-- %%INSERT_APP_NAME%% --\"",
-                "after" : "label=\"@@@@@@\""
+            "minApiLevel" : {
+                "before" : "minSdkVersion=\"21\"",
+                "after" : "minSdkVersion=\"@@@@@@\"",
+                "validator" : "^[0-9]{1,2}$"
+            },
+            "targetApiLevel" : {
+                "before" : "targetSdkVersion=\"23\"",
+                "after" : "targetSdkVersion=\"@@@@@@\"",
+                "validator" : "^[0-9]{1,2}$"
             },
             "screenOrientation" : {
                 "before" : "screenOrientation=\"unspecified\"",
-                "after" : "screenOrientation=\"@@@@@@\""
+                "after" : "screenOrientation=\"@@@@@@\"",
+                "validator" : "^[a-zA-Z]{1,50}$"
+            },
+            "permissions" : {
+                "before" : "<!-- #permissions -->",
+                "after" : "<uses-permission android:name=\"@@@@@@\"/>",
+                "validator" : "^[a-zA-Z_\\.]{1,255}$"
             },
             "icon" : {
                 "before" : "<application",
                 "after" : "<application android:icon=\"@drawable/icon\""
-            },
-            "permissions" : {
-                "before" : "<!-- #permissions -->",
-                "after" : "<uses-permission android:name=\"@@@@@@\"/>"
             }
         }
     }
