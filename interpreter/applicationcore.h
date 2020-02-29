@@ -1,7 +1,6 @@
 #ifndef APPLICATIONCORE_H
 #define APPLICATIONCORE_H
 
-#include <cleanexit.h>
 #include <projectmanager.h>
 #include <broadcastingmanager.h>
 #include <QSettings>
@@ -31,7 +30,6 @@ public:
 
 private:
     static ApplicationCore* s_instance;
-    CleanExit m_cleanExit;
     QSettings m_settings;
     ProjectManager m_projectManager;
     BroadcastingManager m_broadcastingManager;

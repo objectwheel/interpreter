@@ -37,10 +37,10 @@ SOURCES += $$PWD/main.cpp \
            $$PWD/connectivitywidget.cpp \
            $$PWD/utilityfunctions.cpp \
            $$PWD/projectmanager.cpp \
+           $$PWD/signalwatcher.cpp \
            $$PWD/progressbar.cpp
 
-HEADERS += $$PWD/cleanexit.h \
-           $$PWD/qmlapplication.h \
+HEADERS += $$PWD/qmlapplication.h \
            $$PWD/applicationcore.h \
            $$PWD/qmlcomponent.h \
            $$PWD/saveutils.h \
@@ -55,6 +55,7 @@ HEADERS += $$PWD/cleanexit.h \
            $$PWD/connectivitywidget.h \
            $$PWD/utilityfunctions.h \
            $$PWD/projectmanager.h \
+           $$PWD/signalwatcher.h \
            $$PWD/progressbar.h
 
 ios|android {
