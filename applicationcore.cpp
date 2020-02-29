@@ -19,15 +19,13 @@ ApplicationCore::ApplicationCore() : m_qmlApplication(CommandlineParser::project
     QApplication::setOrganizationDomain(QStringLiteral(APP_DOMAIN));
     QApplication::setApplicationDisplayName(QStringLiteral(APP_NAME) + QObject::tr(" Interpreter"));
     QApplication::setWindowIcon(QIcon(QStringLiteral(":/images/icon.png")));
+    QApplication::setFont(UtilityFunctions::systemDefaultFont());
 
     QObject::connect(SignalWatcher::instance(), &SignalWatcher::signal,
                      QCoreApplication::instance(), [] (int signal) {
         fputs(qPrintable(QStringLiteral("Quit the application by signal(%1)\n").arg(QString::number(signal))), stderr);
         QCoreApplication::exit(EXIT_FAILURE);
     });
-
-    /* Set application ui settings */
-    QApplication::setFont(UtilityFunctions::systemDefaultFont());
 
     // Connections
     QObject::connect(&m_qmlApplication, &QmlApplication::quit,
