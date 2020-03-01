@@ -3,7 +3,6 @@
 #include <utilityfunctions.h>
 #include <saveutils.h>
 #include <qmlapplication.h>
-#include <signalwatcher.h>
 
 #include <QGuiApplication>
 #include <QStandardPaths>
@@ -27,12 +26,6 @@ ApplicationCore::ApplicationCore() : m_qmlApplication(new QmlApplication(project
     /** Core initialization **/
     // TODO: QGuiApplication::setWindowIcon(QIcon(":/images/icon.png"));
     QGuiApplication::setFont(UtilityFunctions::systemDefaultFont());
-
-    QObject::connect(SignalWatcher::instance(), &SignalWatcher::signal,
-                     QCoreApplication::instance(), [] (int signal) {
-        fputs(qPrintable(QStringLiteral("Quit the application by signal(%1)\n").arg(QString::number(signal))), stderr);
-        QCoreApplication::exit(EXIT_FAILURE);
-    });
 
     QObject::connect(m_qmlApplication, &QmlApplication::quit,
                      QGuiApplication::instance(), &QGuiApplication::quit, Qt::QueuedConnection);
