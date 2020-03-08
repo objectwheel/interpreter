@@ -3,6 +3,7 @@
 #include <quicktheme.h>
 #include <saveutils.h>
 #include <utilityfunctions.h>
+#include <signalwatcher.h>
 
 #include <QtWebView>
 #include <QApplication>
@@ -19,6 +20,11 @@ ApplicationCore::ApplicationCore() : m_qmlApplication(CommandlineParser::project
     QApplication::setApplicationDisplayName(QStringLiteral(APP_NAME) + QObject::tr(" Interpreter"));
     QApplication::setWindowIcon(QIcon(QStringLiteral(":/images/icon.png")));
     QApplication::setFont(UtilityFunctions::systemDefaultFont());
+
+    // Handle signals
+    QObject::connect(SignalWatcher::instance(), &SignalWatcher::signal,
+                     SignalWatcher::instance(), &SignalWatcher::defaultInterruptAction,
+                     Qt::QueuedConnection);
 
     // Connections
     QObject::connect(&m_qmlApplication, &QmlApplication::quit,
