@@ -1,5 +1,4 @@
 #include <applicationcore.h>
-#include <cleanexit.h>
 #include <QApplication>
 
 int main(int argc, char* argv[])
@@ -22,5 +21,5 @@ int main(int argc, char* argv[])
     Q_UNUSED(core)
 
     // Start main event loop
-    return CleanExit::exec(app);
+    return app.exec();
 }

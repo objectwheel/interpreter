@@ -3,6 +3,7 @@
 #include <utilityfunctions.h>
 #include <saveutils.h>
 #include <qmlapplication.h>
+#include <signalwatcher.h>
 
 #include <QGuiApplication>
 #include <QStandardPaths>
@@ -32,6 +33,11 @@ ApplicationCore::ApplicationCore() : m_qmlApplication(new QmlApplication(project
     QObject::connect(m_qmlApplication, &QmlApplication::exit,
                      QGuiApplication::instance(), &QGuiApplication::exit, Qt::QueuedConnection);
     m_qmlApplication->run();
+
+    // Handle signals
+    QObject::connect(SignalWatcher::instance(), &SignalWatcher::signal,
+                     SignalWatcher::instance(), &SignalWatcher::defaultInterruptAction,
+                     Qt::QueuedConnection);
 
 #if defined(Q_OS_ANDROID)
     const bool isFullScreen = UtilityFunctions::isAnyChildWindowFullScreen(m_qmlApplication->rootObject());

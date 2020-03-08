@@ -20,7 +20,7 @@ SOURCES     += $$PWD/main.cpp \
                $$PWD/qmlcomponent.cpp \
                $$PWD/saveutils.cpp \
                $$PWD/quicktheme.cpp \
-               $$PWD/cleanexit.cpp \
+               $$PWD/signalwatcher.cpp \
                $$PWD/utilityfunctions.cpp
 
 HEADERS     += $$PWD/qmlapplication.h \
@@ -28,7 +28,7 @@ HEADERS     += $$PWD/qmlapplication.h \
                $$PWD/qmlcomponent.h \
                $$PWD/saveutils.h \
                $$PWD/quicktheme.h \
-               $$PWD/cleanexit.h \
+               $$PWD/signalwatcher.h \
                $$PWD/utilityfunctions.h
 
 OTHER_FILES += $$PWD/server.json
