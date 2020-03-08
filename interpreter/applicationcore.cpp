@@ -6,6 +6,7 @@
 #include <hashfactory.h>
 #include <centralwidget.h>
 #include <progressbar.h>
+#include <signalwatcher.h>
 
 #include <QApplication>
 #include <QJsonObject>
@@ -30,6 +31,11 @@ ApplicationCore::ApplicationCore() : m_settings(ApplicationCore::settingsPath(),
     QApplication::setApplicationDisplayName(QStringLiteral(APP_NAME));
     QApplication::setWindowIcon(QIcon(QStringLiteral(":/images/icon.png")));
     QApplication::setFont(UtilityFunctions::systemDefaultFont());
+
+    // Handle signals
+    QObject::connect(SignalWatcher::instance(), &SignalWatcher::signal,
+                     SignalWatcher::instance(), &SignalWatcher::defaultInterruptAction,
+                     Qt::QueuedConnection);
 
     m_applicationWindow = new ApplicationWindow;
 #if defined(Q_OS_IOS) || defined(Q_OS_ANDROID)
