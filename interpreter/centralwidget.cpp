@@ -18,11 +18,11 @@ const QLatin1String g_buttonStyleSheet(
         "    border-bottom: 1px solid #40000000;"
         "    border-radius: 3px;"
         "    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,"
-        "                                      stop: 0 #3E474F, stop: 1 #3C454C);"
+        "                                      stop: 0 #18ffffff, stop: 1 #10ffffff);"
         "}"
         "QPushButton:pressed {"
         "    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,"
-        "                                      stop: 0 #38434C, stop: 1 #364149);"
+        "                                      stop: 0 #08ffffff, stop: 1 #01ffffff);"
         "}"
         );
 
@@ -116,7 +116,7 @@ CentralWidget::CentralWidget(QWidget* parent) : QWidget(parent)
     QFont font;
     font.setPixelSize(16);
     m_titleLabel->setFont(font);
-    m_titleLabel->setText(QStringLiteral(APP_NAME));
+    m_titleLabel->setText("<center>Live Device Debugger</center>");
 
     font.setPixelSize(13);
     m_versionLabel->setFont(font);

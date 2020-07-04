@@ -52,8 +52,8 @@ ApplicationCore::ApplicationCore() : m_settings(ApplicationCore::settingsPath(),
     palette.setColor(QPalette::Active, QPalette::ButtonText, "#e5e5e5");
     palette.setColor(QPalette::Inactive, QPalette::ButtonText, "#e5e5e5");
     palette.setColor(QPalette::Disabled, QPalette::ButtonText, "#b0b0b0");
-    palette.setColor(QPalette::Window, "#2F363C");
-    palette.setColor(QPalette::Base, "#2F363C");
+    palette.setColor(QPalette::Window, "#343434");
+    palette.setColor(QPalette::Base, "#343434");
     m_applicationWindow->setPalette(palette);
     m_applicationWindow->show();
 

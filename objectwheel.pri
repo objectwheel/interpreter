@@ -33,7 +33,7 @@ equals(SZVER, 1) {
 VERSION = $$section(CONF_VERSION, ., 0, 1)$$ZEROS$$COMMIT_VER
 GIT_HASH = $$section(CONF_VERSION, ., 3, 4)
 GIT_HASH ~= s/g/""
-GIT_DATE = $$system($$BASE_GIT_COMMAND log -1 --format=%cd)
+GIT_DATE = $$system($$BASE_GIT_COMMAND log -1 --date=iso-strict --format=%cd)
 
 equals(GIT_HASH, ) {
     GIT_HASH = master
@@ -52,7 +52,7 @@ macx {
 ### Defines
 DEFINES += APP_VER='"\\\"$$VERSION\\\""' \
            APP_NAME='"\\\"$$TARGET\\\""' \
-           APP_CORP='"\\\"Objectwheel, Inc.\\\""' \
+           APP_CORP='"\\\"Objectwheel\\\""' \
            APP_DOMAIN='"\\\"objectwheel.com\\\""' \
            APP_GITVER='"\\\"$$GIT_VERSION\\\""' \
            APP_GITHASH='"\\\"$$GIT_HASH\\\""' \

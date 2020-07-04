@@ -32,6 +32,8 @@ ApplicationWindow::ApplicationWindow(QWidget* parent) : QMainWindow(parent)
             BroadcastingManager::instance(), &BroadcastingManager::setDisabled);
     connect(m_centralWidget, &CentralWidget::quitButtonClicked,
             QApplication::instance(), &QApplication::quit, Qt::QueuedConnection);
+
+    resize(sizeHint());
 }
 
 CentralWidget* ApplicationWindow::centralWidget() const
@@ -41,7 +43,7 @@ CentralWidget* ApplicationWindow::centralWidget() const
 
 QSize ApplicationWindow::sizeHint() const
 {
-    return {342, 608};
+    return {342, 686};
 }
 
 bool ApplicationWindow::mightThemeChange(const QString& uid)
