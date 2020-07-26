@@ -25,7 +25,7 @@ HEADERS += $$PWD/qmlapplication.h \
            $$PWD/qmlcomponent.h
 
 ### Includes
-include($$PWD/../objectwheel.pri)
+include($$PWD/../app.pri)
 include($$PWD/platform/platform.pri)
 include($$PWD/resources/resources.pri)
 
