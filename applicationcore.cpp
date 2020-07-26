@@ -4,20 +4,25 @@
 #include <saveutils.h>
 #include <utilityfunctions.h>
 #include <signalwatcher.h>
+#include <appconstants.h>
 
 #include <QtWebView>
 #include <QApplication>
 #include <QIcon>
 #include <QTimer>
 
+#ifdef DOMAIN
+#undef DOMAIN
+#endif
+
 ApplicationCore::ApplicationCore() : m_qmlApplication(CommandlineParser::projectDirectory())
 {
     /** Core initialization **/
-    QApplication::setApplicationName(QStringLiteral(APP_NAME));
-    QApplication::setOrganizationName(QStringLiteral(APP_CORP));
-    QApplication::setApplicationVersion(QStringLiteral(APP_VER));
-    QApplication::setOrganizationDomain(QStringLiteral(APP_DOMAIN));
-    QApplication::setApplicationDisplayName(QStringLiteral(APP_NAME) + QObject::tr(" Interpreter"));
+    QApplication::setApplicationName(AppConstants::NAME);
+    QApplication::setOrganizationName(AppConstants::COMPANY);
+    QApplication::setApplicationVersion(AppConstants::VERSION);
+    QApplication::setOrganizationDomain(AppConstants::DOMAIN);
+    QApplication::setApplicationDisplayName(AppConstants::LABEL);
     QApplication::setWindowIcon(QIcon(QStringLiteral(":/images/icon.png")));
     QApplication::setFont(UtilityFunctions::systemDefaultFont());
 
