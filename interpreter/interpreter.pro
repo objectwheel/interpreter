@@ -1,10 +1,3 @@
-### Includes
-include($$PWD/../objectwheel.pri)
-include($$PWD/interpreter.pri)
-include($$PWD/platform/platform.pri)
-include($$PWD/resources/resources.pri)
-include($$PWD/zipasync/zipasync.pri)
-
 ### App Settings
 CONFIG  -= qtquickcompiler
 CONFIG  += c++14 strict_c++
@@ -40,7 +33,8 @@ SOURCES += $$PWD/main.cpp \
            $$PWD/signalwatcher.cpp \
            $$PWD/progressbar.cpp
 
-HEADERS += $$PWD/qmlapplication.h \
+HEADERS += $$PWD/appconstants.h \
+           $$PWD/qmlapplication.h \
            $$PWD/applicationcore.h \
            $$PWD/qmlcomponent.h \
            $$PWD/saveutils.h \
@@ -62,3 +56,10 @@ ios|android {
     SOURCES += $$PWD/quitbutton.cpp
     HEADERS += $$PWD/quitbutton.h
 }
+
+### Includes
+include($$PWD/../objectwheel.pri)
+include($$PWD/interpreter.pri)
+include($$PWD/platform/platform.pri)
+include($$PWD/resources/resources.pri)
+include($$PWD/zipasync/zipasync.pri)

@@ -52,12 +52,9 @@ macx {
 ### Defines
 DEFINES += APP_VER='"\\\"$$VERSION\\\""' \
            APP_NAME='"\\\"$$TARGET\\\""' \
-           APP_CORP='"\\\"Objectwheel\\\""' \
-           APP_DOMAIN='"\\\"objectwheel.com\\\""' \
-           APP_GITVER='"\\\"$$GIT_VERSION\\\""' \
-           APP_GITHASH='"\\\"$$GIT_HASH\\\""' \
-           APP_GITDATE='"\\\"$$GIT_DATE\\\""' \
-           APP_WSSSERVER='"\\\"wss://api.objectwheel.com:4443\\\""'
+           APP_LABEL='"\\\"Objectwheel $$TARGET\\\""' \
+           APP_REVISION='"\\\"$$GIT_HASH\\\""' \
+           APP_BUILD_DATE='"\\\"$$GIT_DATE\\\""'
 
 CONFIG(release, debug | release) {
     !infile($$VERSION_FILE, PREVIOUS_VERSION, $$GIT_VERSION) {

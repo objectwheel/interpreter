@@ -7,6 +7,7 @@
 #include <centralwidget.h>
 #include <progressbar.h>
 #include <signalwatcher.h>
+#include <appconstants.h>
 
 #include <QApplication>
 #include <QJsonObject>
@@ -28,7 +29,7 @@ ApplicationCore::ApplicationCore() : m_settings(ApplicationCore::settingsPath(),
     s_instance = this;
 
     /** Core initialization **/
-    QApplication::setApplicationDisplayName(QStringLiteral(APP_NAME));
+    QApplication::setApplicationDisplayName(AppConstants::LABEL);
     QApplication::setWindowIcon(QIcon(QStringLiteral(":/images/icon.png")));
     QApplication::setFont(UtilityFunctions::systemDefaultFont());
 
@@ -168,10 +169,10 @@ ApplicationCore::~ApplicationCore()
 void ApplicationCore::prepare()
 {
     // Set those here, needed by QStandardPaths
-    QApplication::setApplicationName(QStringLiteral(APP_NAME));
-    QApplication::setOrganizationName(QStringLiteral(APP_CORP));
-    QApplication::setApplicationVersion(QStringLiteral(APP_VER));
-    QApplication::setOrganizationDomain(QStringLiteral(APP_DOMAIN));
+    QApplication::setApplicationName(AppConstants::NAME);
+    QApplication::setOrganizationName(AppConstants::COMPANY);
+    QApplication::setApplicationVersion(AppConstants::VERSION);
+    QApplication::setOrganizationDomain(AppConstants::DOMAIN);
 
     if (!recentProjectUid().isEmpty())
         QuickTheme::setTheme(ProjectManager::projectDirectory(recentProjectUid()));
@@ -259,7 +260,7 @@ QVariantMap ApplicationCore::deviceInfo()
         {QStringLiteral("productType"), QSysInfo::productType()},
         {QStringLiteral("deviceName"), CrossPlatform::deviceName()},
         {QStringLiteral("deviceUid"), deviceUid()},
-        {QStringLiteral("version"), QLatin1String(APP_VER)},
+        {QStringLiteral("version"), AppConstants::VERSION},
         {QStringLiteral("isEmulator"), CrossPlatform::isEmulator()}
     };
     return info.toVariantMap();

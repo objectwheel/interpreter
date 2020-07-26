@@ -2,6 +2,7 @@
 #include <connectivitywidget.h>
 #include <broadcastingmanager.h>
 #include <progressbar.h>
+#include <appconstants.h>
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -120,8 +121,8 @@ CentralWidget::CentralWidget(QWidget* parent) : QWidget(parent)
 
     font.setPixelSize(13);
     m_versionLabel->setFont(font);
-    m_versionLabel->setText(QStringLiteral("v") + QStringLiteral(APP_VER) +
-                            QStringLiteral(" (") + QStringLiteral(APP_GITHASH) + QStringLiteral(")"));
+    m_versionLabel->setText(QStringLiteral("v") + AppConstants::VERSION +
+                            QStringLiteral(" (") + AppConstants::REVISION + QStringLiteral(")"));
 
     m_progressBar->hide();
 

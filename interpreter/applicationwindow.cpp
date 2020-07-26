@@ -5,6 +5,7 @@
 #include <broadcastingmanager.h>
 #include <projectmanager.h>
 #include <quicktheme.h>
+#include <appconstants.h>
 
 #include <QApplication>
 #include <QMessageBox>
@@ -18,7 +19,7 @@ ApplicationWindow::ApplicationWindow(QWidget* parent) : QMainWindow(parent)
   , m_connectionStatusWidget(new ConnectionStatusWidget(m_view))
   , m_centralWidget(new CentralWidget(m_view))
 {
-    setWindowTitle(QStringLiteral(APP_NAME));
+    setWindowTitle(AppConstants::LABEL);
     setCentralWidget(m_view);
 
 #if defined(Q_OS_IOS)
