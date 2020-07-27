@@ -8,7 +8,9 @@ macx {
 }
 
 #Copy project
-exists($$PWD/Project.rcc) {
+exists($$PWD/Project/Project.qrc) {
+    RESOURCES += $$PWD/Project/Project.qrc
+} else:exists($$PWD/Project.rcc) {
     macx {
         project.files = $$PWD/Project.rcc
         project.path = Contents/Resources

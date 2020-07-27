@@ -56,7 +56,8 @@ ApplicationCore::~ApplicationCore()
 
 void ApplicationCore::prepare()
 {
-    QResource::registerResource(projectResourcePath(), projectPath());
+    if (QFileInfo::exists(projectResourcePath()))
+        QResource::registerResource(projectResourcePath());
 
     // FIXME: NEED THIS?
     // QGuiApplication::setAttribute(Qt::AA_UseSoftwareOpenGL); // For webview tooltips
@@ -108,6 +109,6 @@ QString ApplicationCore::projectResourcePath()
 #elif defined(Q_OS_IOS) || defined(Q_OS_MACOS)
     return QStandardPaths::standardLocations(QStandardPaths::AppDataLocation).last() + QStringLiteral("/Project.rcc");
 #else
-    return "/Users/omergoktas/Desktop/Project.rcc";
+    return "/Users/someuser/Desktop/Project.rcc";
 #endif
 }
