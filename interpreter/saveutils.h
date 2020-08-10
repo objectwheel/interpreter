@@ -37,8 +37,7 @@ enum UserProperties : quint32 { // ### Designer related properties
     UserSignature = 0x3000,
     UserVersion,
     UserEmail,
-    UserPassword,
-    UserPlan
+    UserPassword
 };
 
 QString controlMainQmlFileName();
@@ -72,7 +71,6 @@ QDateTime projectCreationDate(const QString& projectDir);
 QDateTime projectModificationDate(const QString& projectDir);
 QByteArray projectTheme(const QString& projectDir);
 
-quint32 userPlan(const QString& userDir);
 QString userEmail(const QString& userDir);
 QByteArray userPassword(const QString& userDir);
 
