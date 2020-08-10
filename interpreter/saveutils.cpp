@@ -366,11 +366,6 @@ QByteArray projectTheme(const QString& projectDir)
     return Internal::property(projectDir, ProjectTheme).value<QByteArray>();
 }
 
-quint32 userPlan(const QString& userDir)
-{
-    return Internal::property(userDir, UserPlan).value<quint32>();
-}
-
 QString userEmail(const QString& userDir)
 {
     return Internal::property(userDir, UserEmail).value<QString>();
