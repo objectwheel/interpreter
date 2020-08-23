@@ -54,6 +54,7 @@ void ApplicationCore::prepare()
     if (SaveUtils::projectHdpiScaling(CommandlineParser::projectDirectory())) {
         QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
         QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+        QApplication::setHighDpiScaleFactorRoundingPolicy(Qt::HighDpiScaleFactorRoundingPolicy::PassThrough);
     }
 
     qputenv("QT_FORCE_STDERR_LOGGING", "1");
