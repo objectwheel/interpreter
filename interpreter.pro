@@ -1,7 +1,8 @@
 ### App Settings
-CONFIG  -= app_bundle
-CONFIG  += console c++14 strict_c++
+CONFIG  += cmdline c++14 strict_c strict_c++ utf8_source hide_symbols
 TARGET   = Interpreter
+gcc:QMAKE_CXXFLAGS += -pedantic-errors
+msvc:QMAKE_CXXFLAGS += -permissive-
 DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000
 
 QT += widgets network qml quick webview websockets datavisualization
@@ -11,7 +12,6 @@ QT += qml-private quicktemplates2-private
 
 ### Sources
 INCLUDEPATH += $$PWD
-DEPENDPATH  += $$PWD
 
 SOURCES += $$PWD/main.cpp \
            $$PWD/qmlapplication.cpp \

@@ -11,17 +11,13 @@
 #include <QIcon>
 #include <QTimer>
 
-#ifdef DOMAIN
-#undef DOMAIN
-#endif
-
 ApplicationCore::ApplicationCore() : m_qmlApplication(CommandlineParser::projectDirectory())
 {
     /** Core initialization **/
     QApplication::setApplicationName(AppConstants::NAME);
     QApplication::setOrganizationName(AppConstants::COMPANY);
     QApplication::setApplicationVersion(AppConstants::VERSION);
-    QApplication::setOrganizationDomain(AppConstants::DOMAIN);
+    QApplication::setOrganizationDomain(AppConstants::ROOT_DOMAIN);
     QApplication::setApplicationDisplayName(AppConstants::LABEL);
     QApplication::setWindowIcon(QIcon(QStringLiteral(":/images/icon.png")));
     QApplication::setFont(UtilityFunctions::systemDefaultFont());

@@ -1,7 +1,2 @@
-windows {
-    include($$PWD/windows/windows.pri)
-}
-
-macx {
-    include($$PWD/macx/macx.pri)
-}
+macos:include($$PWD/macos/macos.pri)
+windows:include($$PWD/windows/windows.pri)
