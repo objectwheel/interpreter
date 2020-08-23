@@ -24,10 +24,11 @@ HEADERS += $$PWD/qmlapplication.h \
            $$PWD/commandlineparser.h \
            $$PWD/qmlcomponent.h
 
+RESOURCES += $$PWD/resources/resources.qrc
+
 ### Includes
 include($$PWD/../app.pri)
 include($$PWD/platform/platform.pri)
-include($$PWD/resources/resources.pri)
 
 ### Utils Settings
 INCLUDEPATH += $$PWD/../utils
