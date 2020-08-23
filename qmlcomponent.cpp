@@ -14,22 +14,22 @@ QObject* QmlComponentPrivate::beginCreate(QQmlContextData* context)
     Q_Q(QQmlComponent);
 
     if (!context) {
-        qWarning("QQmlComponent: Cannot create a component in a null context");
+        qWarning("QQmlComponent: Cannot establish a component in a null context");
         return nullptr;
     }
 
     if (!context->isValid()) {
-        qWarning("QQmlComponent: Cannot create a component in an invalid context");
+        qWarning("QQmlComponent: Cannot establish a component in an invalid context");
         return nullptr;
     }
 
     if (context->engine != engine) {
-        qWarning("QQmlComponent: Must create component in context from the same QQmlEngine");
+        qWarning("QQmlComponent: Must establish component in context from the same QQmlEngine");
         return nullptr;
     }
 
     if (state.completePending) {
-        qWarning("QQmlComponent: Cannot create new component instance before completing the previous");
+        qWarning("QQmlComponent: Cannot establish new component instance before completing the previous");
         return nullptr;
     }
 

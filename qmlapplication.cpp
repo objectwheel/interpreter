@@ -89,10 +89,10 @@ void QmlApplication::run()
     for (const QString& formPath : qAsConst(initInfo.forms))
         initInfo.children.insert(formPath, SaveUtils::childrenPaths(formPath));
 
-    // Create instances, handle parent-child relationship, set ids, save form instances
+    // Establish instances, handle parent-child relationship, set ids, save form instances
     bool hasErrors = false;
     for (const QString& formPath : qAsConst(initInfo.forms)) {
-        const ControlInstance& formInstance = createInstance(formPath, ControlInstance());
+        const ControlInstance& formInstance = establishInstance(formPath, ControlInstance());
         if (!formInstance.object) {
             hasErrors = true;
             continue;
@@ -105,7 +105,7 @@ void QmlApplication::run()
             if (!parentInstance.object)
                 continue;
 
-            const ControlInstance& childInstance = createInstance(childPath, parentInstance);
+            const ControlInstance& childInstance = establishInstance(childPath, parentInstance);
 
             if (!childInstance.object) {
                 hasErrors = true;
@@ -171,10 +171,10 @@ void QmlApplication::setInstanceParent(QmlApplication::ControlInstance* instance
     }
 }
 
-QmlApplication::ControlInstance QmlApplication::createInstance(const QString& dir,
-                                                               const ControlInstance& parentInstance)
+QmlApplication::ControlInstance QmlApplication::establishInstance(const QString& dir,
+                                                                  const ControlInstance& parentInstance)
 {
-    Q_ASSERT_X(SaveUtils::isControlValid(dir), "createInstance", "Owctrl™ structure is corrupted.");
+    Q_ASSERT_X(SaveUtils::isControlValid(dir), "establishInstance", "Owctrl™ structure is corrupted.");
 
     const QString& url = SaveUtils::toControlMainQmlFile(dir);
     const QString& id = SaveUtils::controlId(dir);

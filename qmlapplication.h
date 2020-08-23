@@ -40,7 +40,7 @@ public slots:
 private:
     QQuickItem* guiItem(QObject* object);
     void setInstanceParent(QmlApplication::ControlInstance* instance, QObject* parentObject);
-    ControlInstance createInstance(const QString& dir, const ControlInstance& parentInstance);
+    ControlInstance establishInstance(const QString& dir, const ControlInstance& parentInstance);
 
 private:
     QObject* m_rootObject;
