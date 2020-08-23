@@ -2,9 +2,14 @@
 #include <qmlcomponent.h>
 #include <saveutils.h>
 #include <applicationcore.h>
+#include <utilityfunctions.h>
 
+QT_WARNING_PUSH
+QT_WARNING_DISABLE("-Wnested-anon-types")
+QT_WARNING_DISABLE("-Wgnu-anonymous-struct")
 #include <private/qjsengine_p.h>
 #include <private/qquickpopup_p.h>
+QT_WARNING_POP
 
 #include <QQmlContext>
 #include <QQmlProperty>

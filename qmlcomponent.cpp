@@ -1,5 +1,11 @@
 #include <qmlcomponent.h>
+#include <utilityfunctions.h>
+
+QT_WARNING_PUSH
+QT_WARNING_DISABLE("-Wnested-anon-types")
+QT_WARNING_DISABLE("-Wgnu-anonymous-struct")
 #include <private/qqmlcomponent_p.h>
+QT_WARNING_POP
 
 class QmlComponentPrivate : public QQmlComponentPrivate
 {
