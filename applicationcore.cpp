@@ -56,6 +56,7 @@ void ApplicationCore::prepare()
         QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     }
 
+    qputenv("QT_FORCE_STDERR_LOGGING", "1");
     qputenv("QML_DISABLE_DISK_CACHE", "true");
 
     // Not needed on desktop platforms since it
