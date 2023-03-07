@@ -3,7 +3,6 @@
 #include <quicktheme.h>
 #include <saveutils.h>
 #include <utilityfunctions.h>
-#include <signalwatcher.h>
 #include <appconstants.h>
 
 #include <QtWebView>
@@ -23,9 +22,8 @@ ApplicationCore::ApplicationCore() : m_qmlApplication(CommandlineParser::project
     QApplication::setFont(UtilityFunctions::systemDefaultFont());
 
     // Handle signals
-    QObject::connect(SignalWatcher::instance(), &SignalWatcher::signal,
-                     SignalWatcher::instance(), &SignalWatcher::defaultInterruptAction,
-                     Qt::QueuedConnection);
+    QObject::connect(&m_signalHandler, &SignalHandler::interrupted,
+                     &m_signalHandler, &SignalHandler::exitGracefully);
 
     // Connections
     QObject::connect(&m_qmlApplication, &QmlApplication::quit,

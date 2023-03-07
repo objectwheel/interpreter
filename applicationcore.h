@@ -2,6 +2,7 @@
 #define APPLICATIONCORE_H
 
 #include <qmlapplication.h>
+#include <signalhandler.h>
 
 class ApplicationCore final
 {
@@ -15,6 +16,7 @@ public:
     static void prepare();
 
 private:
+    SignalHandler m_signalHandler;
     QmlApplication m_qmlApplication;
 
 public:
